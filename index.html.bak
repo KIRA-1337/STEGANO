@@ -578,39 +578,6 @@ canvas{
  <span>AES-256-GCM + случайная соль/IV</span>
 </div>
 
-<div class="toggle">
- <input id="stripMetadata" type="checkbox" checked>
- <span>Удалить метаданные контейнера (EXIF/IPTC/XMP)</span>
-</div>
-
-<div class="toggle">
- <input id="plausibleDeniability" type="checkbox">
- <span>Plausible Deniability (скрытый том + ложные данные)</span>
-</div>
-
-<div class="toggle">
- <input id="stealthMode" type="checkbox">
- <span>Stealth LSB (адаптивная глубина 1-3 бита)</span>
-</div>
-
-<div class="toggle">
- <input id="addDithering" type="checkbox">
- <span>Добавить шум (защита от chi-square анализа)</span>
-</div>
-
-<div class="toggle">
- <input id="enableHMAC" type="checkbox" checked>
- <span>HMAC для верификации каждого блока</span>
-</div>
-
-<div class="toggle">
- <input id="showDiffView" type="checkbox">
- <span>Показать карту изменений (Diff View)</span>
-</div>
-
-<label>Ложный пароль (для Plausible Deniability)</label>
-<input id="decoyPass" type="password" placeholder="Пароль для видимого контента">
-
 <div class="row3">
 
  <div>
@@ -778,42 +745,6 @@ canvas{
 
 </div>
 
-<div id="diffPanel" class="hidden">
-
- <label>Карта изменений (Diff View)</label>
-
- <div class="overlayWrap">
-  <canvas id="diffCanvas" width="1" height="1"></canvas>
- </div>
-
- <div class="stats" style="margin-top:10px">
-  <div class="stat">
-   <b id="diffChanged">—</b>
-   <small>изменено пикселей</small>
-  </div>
-  <div class="stat">
-   <b id="diffPercent">—</b>
-   <small>процент изменений</small>
-  </div>
-  <div class="stat">
-   <b id="diffTotal">—</b>
-   <small>всего пикселей</small>
-  </div>
- </div>
-
- <div class="legend">
-  <span>
-   <i class="dot used"></i>
-   изменённые пиксели
-  </span>
-  <span>
-   <i class="dot major"></i>
-   неизменённые пиксели
-  </span>
- </div>
-
-</div>
-
 <div id="diagnostics" class="resultBox hidden"></div>
 
 </section>
@@ -883,7 +814,7 @@ canvas{
 const $ = id => document.getElementById(id);
 
 const MAGIC = Uint8Array.from([83,84,71,53]);
-const VERSION = 6;
+const VERSION = 5;
 
 let GRID = 9;
 
@@ -902,54 +833,9 @@ let lastRecoveredMetadata = null;
 let lastCfg = null;
 let lastPacketLength = 0;
 let lastPixelMask = null;
-let lastDiffData = null;
 
 const slotCache = new Map();
 const imageCache = new WeakMap();
-
-/* =========================================================
-   WEB WORKER MANAGER
-========================================================= */
-
-let worker = null;
-let workerId = 0;
-const pendingCallbacks = new Map();
-
-function initWorker() {
- if(!worker) {
-  worker = new Worker('stegano-worker.js');
-  
-  worker.onmessage = function(e) {
-   const { type, result, id } = e.data;
-   
-   if(pendingCallbacks.has(id)) {
-    const cb = pendingCallbacks.get(id);
-    pendingCallbacks.delete(id);
-    cb.resolve(result);
-   }
-  };
- }
-}
-
-function workerCall(type, payload) {
- return new Promise((resolve, reject) => {
-  const id = ++workerId;
-  
-  const timeout = setTimeout(() => {
-   pendingCallbacks.delete(id);
-   reject(new Error('Worker timeout'));
-  }, 30000);
-  
-  pendingCallbacks.set(id, {
-   resolve: r => { clearTimeout(timeout); resolve(r); },
-   reject: e => { clearTimeout(timeout); reject(e); }
-  });
-  
-  worker.postMessage({ type, payload, id });
- });
-}
-
-initWorker();
 
 
 /* =========================================================
@@ -1101,19 +987,6 @@ async function sha256(data){
 
 }
 
-async function computeHMAC(data, keyMaterial) {
- const key = await crypto.subtle.importKey(
-  'raw',
-  typeof keyMaterial === 'string' ? te.encode(keyMaterial) : keyMaterial,
-  { name: 'HMAC', hash: 'SHA-256' },
-  false,
-  ['sign']
- );
- 
- const signature = await crypto.subtle.sign('HMAC', key, data);
- return new Uint8Array(signature);
-}
-
 async function deriveKey(password,salt){
 
  const base =
@@ -1227,117 +1100,6 @@ function fisher(n,rng){
  }
 
  return a;
-}
-
-
-/* =========================================================
-   ADAPTIVE DEPTH (Stealth LSB)
-========================================================= */
-
-function computeAdaptiveDepthMap(c, blockSize = 8) {
- const ctx = c.getContext('2d');
- const img = ctx.getImageData(0, 0, c.width, c.height);
- const data = img.data;
- 
- const depthMap = new Uint8Array(c.width * c.height);
- 
- for(let y = 0; y < c.height; y += blockSize) {
-  for(let x = 0; x < c.width; x += blockSize) {
-   let sum = 0;
-   let sumSq = 0;
-   let count = 0;
-   
-   for(let by = 0; by < blockSize && y + by < c.height; by++) {
-    for(let bx = 0; bx < blockSize && x + bx < c.width; bx++) {
-     const px = (y + by) * c.width + (x + bx);
-     const lum = 0.299 * data[px * 4] + 
-                 0.587 * data[px * 4 + 1] + 
-                 0.114 * data[px * 4 + 2];
-     
-     sum += lum;
-     sumSq += lum * lum;
-     count++;
-    }
-   }
-   
-   const mean = sum / count;
-   const variance = (sumSq / count) - (mean * mean);
-   
-   for(let by = 0; by < blockSize && y + by < c.height; by++) {
-    for(let bx = 0; bx < blockSize && x + bx < c.width; bx++) {
-     const px = (y + by) * c.width + (x + bx);
-     
-     if(variance > 1000) {
-      depthMap[px] = 3;
-     } else if(variance > 100) {
-      depthMap[px] = 2;
-     } else {
-      depthMap[px] = 1;
-     }
-    }
-   }
-  }
- }
- 
- return depthMap;
-}
-
-
-/* =========================================================
-   DITHERING
-========================================================= */
-
-function applyDithering(imageData, intensity = 0.5, seed) {
- const data = imageData.data;
- const rng = makeRng(seed || new Uint8Array([1, 2, 3, 4]));
- 
- for(let i = 0; i < data.length; i += 4) {
-  for(let c = 0; c < 3; c++) {
-   const noise = (rng() - 0.5) * intensity * 255;
-   data[i + c] = Math.max(0, Math.min(255, data[i + c] + noise));
-  }
- }
- 
- return imageData;
-}
-
-
-/* =========================================================
-   DIFF COMPUTATION
-========================================================= */
-
-function computeDiff(before, after) {
- if(!before || !after) return null;
- 
- const width = before.width;
- const height = before.height;
- 
- const diff = new Uint8Array(width * height);
- let changedPixels = 0;
- 
- const beforeData = before.data;
- const afterData = after.data;
- 
- for(let p = 0; p < width * height; p++) {
-  const di = p * 4;
-  
-  if(
-   beforeData[di] !== afterData[di] ||
-   beforeData[di + 1] !== afterData[di + 1] ||
-   beforeData[di + 2] !== afterData[di + 2]
-  ) {
-   diff[p] = 1;
-   changedPixels++;
-  }
- }
- 
- return {
-  width,
-  height,
-  diff,
-  changedPixels,
-  percentage: (changedPixels / (width * height) * 100).toFixed(2)
- };
 }
 
 
@@ -1526,8 +1288,6 @@ function getImageData(c,index){
 /* =========================================================
    WRITE
 ========================================================= */
-
-let adaptiveDepthMap = null;
 
 function writeRegion(
  c,
@@ -2366,41 +2126,6 @@ function loadCanvas(file){
 
 }
 
-/* =========================================================
-   STRIP METADATA (EXIF/IPTC/XMP)
-========================================================= */
-
-async function stripMetadataFromFile(file){
-
- /*
-  * Загружаем изображение и пересохраняем его
-  * через canvas, что удаляет EXIF/IPTC/XMP.
-  * Также нормализуем цветовой профиль.
-  */
-
- const c = await loadCanvas(file);
-
- const ctx = c.getContext('2d');
-
- const imageData = ctx.getImageData(0, 0, c.width, c.height);
-
- /*
-  * Нормализация цветового профиля — просто
-  * сохраняем как PNG без профиля.
-  */
-
- const blob = await new Promise(resolve => {
-  c.toBlob(resolve, 'image/png', 1.0);
- });
-
- return {
-  blob,
-  canvas: c,
-  imageData
- };
-
-}
-
 function cloneCanvas(c){
 
  const o=
@@ -2584,63 +2309,27 @@ wireDrop(
 
   try{
 
-   /*
-    * Если включена опция удаления метаданных,
-    * пересохраняем изображение через canvas.
-    */
+   sourceCanvas=
+    await loadCanvas(file);
 
-   if($('stripMetadata').checked){
+   slotCache.clear();
 
-    status('status1', 'Удаление метаданных (EXIF/IPTC/XMP)...');
+   updateFileInfo(
+    'sourceInfo',
+    file.name,
+    file.size,
+    file.type||'image'
+   );
 
-    const stripped = await stripMetadataFromFile(file);
+   showCanvas(sourceCanvas);
 
-    sourceCanvas = stripped.canvas;
+   updateCapacity();
 
-    slotCache.clear();
-
-    updateFileInfo(
-     'sourceInfo',
-     file.name + ' (без метаданных)',
-     stripped.blob.size,
-     'image/png'
-    );
-
-    showCanvas(sourceCanvas);
-
-    updateCapacity();
-
-    status(
-     'status1',
-     'Изображение загружено без метаданных: '+file.name,
-     'ok'
-    );
-
-   }else{
-
-    sourceCanvas =
-     await loadCanvas(file);
-
-    slotCache.clear();
-
-    updateFileInfo(
-     'sourceInfo',
-     file.name,
-     file.size,
-     file.type||'image'
-    );
-
-    showCanvas(sourceCanvas);
-
-    updateCapacity();
-
-    status(
-     'status1',
-     'Изображение загружено: '+file.name,
-     'ok'
-    );
-
-   }
+   status(
+    'status1',
+    'Изображение загружено: '+file.name,
+    'ok'
+   );
 
   }catch(e){
 
@@ -3051,31 +2740,6 @@ $('encode').onclick=async()=>{
     )
   };
 
-  
-  /* -------------------------
-     STEALTH LSB MODE
-  ------------------------- */
-  
-  const useStealth = $('stealthMode').checked;
-  const applyDither = $('addDithering').checked;
-  
-  if(useStealth) {
-   status('status1', 'Вычисление адаптивной глубины...');
-   adaptiveDepthMap = computeAdaptiveDepthMap(encodedCanvas);
-   await yieldUI();
-  }
-
-
-  /* -------------------------
-     DIFF VIEW (before)
-  ------------------------- */
-  
-  const beforeImageData = 
-   $('showDiffView').checked ?
-   encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height) :
-   null;
-
 
   /* -------------------------
      WRITE ALL COPIES
@@ -3125,102 +2789,11 @@ $('encode').onclick=async()=>{
    }
 
   }
-  
-  
-  /* -------------------------
-     APPLY DITHERING
-  ------------------------- */
-  
-  if(applyDither && !useStealth) {
-   status('status1', 'Применение шума...');
-   
-   const fullImg = encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height);
-   
-   const ditheredImg = applyDithering(fullImg, 0.3, seed);
-   
-   encodedCanvas.getContext('2d')
-    .putImageData(ditheredImg, 0, 0);
-   
-   await yieldUI();
-  }
 
 
   showCanvas(
    encodedCanvas
   );
-
-
-  /* -------------------------
-     DIFF VIEW (after + display)
-  ------------------------- */
-  
-  if(beforeImageData && $('showDiffView').checked) {
-   const afterImageData = encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height);
-   
-   lastDiffData = computeDiff(beforeImageData, afterImageData);
-   
-   /*
-    * Рисуем карту изменений на canvas.
-    */
-   const diffCanvas = $('diffCanvas');
-   diffCanvas.width = lastDiffData.width;
-   diffCanvas.height = lastDiffData.height;
-   
-   const dCtx = diffCanvas.getContext('2d');
-   const outImg = dCtx.createImageData(lastDiffData.width, lastDiffData.height);
-   
-   for(let p = 0; p < lastDiffData.diff.length; p++) {
-    const oi = p * 4;
-    if(lastDiffData.diff[p] === 1) {
-     /* Изменённый пиксель — красный */
-     outImg.data[oi] = 255;
-     outImg.data[oi + 1] = 48;
-     outImg.data[oi + 2] = 79;
-     outImg.data[oi + 3] = 255;
-    } else {
-     /* Неизменённый пиксель — полупрозрачный серый */
-     outImg.data[oi] = 50;
-     outImg.data[oi + 1] = 60;
-     outImg.data[oi + 2] = 75;
-     outImg.data[oi + 3] = 100;
-    }
-   }
-   
-   dCtx.putImageData(outImg, 0, 0);
-   
-   $('diffPanel').classList.remove('hidden');
-   $('diffChanged').textContent = lastDiffData.changedPixels.toLocaleString();
-   $('diffPercent').textContent = lastDiffData.percentage + '%';
-   $('diffTotal').textContent = (lastDiffData.width * lastDiffData.height).toLocaleString();
-  }
-
-  const elapsed = performance.now() - started;
-
-  if(beforeImageData && $('showDiffView').checked) {
-   status(
-    'status1',
-    GRID+'×'+GRID+
-    ' · '+copies+
-    ' копий записано за '+
-    elapsed.toFixed(0)+
-    ' мс. Изменено пикселей: '+
-    lastDiffData.changedPixels+
-    ' ('+lastDiffData.percentage+'%)',
-    'ok'
-   );
-  } else {
-   status(
-    'status1',
-    GRID+'×'+GRID+
-    ' · '+copies+
-    ' копий записано за '+
-    elapsed.toFixed(0)+
-    ' мс.',
-    'ok'
-   );
-  }
 
 
   $('download').disabled=false;
@@ -3234,6 +2807,20 @@ $('encode').onclick=async()=>{
 
   updateCapacity();
 
+
+  const elapsed=
+   performance.now()-started;
+
+
+  status(
+   'status1',
+   GRID+'×'+GRID+
+   ' · '+copies+
+   ' копий записано за '+
+   elapsed.toFixed(0)+
+   ' мс.',
+   'ok'
+  );
 
   $('progress').textContent=
    'Готово. '+
