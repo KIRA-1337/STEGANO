@@ -4,8 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
+<meta name="description" content="Stegano v8 — продвинутая LSB-стеганография с AES-256-GCM, HMAC и Plausible Deniability">
+<meta name="author" content="KIRA-1337">
+<meta name="keywords" content="стеганография, LSB, шифрование, AES, безопасность, скрытие данных">
 
-<title>Stegano v8</title>
+<link rel="canonical" href="https://github.com/KIRA-1337/stegano-v8">
+
+<!-- Open Graph / Social Media -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stegano v8 — LSB Стенография">
+<meta property="og:description" content="Скройте данные в изображениях с профессиональным уровнем защиты">
+<meta property="og:locale" content="ru_RU">
+
+<title>Stegano v8 — Продвинутая LSB-стеганография</title>
 
 <style>
 :root{
@@ -939,7 +950,7 @@ const pendingCallbacks = new Map();
 
 function initWorker() {
  if(!worker) {
-  worker = new Worker('stegano-worker.js');
+  worker = new Worker('stegano-worker.js', { type: 'module' });
   
   worker.onmessage = function(e) {
    const { type, result, id } = e.data;
@@ -949,6 +960,11 @@ function initWorker() {
     pendingCallbacks.delete(id);
     cb.resolve(result);
    }
+  };
+  
+  worker.onerror = function(error) {
+   console.error('Worker error:', error);
+   setStatus('status1', 'Ошибка Web Worker: ' + error.message, 'bad');
   };
  }
 }
@@ -4670,6 +4686,20 @@ updateGridUI();
 updateCapacity();
 
 </script>
+
+<!-- Footer with links -->
+<footer style="margin-top:40px;padding:20px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px">
+ <p style="margin:0 0 8px">
+  Stegano v8 · LSB-стеганография с AES-256-GCM и HMAC
+ </p>
+ <p style="margin:0">
+  <a href="https://github.com/KIRA-1337/stegano-v8" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">GitHub</a>
+  ·
+  <a href="DMG.html" style="color:var(--accent);text-decoration:none">Pixel Damage Tester</a>
+  ·
+  <span style="color:var(--muted)">MIT License</span>
+ </p>
+</footer>
 
 </body>
 </html>
