@@ -1536,7 +1536,9 @@ function writeRegion(
  dist,
  seed,
  index,
- maskSet
+ maskSet,
+ useAdaptiveDepth = false,
+ depthMap = null
 ){
 
  const r=getRegion(c,index);
@@ -1571,42 +1573,52 @@ function writeRegion(
 
   const s=slots[k];
 
-  const bit=s%bpc;
+  /* Stealth LSB: адаптивная глубина */
+  let currentBpc = bpc;
+  if(useAdaptiveDepth && depthMap) {
+   const pixelIndex = Math.floor(s / bpc);
+   const px = r.x + (pixelIndex % r.w);
+   const py = r.y + Math.floor(pixelIndex / r.w);
+   const globalIdx = py * c.width + px;
+   currentBpc = depthMap[globalIdx] || bpc;
+  }
 
-  const ch=Math.floor(s/bpc);
+  const bit = s % currentBpc;
 
-  const pixel=Math.floor(ch/3);
+  const ch = Math.floor(s / currentBpc);
 
-  const channel=ch%3;
+  const pixel = Math.floor(ch / 3);
 
-  const di=pixel*4+channel;
+  const channel = ch % 3;
 
-  const mask=1<<bit;
+  const di = pixel * 4 + channel;
 
-  const old=img.data[di];
+  const mask = 1 << bit;
 
-  const nv=
-   (old&~mask) |
-   (bits[k]<<bit);
+  const old = img.data[di];
 
-  if(nv!==old && maskSet){
+  const nv =
+   (old & ~mask) |
+   (bits[k] << bit);
+
+  if(nv !== old && maskSet){
 
    const px =
     r.x +
-    (pixel%r.w);
+    (pixel % r.w);
 
    const py =
     r.y +
-    Math.floor(pixel/r.w);
+    Math.floor(pixel / r.w);
 
    const pos =
-    py*encodedCanvas.width+px;
+    py * encodedCanvas.width + px;
 
-   maskSet[pos]=1;
+   maskSet[pos] = 1;
 
   }
 
-  img.data[di]=nv;
+  img.data[di] = nv;
 
  }
 
@@ -3097,7 +3109,9 @@ $('encode').onclick=async()=>{
     dist,
     seed,
     i,
-    lastPixelMask.used
+    lastPixelMask.used,
+    useStealth,
+    adaptiveDepthMap
    );
 
    /*
