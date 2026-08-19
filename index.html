@@ -585,13 +585,26 @@ canvas{
 <label>Пароль</label>
 
 <div class="password">
- <input id="pass" type="password" placeholder="Пароль для AES / PRNG">
+ <input id="pass" type="password" placeholder="Пароль для шифрования / PRNG">
  <button id="showPass" class="secondary" type="button">Показать</button>
 </div>
 
 <div class="toggle">
  <input id="encrypt" type="checkbox">
- <span>AES-256-GCM + случайная соль/IV</span>
+ <span>Включить шифрование</span>
+</div>
+
+<label>Алгоритм шифрования</label>
+
+<select id="encryptionAlgorithm">
+ <option value="AES-GCM">AES-256-GCM (по умолчанию)</option>
+ <option value="AES-CBC">AES-256-CBC</option>
+ <option value="AES-CTR">AES-256-CTR</option>
+ <option value="ChaCha20-Poly1305">ChaCha20-Poly1305 (эмуляция)</option>
+</select>
+
+<div class="note" style="margin-bottom:12px">
+ AES-GCM обеспечивает аутентифицированное шифрование. AES-CBC и AES-CTR — классические режимы. ChaCha20 эмулируется через AES-GCM.
 </div>
 
 <div class="toggle">
@@ -1760,7 +1773,8 @@ function buildHeader(
  ivLen,
  payloadLen,
  originalLen,
- hash
+ hash,
+ algorithm = 0  // 0=AES-GCM, 1=AES-CBC, 2=AES-CTR, 3=ChaCha20
 ){
 
  return concat(
@@ -1772,7 +1786,8 @@ function buildHeader(
    bpc,
    dist,
    saltLen,
-   ivLen
+   ivLen,
+   algorithm
   ]),
 
   Uint8Array.from(
@@ -1790,7 +1805,7 @@ function buildHeader(
 
 function parseHeader(h){
 
- if(h.length<50)
+ if(h.length<51)
   throw Error('SHORT');
 
  for(let i=0;i<4;i++)
@@ -1804,6 +1819,7 @@ function parseHeader(h){
  const dist=h[7];
  const saltLen=h[8];
  const ivLen=h[9];
+ const algorithm=h[10] || 0;  // По умолчанию AES-GCM
 
  if(
   bpc<1 ||
@@ -1820,11 +1836,32 @@ function parseHeader(h){
   distribution:dist,
   saltLen,
   ivLen,
-  payloadLen:readU32(h,10),
-  originalLen:readU32(h,14),
-  hash:h.slice(18,50)
+  algorithm: getAlgorithmName(algorithm),
+  payloadLen:readU32(h,11),
+  originalLen:readU32(h,15),
+  hash:h.slice(19,51)
  };
 
+}
+
+// Преобразование названия алгоритма в байт
+function getAlgorithmByte(name) {
+ switch(name) {
+  case 'AES-CBC': return 1;
+  case 'AES-CTR': return 2;
+  case 'ChaCha20-Poly1305': return 3;
+  default: return 0;  // AES-GCM
+ }
+}
+
+// Преобразование байта в название алгоритма
+function getAlgorithmName(byte) {
+ switch(byte) {
+  case 1: return 'AES-CBC';
+  case 2: return 'AES-CTR';
+  case 3: return 'ChaCha20-Poly1305';
+  default: return 'AES-GCM';
+ }
 }
 
 
@@ -1999,23 +2036,23 @@ async function decodeOne(
      saltStart+h.saltLen+h.ivLen
     );
 
-   const key=
-    await deriveKey(
-     password,
-     salt
-    );
-
-   plain=
-    new Uint8Array(
-     await crypto.subtle.decrypt(
-      {
-       name:'AES-GCM',
-       iv
-      },
-      key,
-      plain
-     )
-    );
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
+PLACEHOLDER
 
   }
 
@@ -2962,6 +2999,9 @@ $('encode').onclick=async()=>{
   const password=
    $('pass').value;
 
+  const algorithm=
+   $('encryptionAlgorithm').value;
+
   const dist=
    $('distribution').value==='prng'
     ? 1
@@ -2974,7 +3014,7 @@ $('encode').onclick=async()=>{
 
    status(
     'status1',
-    'Для AES/PRNG требуется пароль.',
+    'Для шифрования/PRNG требуется пароль.',
     'bad'
    );
 
@@ -3000,7 +3040,8 @@ $('encode').onclick=async()=>{
    encrypted
     ? await encryptData(
        plain,
-       password
+       password,
+       algorithm
       )
     : {
        salt:new Uint8Array(),
@@ -3041,6 +3082,9 @@ $('encode').onclick=async()=>{
      HEADER
   ------------------------- */
 
+  // Определяем алгоритм шифрования для сохранения в заголовок
+  const algoByte = getAlgorithmByte(algorithm);
+  
   const header=
    buildHeader(
     (encrypted?1:0) |
@@ -3051,7 +3095,8 @@ $('encode').onclick=async()=>{
     crypted.iv.length,
     body.length,
     crypted.cipher.length,
-    hash
+    hash,
+    algoByte
    );
 
 
