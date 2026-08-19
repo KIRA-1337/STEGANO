@@ -808,12 +808,28 @@ canvas{
 
  <div class="legend">
   <span>
-   <i class="dot used"></i>
-   изменённые пиксели
+   <i class="dot data" style="background:#00ff88"></i>
+   полезные данные
   </span>
   <span>
-   <i class="dot major"></i>
-   неизменённые пиксели
+   <i class="dot marker" style="background:#ffaa00"></i>
+   маркеры блоков
+  </span>
+  <span>
+   <i class="dot noise" style="background:#ff4488"></i>
+   защитный шум (dither)
+  </span>
+  <span>
+   <i class="dot padding" style="background:#9966ff"></i>
+   выравнивание (padding)
+  </span>
+  <span>
+   <i class="dot hmac" style="background:#00ccff"></i>
+   HMAC подпись
+  </span>
+  <span>
+   <i class="dot unchanged" style="background:#5a6a7f"></i>
+   без изменений
   </span>
  </div>
 
@@ -908,6 +924,7 @@ let lastCfg = null;
 let lastPacketLength = 0;
 let lastPixelMask = null;
 let lastDiffData = null;
+let lastEmbedInfo = null;
 
 const slotCache = new Map();
 const imageCache = new WeakMap();
@@ -1308,38 +1325,60 @@ function applyDithering(imageData, intensity = 0.5, seed) {
 
 
 /* =========================================================
-   DIFF COMPUTATION
+   DIFF COMPUTATION (DETAILED MAP)
 ========================================================= */
 
-function computeDiff(before, after) {
+function computeDiff(before, after, embedInfo = null) {
  if(!before || !after) return null;
  
  const width = before.width;
  const height = before.height;
  
- const diff = new Uint8Array(width * height);
+ /* 
+  * diffMap: 0=без изменений, 1=данные, 2=маркеры, 3=шум, 4=padding, 5=HMAC
+  */
+ const diffMap = new Uint8Array(width * height);
  let changedPixels = 0;
  
  const beforeData = before.data;
  const afterData = after.data;
  
- for(let p = 0; p < width * height; p++) {
-  const di = p * 4;
+ /* Если есть embedInfo, используем детальную разметку */
+ if(embedInfo && embedInfo.pixelTypes) {
+  const types = embedInfo.pixelTypes;
   
-  if(
-   beforeData[di] !== afterData[di] ||
-   beforeData[di + 1] !== afterData[di + 1] ||
-   beforeData[di + 2] !== afterData[di + 2]
-  ) {
-   diff[p] = 1;
-   changedPixels++;
+  for(let p = 0; p < width * height; p++) {
+   const di = p * 4;
+   
+   if(
+    beforeData[di] !== afterData[di] ||
+    beforeData[di + 1] !== afterData[di + 1] ||
+    beforeData[di + 2] !== afterData[di + 2]
+   ) {
+    diffMap[p] = types[p] || 1; /* по умолчанию данные */
+    changedPixels++;
+   }
+  }
+ } else {
+  /* Старый режим: просто бинарная карта */
+  for(let p = 0; p < width * height; p++) {
+   const di = p * 4;
+   
+   if(
+    beforeData[di] !== afterData[di] ||
+    beforeData[di + 1] !== afterData[di + 1] ||
+    beforeData[di + 2] !== afterData[di + 2]
+   ) {
+    diffMap[p] = 1; /* данные */
+    changedPixels++;
+   }
   }
  }
  
  return {
   width,
   height,
-  diff,
+  diffMap,
   changedPixels,
   percentage: (changedPixels / (width * height) * 100).toFixed(2)
  };
@@ -3010,6 +3049,16 @@ $('encode').onclick=async()=>{
 
 
   /* -------------------------
+     EMBED INFO (для detailed diff map)
+  ------------------------- */
+  
+  lastEmbedInfo = {
+   packetLength: packet.length,
+   pixelTypes: new Uint8Array(encodedCanvas.width * encodedCanvas.height).fill(0)
+  };
+
+
+  /* -------------------------
      CAPACITY
   ------------------------- */
 
@@ -3178,10 +3227,10 @@ $('encode').onclick=async()=>{
    const afterImageData = encodedCanvas.getContext('2d')
     .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height);
    
-   lastDiffData = computeDiff(beforeImageData, afterImageData);
+   lastDiffData = computeDiff(beforeImageData, afterImageData, lastEmbedInfo);
    
    /*
-    * Рисуем карту изменений на canvas.
+    * Рисуем карту изменений на canvas с цветовой кодировкой.
     */
    const diffCanvas = $('diffCanvas');
    diffCanvas.width = lastDiffData.width;
@@ -3190,20 +3239,53 @@ $('encode').onclick=async()=>{
    const dCtx = diffCanvas.getContext('2d');
    const outImg = dCtx.createImageData(lastDiffData.width, lastDiffData.height);
    
-   for(let p = 0; p < lastDiffData.diff.length; p++) {
+   for(let p = 0; p < lastDiffData.diffMap.length; p++) {
     const oi = p * 4;
-    if(lastDiffData.diff[p] === 1) {
-     /* Изменённый пиксель — красный */
-     outImg.data[oi] = 255;
-     outImg.data[oi + 1] = 48;
-     outImg.data[oi + 2] = 79;
-     outImg.data[oi + 3] = 255;
-    } else {
-     /* Неизменённый пиксель — полупрозрачный серый */
-     outImg.data[oi] = 50;
-     outImg.data[oi + 1] = 60;
-     outImg.data[oi + 2] = 75;
-     outImg.data[oi + 3] = 100;
+    const type = lastDiffData.diffMap[p];
+    
+    /* Цветовая кодировка типов изменений */
+    switch(type) {
+     case 0: /* без изменений */
+      outImg.data[oi] = 50;
+      outImg.data[oi + 1] = 60;
+      outImg.data[oi + 2] = 75;
+      outImg.data[oi + 3] = 100;
+      break;
+     case 1: /* полезные данные — зелёный */
+      outImg.data[oi] = 0;
+      outImg.data[oi + 1] = 255;
+      outImg.data[oi + 2] = 136;
+      outImg.data[oi + 3] = 255;
+      break;
+     case 2: /* маркеры блоков — оранжевый */
+      outImg.data[oi] = 255;
+      outImg.data[oi + 1] = 170;
+      outImg.data[oi + 2] = 0;
+      outImg.data[oi + 3] = 255;
+      break;
+     case 3: /* защитный шум — розовый */
+      outImg.data[oi] = 255;
+      outImg.data[oi + 1] = 68;
+      outImg.data[oi + 2] = 136;
+      outImg.data[oi + 3] = 255;
+      break;
+     case 4: /* padding — фиолетовый */
+      outImg.data[oi] = 153;
+      outImg.data[oi + 1] = 102;
+      outImg.data[oi + 2] = 255;
+      outImg.data[oi + 3] = 255;
+      break;
+     case 5: /* HMAC подпись — голубой */
+      outImg.data[oi] = 0;
+      outImg.data[oi + 1] = 204;
+      outImg.data[oi + 2] = 255;
+      outImg.data[oi + 3] = 255;
+      break;
+     default: /* по умолчанию красный */
+      outImg.data[oi] = 255;
+      outImg.data[oi + 1] = 48;
+      outImg.data[oi + 2] = 79;
+      outImg.data[oi + 3] = 255;
     }
    }
    
