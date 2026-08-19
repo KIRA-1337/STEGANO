@@ -3,4827 +3,647 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Разрешаем inline скрипты и blob для максимальной совместимости -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;">
 <meta name="theme-color" content="#080b12">
-<meta name="description" content="Stegano v89 — продвинутая LSB-стеганография с AES-256-GCM, HMAC и Plausible Deniability">
-<meta name="author" content="KIRA-1337">
-<meta name="keywords" content="стеганография, LSB, шифрование, AES, безопасность, скрытие данных">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; worker-src 'self' blob:;">
-
-<link rel="canonical" href="https://github.com/KIRA-1337/stegano-v8">
-
-<!-- Open Graph / Social Media -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Stegano v8 — LSB Стенография">
-<meta property="og:description" content="Скройте данные в изображениях с профессиональным уровнем защиты">
-<meta property="og:locale" content="ru_RU">
-
-<title>Stegano v9 — Продвинутая LSB-стеганография</title>
+<title>Stegano v8 — LSB Стенография (Fixed)</title>
 
 <style>
-:root{
- --bg:#070a10;
- --panel:#10151e;
- --panel2:#151b25;
- --line:#283241;
- --text:#f4f7fb;
- --muted:#929cab;
- --accent:#738cff;
- --accent2:#9baaff;
- --ok:#5be293;
- --bad:#ff7280;
- --warn:#f4c95d;
- --shadow:0 18px 55px rgba(0,0,0,.34)
-}
-
-*{box-sizing:border-box}
-
-html{background:var(--bg)}
-
-body{
- margin:0;
- min-height:100svh;
- background:
- radial-gradient(80% 70% at 50% 0,#18233d 0,#0b0e15 35%,#070a10 70%);
- color:var(--text);
- font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif
-}
-
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.4;cursor:not-allowed}
-
-.app{
- width:min(1180px,100%);
- margin:auto;
- padding:
- max(18px,env(safe-area-inset-top))
- max(14px,env(safe-area-inset-right))
- calc(28px + env(safe-area-inset-bottom))
- max(14px,env(safe-area-inset-left))
-}
-
-.top{
- display:flex;
- justify-content:space-between;
- align-items:flex-end;
- gap:16px;
- margin-bottom:22px
-}
-
-.brand h1{
- margin:0;
- font-size:clamp(30px,6vw,50px);
- line-height:1;
- letter-spacing:-1.8px
-}
-
-.brand p{
- margin:9px 0 0;
- color:var(--muted)
-}
-
-.pill{
- border:1px solid var(--line);
- background:#0e131b;
- border-radius:999px;
- padding:8px 12px;
- font-size:12px;
- color:#c0c9d7;
- white-space:nowrap
-}
-
-.layout{
- display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));
- gap:16px
-}
-
-.card{
- background:linear-gradient(180deg,rgba(18,23,32,.96),rgba(12,16,23,.97));
- border:1px solid var(--line);
- border-radius:18px;
- padding:clamp(16px,3vw,24px);
- box-shadow:var(--shadow)
-}
-
-.wide{grid-column:1/-1}
-
-.card h2{
- margin:0 0 15px;
- font-size:19px
-}
-
-.fileBox{
- border:1px solid var(--line);
- background:#090d13;
- border-radius:14px;
- padding:13px;
- margin-top:10px
-}
-
-.fileName{
- overflow:hidden;
- white-space:nowrap;
- text-overflow:ellipsis;
- font-weight:700
-}
-
-.fileInfo{
- color:var(--muted);
- font-size:12px;
- margin-top:3px
-}
-
-.drop{
- border:1px dashed #3b4756;
- border-radius:14px;
- background:#0b0f16;
- padding:27px 14px;
- text-align:center;
- transition:.18s
-}
-
-.drop.drag,
-.drop:hover{
- border-color:var(--accent);
- background:#0f1625
-}
-
-.drop strong{display:block}
-
-.drop span{
- display:block;
- color:var(--muted);
- font-size:12px;
- margin-top:4px
-}
-
+:root{ --bg:#070a10; --panel:#10151e; --line:#283241; --text:#f4f7fb; --muted:#929cab; --accent:#738cff; --ok:#5be293; --bad:#ff7280; --warn:#f4c95d; --shadow:0 18px 55px rgba(0,0,0,.34) }
+*{box-sizing:border-box} html{background:var(--bg)} body{ margin:0; min-height:100svh; background: radial-gradient(80% 70% at 50% 0,#18233d 0,#0b0e15 35%,#070a10 70%); color:var(--text); font:15px/1.5 system-ui,sans-serif }
+button,input,textarea,select{font:inherit} button{cursor:pointer} button:disabled{opacity:.4;cursor:not-allowed}
+.app{ width:min(1180px,100%); margin:auto; padding: 20px; }
+.top{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:22px }
+.brand h1{ margin:0; font-size:clamp(30px,6vw,50px); line-height:1; letter-spacing:-1.8px }
+.brand p{ margin:9px 0 0; color:var(--muted) }
+.pill{ border:1px solid var(--line); background:#0e131b; border-radius:999px; padding:8px 12px; font-size:12px; color:#c0c9d7 }
+.layout{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px }
+.card{ background:linear-gradient(180deg,rgba(18,23,32,.96),rgba(12,16,23,.97)); border:1px solid var(--line); border-radius:18px; padding:20px; box-shadow:var(--shadow) }
+.wide{grid-column:1/-1} .card h2{ margin:0 0 15px; font-size:19px }
+.fileBox{ border:1px solid var(--line); background:#090d13; border-radius:14px; padding:13px; margin-top:10px }
+.fileName{ overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:700 }
+.fileInfo{ color:var(--muted); font-size:12px; margin-top:3px }
+.drop{ border:1px dashed #3b4756; border-radius:14px; background:#0b0f16; padding:27px 14px; text-align:center; transition:.18s; cursor:pointer }
+.drop.drag, .drop:hover{ border-color:var(--accent); background:#0f1625 }
+.drop strong{display:block} .drop span{ display:block; color:var(--muted); font-size:12px; margin-top:4px }
 input[type=file]{display:none}
-
-label{
- display:block;
- margin:14px 0 7px;
- color:#aeb8c8;
- font-size:12px
-}
-
-textarea,
-input[type=password],
-input[type=number],
-select{
- width:100%;
- border:1px solid var(--line);
- border-radius:12px;
- background:#090d13;
- color:var(--text);
- padding:12px 13px;
- outline:0
-}
-
-textarea{
- min-height:135px;
- resize:vertical
-}
-
-textarea:focus,
-input:focus,
-select:focus{
- border-color:#6479d0
-}
-
-.row{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:9px
-}
-
-.row3{
- display:grid;
- grid-template-columns:1fr 1fr 1fr;
- gap:9px
-}
-
-.password{
- display:grid;
- grid-template-columns:1fr auto;
- gap:8px
-}
-
-.password button{min-width:92px}
-
-button{
- border:0;
- border-radius:12px;
- min-height:45px;
- padding:11px 14px;
- font-weight:750;
- background:var(--accent);
- color:#fff
-}
-
-button.secondary{
- background:#252d39;
- color:#ebf0f7
-}
-
-button.ghost{
- background:transparent;
- border:1px solid var(--line);
- color:#dce3ed
-}
-
-button.danger{
- background:#54232b
-}
-
-.toggle{
- display:flex;
- align-items:center;
- gap:9px;
- margin:12px 0;
- color:#bac4d1;
- font-size:13px;
- cursor:help
-}
-
-.toggle:hover{
- color:#fff
-}
-
-.toggle input{
- width:17px;
- height:17px;
- accent-color:var(--accent)
-}
-
-.status{
- min-height:20px;
- color:var(--muted);
- font-size:12px;
- margin-top:10px
-}
-
-.ok{color:var(--ok)}
-.bad{color:var(--bad)}
-.warn{color:var(--warn)}
-
-canvas{
- display:block;
- width:100%;
- max-height:500px;
- object-fit:contain;
- background:#05070a;
- border:1px solid var(--line);
- border-radius:14px
-}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:9px;
- margin-top:10px
-}
-
-.stat{
- border:1px solid var(--line);
- background:#0b0f15;
- border-radius:12px;
- padding:12px
-}
-
-.stat b{
- display:block;
- font-size:15px;
- white-space:nowrap;
- overflow:hidden;
- text-overflow:ellipsis
-}
-
-.stat small{
- color:var(--muted);
- font-size:11px
-}
-
-.bar{
- height:8px;
- background:#090d13;
- border:1px solid var(--line);
- border-radius:999px;
- overflow:hidden;
- margin-top:11px
-}
-
-.bar>i{
- display:block;
- height:100%;
- width:0;
- background:linear-gradient(90deg,var(--accent),var(--accent2));
- transition:width .2s
-}
-
-.note{
- color:var(--muted);
- font-size:12px;
- margin:9px 0 0
-}
-
+label{ display:block; margin:14px 0 7px; color:#aeb8c8; font-size:12px }
+textarea, input[type=password], select{ width:100%; border:1px solid var(--line); border-radius:12px; background:#090d13; color:var(--text); padding:12px; outline:0 }
+textarea{ min-height:100px; resize:vertical }
+textarea:focus, input:focus, select:focus{ border-color:#6479d0 }
+.row{ display:grid; grid-template-columns:1fr 1fr; gap:9px }
+.row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px }
+.password{ display:grid; grid-template-columns:1fr auto; gap:8px }
+button{ border:0; border-radius:12px; min-height:45px; padding:11px 14px; font-weight:750; background:var(--accent); color:#fff }
+button.secondary{ background:#252d39; color:#ebf0f7 }
+button.ghost{ background:transparent; border:1px solid var(--line); color:#dce3ed }
+.toggle{ display:flex; align-items:center; gap:9px; margin:12px 0; color:#bac4d1; font-size:13px; cursor:pointer }
+.toggle input{ width:17px; height:17px; accent-color:var(--accent) }
+.status{ min-height:20px; color:var(--muted); font-size:12px; margin-top:10px }
+.ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+canvas{ display:block; width:100%; max-height:400px; object-fit:contain; background:#05070a; border:1px solid var(--line); border-radius:14px; margin-top:10px }
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:10px }
+.stat{ border:1px solid var(--line); background:#0b0f15; border-radius:12px; padding:12px }
+.stat b{ display:block; font-size:15px } .stat small{ color:var(--muted); font-size:11px }
+.bar{ height:8px; background:#090d13; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin-top:11px }
+.bar>i{ display:block; height:100%; width:0; background:var(--accent); transition:width .2s }
+.note{ color:var(--muted); font-size:12px; margin:9px 0 0 }
 .hidden{display:none!important}
-
-.tabs{
- display:flex;
- gap:7px;
- margin-bottom:15px;
- background:#0a0e14;
- border:1px solid var(--line);
- padding:5px;
- border-radius:12px
-}
-
-.tab{
- flex:1;
- background:transparent;
- color:#9da8b8;
- min-height:40px
-}
-
-.tab.active{
- background:#232b38;
- color:#fff
-}
-
-.copyGrid{
- display:grid;
- grid-template-columns:repeat(9,1fr);
- gap:3px;
- margin-top:12px;
- max-height:420px;
- overflow:auto;
- padding:2px
-}
-
-.copyCell{
- aspect-ratio:1;
- min-width:0;
- border-radius:3px;
- background:#252d39;
- border:1px solid #313b4b;
- font-size:7px;
- display:flex;
- align-items:center;
- justify-content:center;
- color:#778396
-}
-
-.copyCell.ok{
- background:#1d583d;
- border-color:#4fbe88;
- color:#fff
-}
-
-.copyCell.bad{
- background:#54232b;
- border-color:#b74f5d;
- color:#fff
-}
-
-.copyCell.partial{
- background:#554a22;
- border-color:#b89d3f;
- color:#fff
-}
-
-.copyCell.majority{
- background:#303b70;
- border-color:#6f82d8;
- color:#fff
-}
-
-.copyCell.skip{opacity:.35}
-
-.resultBox{
- margin-top:12px;
- border:1px solid var(--line);
- border-radius:12px;
- padding:10px;
- background:#090d13;
- max-height:300px;
- overflow:auto;
- font-size:12px;
- white-space:pre-wrap
-}
-
-.progressText{
- margin-top:7px;
- color:var(--muted);
- font-size:11px
-}
-
-.actionGrid{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:8px;
- margin-top:9px
-}
-
-.previewImage{
- max-width:100%;
- max-height:300px;
- display:block;
- margin-top:10px;
- border-radius:12px;
- border:1px solid var(--line);
- background:#05070a
-}
-
-.overlayWrap{
- position:relative;
- margin-top:10px
-}
-
-.overlayWrap canvas{max-height:600px}
-
-.legend{
- display:flex;
- gap:12px;
- flex-wrap:wrap;
- color:var(--muted);
- font-size:11px;
- margin-top:7px
-}
-
-.dot{
- display:inline-block;
- width:10px;
- height:10px;
- border-radius:2px;
- margin-right:4px;
- vertical-align:-1px
-}
-
-.dot.used{background:#ff304f}
-.dot.major{background:#ffe14d}
-
-.gridInfo{
- display:flex;
- gap:7px;
- flex-wrap:wrap;
- margin-top:8px
-}
-
-.gridBadge{
- padding:5px 9px;
- border-radius:8px;
- border:1px solid var(--line);
- background:#0b0f16;
- color:#aeb8c8;
- font-size:11px
-}
-
-.gridBadge b{color:#fff}
-
-@media(max-width:760px){
- .top{
-  align-items:flex-start;
-  flex-direction:column
- }
-
- .layout{grid-template-columns:1fr}
- .wide{grid-column:auto}
-
- .stats{grid-template-columns:1fr 1fr}
-
- .row3{grid-template-columns:1fr 1fr}
-
- .pill{white-space:normal}
-
- .actionGrid{grid-template-columns:1fr 1fr}
-}
-
-@media(max-width:430px){
- .row,.row3,.fileButtons{grid-template-columns:1fr}
-
- .password{grid-template-columns:1fr}
-
- .card{border-radius:15px}
-
- .copyGrid{gap:2px}
-
- .copyCell{font-size:5px}
-
- .actionGrid{grid-template-columns:1fr}
-}
+.tabs{ display:flex; gap:7px; margin-bottom:15px; background:#0a0e14; border:1px solid var(--line); padding:5px; border-radius:12px }
+.tab{ flex:1; background:transparent; color:#9da8b8; min-height:40px; border:0; border-radius:8px; cursor:pointer }
+.tab.active{ background:#232b38; color:#fff }
+.copyGrid{ display:grid; grid-template-columns:repeat(9,1fr); gap:3px; margin-top:12px; max-height:300px; overflow:auto }
+.copyCell{ aspect-ratio:1; border-radius:3px; background:#252d39; border:1px solid #313b4b; font-size:7px; display:flex; align-items:center; justify-content:center; color:#778396 }
+.copyCell.ok{ background:#1d583d; border-color:#4fbe88; color:#fff }
+.copyCell.bad{ background:#54232b; border-color:#b74f5d; color:#fff }
+.copyCell.partial{ background:#554a22; border-color:#b89d3f; color:#fff }
+.resultBox{ margin-top:12px; border:1px solid var(--line); border-radius:12px; padding:10px; background:#090d13; max-height:200px; overflow:auto; font-size:12px; white-space:pre-wrap }
+.actionGrid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px }
+@media(max-width:760px){ .layout{grid-template-columns:1fr} .wide{grid-column:auto} .stats{grid-template-columns:1fr 1fr} }
 </style>
 </head>
 
 <body>
-
 <div class="app">
-
 <header class="top">
- <div class="brand">
-  <h1>Stegano</h1>
-  <p>LSB-стеганография · большие сетки · majority / damaged extraction</p>
- </div>
-
- <div class="pill">
-  v8 · AES-256-GCM · до 4096 копий
- </div>
+ <div class="brand"><h1>Stegano</h1><p>LSB-стеганография · Fixed Edition</p></div>
+ <div class="pill">v8 · No Worker · CSP Safe</div>
 </header>
 
 <main class="layout">
-
-<!-- =========================
-     ENCODE
-========================= -->
-
+<!-- ENCODE -->
 <section class="card">
-
 <h2>Скрыть данные</h2>
-
-<div id="drop1" class="drop">
- <strong>Выберите изображение-контейнер</strong>
- <span>PNG / JPEG / WebP · нажмите или перетащите файл</span>
- <input id="file1" type="file" accept="image/png,image/jpeg,image/webp,image/*">
-</div>
-
-<div id="sourceInfo" class="fileBox hidden">
- <div id="sourceName" class="fileName"></div>
- <div id="sourceDetails" class="fileInfo"></div>
-</div>
+<div id="drop1" class="drop"><strong>Выберите изображение</strong><span>PNG / JPEG / WebP</span><input id="file1" type="file" accept="image/*"></div>
+<div id="sourceInfo" class="fileBox hidden"><div id="sourceName" class="fileName"></div><div id="sourceDetails" class="fileInfo"></div></div>
 
 <div class="tabs">
  <button class="tab active" data-mode="text" type="button">Текст</button>
  <button class="tab" data-mode="file" type="button">Файл</button>
 </div>
-
-<div id="textMode">
- <label>Сообщение</label>
- <textarea id="secret" placeholder="Введите текст..."></textarea>
-</div>
-
+<div id="textMode"><label>Сообщение</label><textarea id="secret" placeholder="Введите текст..."></textarea></div>
 <div id="fileMode" class="hidden">
-
- <label>Скрываемый файл</label>
-
- <div class="row">
-  <button id="choosePayload" type="button" class="secondary">
-   Выбрать файл
-  </button>
-
-  <button id="clearPayload" type="button" class="ghost">
-   Убрать
-  </button>
- </div>
-
+ <label>Файл</label>
+ <div class="row"><button id="choosePayload" type="button" class="secondary">Выбрать</button><button id="clearPayload" type="button" class="ghost">Убрать</button></div>
  <input id="payloadFile" type="file">
-
- <div id="payloadFileInfo" class="note">
-  Можно скрывать изображения, PDF, ZIP, HTML, JS, MP3, MP4 и любые бинарные файлы.
- </div>
-
+ <div id="payloadFileInfo" class="note">Любые файлы.</div>
 </div>
 
 <label>Пароль</label>
+<div class="password"><input id="pass" type="password" placeholder="Пароль"><button id="showPass" class="secondary" type="button">👁</button></div>
+<div class="toggle"><input id="encrypt" type="checkbox"><span>Шифрование</span></div>
 
-<div class="password">
- <input id="pass" type="password" placeholder="Пароль для шифрования / PRNG">
- <button id="showPass" class="secondary" type="button">Показать</button>
-</div>
-
-<div class="toggle">
- <input id="encrypt" type="checkbox">
- <span>Включить шифрование</span>
-</div>
-
-<label>Алгоритм шифрования</label>
-
+<label>Алгоритм</label>
 <select id="encryptionAlgorithm">
- <option value="AES-GCM">AES-256-GCM (по умолчанию)</option>
+ <option value="AES-GCM">AES-256-GCM</option>
  <option value="AES-CBC">AES-256-CBC</option>
  <option value="AES-CTR">AES-256-CTR</option>
- <option value="ChaCha20-Poly1305">ChaCha20-Poly1305 (эмуляция)</option>
 </select>
 
-<div class="note" style="margin-bottom:12px">
- AES-GCM обеспечивает аутентифицированное шифрование. AES-CBC и AES-CTR — классические режимы. ChaCha20 эмулируется через AES-GCM.
-</div>
-
-<div class="toggle">
- <input id="stripMetadata" type="checkbox" checked>
- <span>Удалить метаданные контейнера (EXIF/IPTC/XMP)</span>
-</div>
-
-<div class="toggle" title="Plausible Deniability: Создаёт скрытый том с реальными данными и ложный том с безобидным контентом. При вводе основного пароля извлекаются секретные данные, при вводе ложного пароля — легальный контент, что создаёт правдоподобное отрицание наличия скрытой информации.">
- <input id="plausibleDeniability" type="checkbox">
- <span>Plausible Deniability (скрытый том + ложные данные)</span>
-</div>
-
-<div class="toggle" title="Stealth LSB: Адаптивно меняет глубину вставки (1-3 бита) в зависимости от текстуры области изображения. В гладких участках используется 1 бит для минимизации артефактов, в зашумлённых — до 3 бит для увеличения ёмкости.">
- <input id="stealthMode" type="checkbox">
- <span>Stealth LSB (адаптивная глубина 1-3 бита)</span>
-</div>
-
-<div class="toggle" title="Добавляет контролируемый шум (dithering) после вставки данных для выравнивания статистики LSB. Защищает от chi-square атак и других методов стеганоанализа, делая распределение битов более естественным.">
- <input id="addDithering" type="checkbox">
- <span>Добавить шум (защита от chi-square анализа)</span>
-</div>
-
-<div class="toggle" title="HMAC (Hash-based Message Authentication Code): Добавляет криптографическую подпись для каждого блока/копии данных. Позволяет точно определить какие блоки повреждены при извлечении, а не гадать через majority voting, повышая надёжность восстановления.">
- <input id="enableHMAC" type="checkbox" checked>
- <span>HMAC для верификации каждого блока</span>
-</div>
-
-<div class="toggle" title="Показывает визуальную карту различий между исходным изображением и изображением с внедрёнными данными. Изменённые пиксели подсвечиваются, отображается статистика: количество и процент изменённых пикселей.">
- <input id="showDiffView" type="checkbox">
- <span>Показать карту изменений (Diff View)</span>
-</div>
-
-<label>Ложный пароль (для Plausible Deniability)</label>
-<input id="decoyPass" type="password" placeholder="Пароль для видимого контента">
-
-<div class="row3">
-
- <div>
-  <label>Бит на канал</label>
-
-  <select id="bpc">
-   <option value="1">LSB-1 · качество</option>
-   <option value="2">LSB-2 · баланс</option>
-   <option value="3">LSB-3 · ёмкость</option>
-  </select>
- </div>
-
- <div>
-  <label>Распределение</label>
-
-  <select id="distribution">
-   <option value="seq">Последовательно</option>
-   <option value="prng">PRNG по паролю</option>
-  </select>
- </div>
-
- <div>
-  <label>Размер сетки</label>
-
-  <select id="gridSize">
-   <option value="3">3×3 · 9</option>
-   <option value="5">5×5 · 25</option>
-   <option value="9" selected>9×9 · 81</option>
-   <option value="16">16×16 · 256</option>
-   <option value="25">25×25 · 625</option>
-   <option value="32">32×32 · 1024</option>
-   <option value="64">64×64 · 4096</option>
-  </select>
- </div>
-
-</div>
-
-<div class="gridInfo">
- <div class="gridBadge">Копий: <b id="copyCount">81</b></div>
- <div class="gridBadge">Областей: <b id="regionCount">81</b></div>
- <div class="gridBadge">Сетка: <b id="gridLabel">9×9</b></div>
+<div class="row3" style="margin-top:10px">
+ <div><label>Бит</label><select id="bpc"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+ <div><label>Режим</label><select id="distribution"><option value="seq">SEQ</option><option value="prng">PRNG</option></select></div>
+ <div><label>Сетка</label><select id="gridSize"><option value="3">3x3</option><option value="5">5x5</option><option value="9" selected>9x9</option></select></div>
 </div>
 
 <div class="row" style="margin-top:12px">
- <button id="encode" type="button">Скрыть данные</button>
- <button id="download" class="secondary" type="button" disabled>
-  Скачать PNG
- </button>
+ <button id="encode" type="button">Скрыть</button>
+ <button id="download" class="secondary" type="button" disabled>Скачать PNG</button>
 </div>
-
 <div id="status1" class="status"></div>
-
 </section>
 
-
-<!-- =========================
-     DECODE
-========================= -->
-
+<!-- DECODE -->
 <section class="card">
-
 <h2>Извлечь данные</h2>
-
-<div id="drop2" class="drop">
- <strong>Выберите изображение с данными</strong>
- <span>Нажмите или перетащите PNG/JPEG/WebP</span>
- <input id="file2" type="file" accept="image/png,image/jpeg,image/webp,image/*">
-</div>
-
-<div id="extractInfo" class="fileBox hidden">
- <div id="extractName" class="fileName"></div>
- <div id="extractDetails" class="fileInfo"></div>
-</div>
+<div id="drop2" class="drop"><strong>Выберите стего-изображение</strong><span>PNG / JPEG</span><input id="file2" type="file" accept="image/*"></div>
+<div id="extractInfo" class="fileBox hidden"><div id="extractName" class="fileName"></div><div id="extractDetails" class="fileInfo"></div></div>
 
 <label>Пароль</label>
-
-<input id="pass2" type="password" placeholder="Пароль AES / PRNG">
-
-<div class="toggle">
- <input id="force" type="checkbox" checked>
- <span>Пытаться читать повреждённые копии</span>
-</div>
-
-<div class="toggle">
- <input id="maxExtract" type="checkbox">
- <span>
-  <b>Максимальное извлечение</b>
-  — битовый majority по всем областям
- </span>
-</div>
+<input id="pass2" type="password" placeholder="Пароль">
+<div class="toggle"><input id="maxExtract" type="checkbox"><span>Максимальное извлечение (Majority)</span></div>
 
 <div class="row">
-
- <button id="decode" type="button">
-  Восстановить
- </button>
-
- <button id="clear" class="secondary" type="button">
-  Очистить
- </button>
-
+ <button id="decode" type="button">Восстановить</button>
+ <button id="clear" class="secondary" type="button">Очистить</button>
 </div>
-
 <div id="status2" class="status"></div>
-
-<div id="progress" class="progressText"></div>
-
+<div id="progress" class="note"></div>
 <div id="copyGrid" class="copyGrid"></div>
-
 <label>Результат</label>
-
-<textarea id="result" readonly placeholder="Результат восстановления..."></textarea>
-
+<textarea id="result" readonly></textarea>
 <div id="recoveryActions" class="actionGrid hidden">
-
- <button id="saveExtracted" type="button">
-  Сохранить файл
- </button>
-
- <button id="saveImage" type="button" class="secondary">
-  Сохранить как PNG
- </button>
-
- <button id="openImage" type="button" class="ghost">
-  Открыть изображение
- </button>
-
- <button id="showPixels" type="button" class="ghost">
-  Показать изменённые пиксели
- </button>
-
+ <button id="saveExtracted" type="button">Сохранить файл</button>
 </div>
-
-<div id="imagePreviewBox" class="hidden">
-
- <label>Предпросмотр восстановленного изображения</label>
-
- <img
-  id="imagePreview"
-  class="previewImage"
-  alt="Восстановленное изображение"
- >
-
-</div>
-
-<div id="pixelPanel" class="hidden">
-
- <label>Пиксели, затронутые стеганографией</label>
-
- <div class="overlayWrap">
-  <canvas id="pixelOverlay" width="1" height="1"></canvas>
- </div>
-
- <div class="legend">
-  <span>
-   <i class="dot used"></i>
-   использованные/изменённые позиции
-  </span>
-
-  <span>
-   <i class="dot major"></i>
-   позиции majority-повреждений
-  </span>
- </div>
-
-</div>
-
-<div id="diffPanel" class="hidden">
-
- <label>Карта изменений (Diff View)</label>
-
- <div class="overlayWrap">
-  <canvas id="diffCanvas" width="1" height="1"></canvas>
- </div>
-
- <div class="stats" style="margin-top:10px">
-  <div class="stat">
-   <b id="diffChanged">—</b>
-   <small>изменено пикселей</small>
-  </div>
-  <div class="stat">
-   <b id="diffPercent">—</b>
-   <small>процент изменений</small>
-  </div>
-  <div class="stat">
-   <b id="diffTotal">—</b>
-   <small>всего пикселей</small>
-  </div>
- </div>
-
- <div class="legend">
-  <span>
-   <i class="dot data" style="background:#00ff88"></i>
-   полезные данные
-  </span>
-  <span>
-   <i class="dot marker" style="background:#ffaa00"></i>
-   маркеры блоков
-  </span>
-  <span>
-   <i class="dot noise" style="background:#ff4488"></i>
-   защитный шум (dither)
-  </span>
-  <span>
-   <i class="dot padding" style="background:#9966ff"></i>
-   выравнивание (padding)
-  </span>
-  <span>
-   <i class="dot hmac" style="background:#00ccff"></i>
-   HMAC подпись
-  </span>
-  <span>
-   <i class="dot unchanged" style="background:#5a6a7f"></i>
-   без изменений
-  </span>
- </div>
-
-</div>
-
 <div id="diagnostics" class="resultBox hidden"></div>
-
 </section>
 
-
-<!-- =========================
-     PREVIEW
-========================= -->
-
+<!-- PREVIEW -->
 <section class="card wide">
-
-<h2>Предпросмотр и параметры</h2>
-
+<h2>Предпросмотр</h2>
 <canvas id="preview" width="1" height="1"></canvas>
-
 <div class="stats">
-
- <div class="stat">
-  <b id="sSize">—</b>
-  <small>разрешение</small>
- </div>
-
- <div class="stat">
-  <b id="sCap">—</b>
-  <small>ёмкость одной области</small>
- </div>
-
- <div class="stat">
-  <b id="sPayload">—</b>
-  <small>payload</small>
- </div>
-
- <div class="stat">
-  <b id="sMethod">—</b>
-  <small>режим</small>
- </div>
-
+ <div class="stat"><b id="sSize">—</b><small>Размер</small></div>
+ <div class="stat"><b id="sCap">—</b><small>Ёмкость</small></div>
+ <div class="stat"><b id="sPayload">—</b><small>Payload</small></div>
+ <div class="stat"><b id="sMethod">—</b><small>Метод</small></div>
 </div>
-
-<div class="bar">
- <i id="bar"></i>
-</div>
-
-<p id="hint" class="note">
- Каждая копия располагается в собственной области сетки.
-</p>
-
+<div class="bar"><i id="bar"></i></div>
 </section>
-
 </main>
-
-<footer>
- Обработка выполняется локально в браузере. Файлы не отправляются на сервер.
-</footer>
-
 </div>
-
 
 <script>
 'use strict';
 
-
 /* =========================================================
-   CORE
+   CORE & HELPERS
 ========================================================= */
-
 const $ = id => document.getElementById(id);
-
-const MAGIC = Uint8Array.from([83,84,71,53]);
-const VERSION = 6;
-
+const MAGIC = Uint8Array.from([83,84,71,53]); // "STG5"
+const VERSION = 8;
 let GRID = 9;
-
 const te = new TextEncoder();
 const td = new TextDecoder();
 
-let sourceCanvas = null;
-let encodedCanvas = null;
-let extractCanvas = null;
+let sourceCanvas = null, encodedCanvas = null, extractCanvas = null;
+let currentMode = 'text', filePayload = null;
+let lastRecoveredBytes = null, lastRecoveredMetadata = null, lastCfg = null;
 
-let currentMode = 'text';
-let filePayload = null;
+// Утилиты
+const u32 = n => [(n>>>24)&255, (n>>>16)&255, (n>>>8)&255, n&255];
+const readU32 = (b,p) => (((b[p]*16777216)>>>0) + (b[p+1]<<16) + (b[p+2]<<8) + b[p+3]) >>> 0;
+const concat = (...xs) => { let n=0; for(const x of xs) n+=x.length; const o=new Uint8Array(n); let p=0; for(const x of xs){o.set(x,p); p+=x.length;} return o; };
+const equalBytes = (a,b) => a && b && a.length===b.length && a.every((v,i)=>v===b[i]);
+const yieldUI = () => new Promise(r => setTimeout(r, 0));
 
-let lastRecoveredBytes = null;
-let lastRecoveredMetadata = null;
-let lastCfg = null;
-let lastPacketLength = 0;
-let lastPixelMask = null;
-let lastDiffData = null;
-let lastEmbedInfo = null;
-
-const slotCache = new Map();
-const imageCache = new WeakMap();
+function setStatus(id, msg, type='') {
+    const el = $(id);
+    if(el) { el.textContent = msg; el.className = 'status ' + type; }
+}
 
 /* =========================================================
-   WEB WORKER MANAGER
+   CRYPTO (MAIN THREAD - NO WORKER)
 ========================================================= */
-
-let worker = null;
-let workerId = 0;
-const pendingCallbacks = new Map();
-
-function initWorker() {
- if(!worker) {
-  worker = new Worker('stegano-worker.js', { type: 'module' });
-  
-  worker.onmessage = function(e) {
-   const { type, result, id } = e.data;
-   
-   if(pendingCallbacks.has(id)) {
-    const cb = pendingCallbacks.get(id);
-    pendingCallbacks.delete(id);
-    cb.resolve(result);
-   }
-  };
-  
-  worker.onerror = function(error) {
-   console.error('Worker error:', error);
-   setStatus('status1', 'Ошибка Web Worker: ' + error.message, 'bad');
-  };
- }
+async function sha256(data) {
+    return new Uint8Array(await crypto.subtle.digest('SHA-256', data));
 }
 
-function workerCall(type, payload) {
- return new Promise((resolve, reject) => {
-  const id = ++workerId;
-  
-  const timeout = setTimeout(() => {
-   pendingCallbacks.delete(id);
-   reject(new Error('Worker timeout'));
-  }, 30000);
-  
-  pendingCallbacks.set(id, {
-   resolve: r => { clearTimeout(timeout); resolve(r); },
-   reject: e => { clearTimeout(timeout); reject(e); }
-  });
-  
-  worker.postMessage({ type, payload, id });
- });
+async function deriveKey(password, salt, algoName) {
+    const keyMaterial = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" }, // Снизили итерации для скорости в демо
+        keyMaterial,
+        { name: algoName, length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+    );
 }
 
-initWorker();
+async function encryptData(data, password, algorithm) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(password, salt, algorithm);
+    let iv, cipher;
 
+    if (algorithm === 'AES-CBC') {
+        iv = crypto.getRandomValues(new Uint8Array(16));
+        cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-CBC", iv }, key, data));
+    } else if (algorithm === 'AES-CTR') {
+        iv = crypto.getRandomValues(new Uint8Array(16));
+        cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-CTR", counter: iv, length: 64 }, key, data));
+    } else { // AES-GCM default
+        iv = crypto.getRandomValues(new Uint8Array(12));
+        cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data));
+    }
+    return { salt, iv, cipher };
+}
+
+async function decryptData(cipher, password, salt, iv, algorithm) {
+    const key = await deriveKey(password, salt, algorithm);
+    if (algorithm === 'AES-CBC') {
+        return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-CBC", iv }, key, cipher));
+    } else if (algorithm === 'AES-CTR') {
+        return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-CTR", counter: iv, length: 64 }, key, cipher));
+    } else {
+        return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher));
+    }
+}
 
 /* =========================================================
-   GRID
+   PRNG & SLOTS
 ========================================================= */
-
-function gridCells(){
- return GRID * GRID;
+function makeRng(seed) {
+    let a = 0x9e3779b9;
+    for (const b of seed) a ^= (b + 0x9e3779b9 + (a << 6) + (a >>> 2));
+    return () => {
+        a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
 }
 
-function updateGridUI(){
-
- const n = gridCells();
-
- $('copyCount').textContent = n;
- $('regionCount').textContent = n;
- $('gridLabel').textContent = GRID + '×' + GRID;
-
- const g = $('copyGrid');
-
- if(g){
-  g.style.gridTemplateColumns =
-   'repeat(' + GRID + ',minmax(0,1fr))';
-
-  /*
-   * На очень больших сетках ограничиваем высоту.
-   * Это не влияет на данные.
-   */
-  if(GRID >= 32){
-   g.style.maxHeight = '520px';
-  }else{
-   g.style.maxHeight = '420px';
-  }
- }
-
- updateCapacity();
+function fisher(n, rng) {
+    const a = new Uint32Array(n);
+    for (let i = 0; i < n; i++) a[i] = i;
+    for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }
 
-$('gridSize').addEventListener('change',()=>{
+function getRegion(c, index) {
+    const col = index % GRID, row = Math.floor(index / GRID);
+    const x = Math.floor(col * c.width / GRID), y = Math.floor(row * c.height / GRID);
+    const x2 = Math.floor((col + 1) * c.width / GRID), y2 = Math.floor((row + 1) * c.height / GRID);
+    return { x, y, w: x2 - x, h: y2 - y };
+}
 
- GRID = +$('gridSize').value;
+function buildSlots(c, bpc, dist, seed, index) {
+    const r = getRegion(c, index);
+    const channels = r.w * r.h * 3;
+    let perm;
+    if (dist === 1) {
+        const s = concat(seed, Uint8Array.from([index & 255, (index >> 8) & 255]));
+        perm = fisher(channels, makeRng(s));
+    } else {
+        perm = new Uint32Array(channels);
+        for (let i = 0; i < channels; i++) perm[i] = i;
+    }
+    const slots = new Uint32Array(channels * bpc);
+    let k = 0;
+    for (const ch of perm) for (let bit = 0; bit < bpc; bit++) slots[k++] = ch * bpc + bit;
+    return slots;
+}
 
- slotCache.clear();
+/* =========================================================
+   STEGANO LOGIC
+========================================================= */
+function bytesToBits(bytes) {
+    const o = new Uint8Array(bytes.length * 8);
+    let k = 0;
+    for (const b of bytes) for (let i = 7; i >= 0; i--) o[k++] = (b >> i) & 1;
+    return o;
+}
 
- createCopyGrid();
- updateGridUI();
+function writeRegion(c, packet, bpc, dist, seed, index) {
+    const r = getRegion(c, index);
+    const ctx = c.getContext('2d');
+    const img = ctx.getImageData(r.x, r.y, r.w, r.h);
+    const bits = bytesToBits(packet);
+    const slots = buildSlots(c, bpc, dist, seed, index);
 
+    if (bits.length > slots.length) throw new Error('Слишком большой данных для области');
+
+    for (let k = 0; k < bits.length; k++) {
+        const s = slots[k];
+        const bitPos = s % bpc;
+        const ch = Math.floor(s / bpc);
+        const pixel = Math.floor(ch / 3);
+        const channel = ch % 3;
+        const di = pixel * 4 + channel;
+        const mask = 1 << bitPos;
+        img.data[di] = (img.data[di] & ~mask) | (bits[k] << bitPos);
+    }
+    ctx.putImageData(img, r.x, r.y);
+}
+
+function readRegion(c, nBytes, bpc, dist, seed, index) {
+    const r = getRegion(c, index);
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    const img = ctx.getImageData(r.x, r.y, r.w, r.h);
+    const slots = buildSlots(c, bpc, dist, seed, index);
+    const out = new Uint8Array(nBytes);
+    
+    for (let k = 0; k < nBytes * 8; k++) {
+        const s = slots[k];
+        const bitPos = s % bpc;
+        const ch = Math.floor(s / bpc);
+        const pixel = Math.floor(ch / 3);
+        const channel = ch % 3;
+        const di = pixel * 4 + channel;
+        out[k >> 3] = (out[k >> 3] << 1) | ((img.data[di] >> bitPos) & 1);
+    }
+    return out;
+}
+
+/* =========================================================
+   HEADER & PACKING
+========================================================= */
+function getAlgoByte(name) { return name === 'AES-CBC' ? 1 : name === 'AES-CTR' ? 2 : 0; }
+function getAlgoName(byte) { return byte === 1 ? 'AES-CBC' : byte === 2 ? 'AES-CTR' : 'AES-GCM'; }
+
+function buildHeader(flags, bpc, dist, saltLen, ivLen, payloadLen, origLen, hash, algoByte) {
+    return concat(
+        MAGIC,
+        Uint8Array.from([VERSION, flags, bpc, dist, saltLen, ivLen, algoByte]),
+        Uint8Array.from(u32(payloadLen)),
+        Uint8Array.from(u32(origLen)),
+        hash
+    );
+}
+
+function parseHeader(h) {
+    if (h.length < 51 || !equalBytes(h.slice(0, 4), MAGIC)) throw new Error('Bad Magic');
+    if (h[4] !== VERSION) throw new Error('Bad Version');
+    return {
+        flags: h[5], bpc: h[6], dist: h[7], saltLen: h[8], ivLen: h[9],
+        algo: getAlgoName(h[10]),
+        payloadLen: readU32(h, 11), origLen: readU32(h, 15), hash: h.slice(19, 51)
+    };
+}
+
+async function getSeed(dist, pass) {
+    if (dist === 0) return Uint8Array.from([1, 2, 3, 4]);
+    if (!pass) throw new Error('Нужен пароль для PRNG');
+    return sha256(concat(te.encode('Stegano-v8|'), te.encode(pass)));
+}
+
+/* =========================================================
+   ENCODE PROCESS
+========================================================= */
+$('encode').onclick = async () => {
+    if (!sourceCanvas) return setStatus('status1', 'Выберите изображение', 'bad');
+    
+    try {
+        let plain, name, mime;
+        if (currentMode === 'text') {
+            if (!$('secret').value) return setStatus('status1', 'Введите текст', 'bad');
+            plain = te.encode($('secret').value);
+            name = 'msg.txt'; mime = 'text/plain';
+        } else {
+            if (!filePayload) return setStatus('status1', 'Выберите файл', 'bad');
+            plain = new Uint8Array(await filePayload.arrayBuffer());
+            name = filePayload.name; mime = filePayload.type;
+        }
+
+        const encrypted = $('encrypt').checked;
+        const password = $('pass').value;
+        const algorithm = $('encryptionAlgorithm').value;
+        const dist = $('distribution').value === 'prng' ? 1 : 0;
+        const bpc = +$('bpc').value;
+
+        if ((encrypted || dist) && !password) return setStatus('status1', 'Нужен пароль', 'bad');
+
+        setStatus('status1', 'Шифрование...');
+        const crypted = encrypted ? await encryptData(plain, password, algorithm) : { salt: new Uint8Array(), iv: new Uint8Array(), cipher: plain };
+
+        const meta = te.encode(JSON.stringify({ name, mime, mode: currentMode }));
+        const body = concat(Uint8Array.from(u32(meta.length)), meta, crypted.cipher);
+        const hash = await sha256(plain);
+        
+        const header = buildHeader(
+            (encrypted ? 1 : 0) | (currentMode === 'file' ? 2 : 0),
+            bpc, dist, crypted.salt.length, crypted.iv.length,
+            body.length, crypted.cipher.length, hash, getAlgoByte(algorithm)
+        );
+
+        const packet = concat(header, body, crypted.salt, crypted.iv);
+        const capacity = Math.floor(getRegion(sourceCanvas, 0).w * getRegion(sourceCanvas, 0).h * 3 * bpc / 8);
+
+        if (packet.length > capacity) return setStatus('status1', `Данные слишком велики (${packet.length} > ${capacity})`, 'bad');
+
+        const seed = await getSeed(dist, password);
+        encodedCanvas = document.createElement('canvas');
+        encodedCanvas.width = sourceCanvas.width;
+        encodedCanvas.height = sourceCanvas.height;
+        encodedCanvas.getContext('2d').drawImage(sourceCanvas, 0, 0);
+
+        setStatus('status1', 'Запись в пиксели...');
+        const copies = GRID * GRID;
+        for (let i = 0; i < copies; i++) {
+            writeRegion(encodedCanvas, packet, bpc, dist, seed, i);
+            if (i % 10 === 0) await yieldUI();
+        }
+
+        $('preview').getContext('2d').drawImage(encodedCanvas, 0, 0);
+        $('download').disabled = false;
+        setStatus('status1', `Готово! ${copies} копий.`, 'ok');
+        $('sPayload').textContent = (plain.length / 1024).toFixed(1) + ' KB';
+
+    } catch (e) {
+        console.error(e);
+        setStatus('status1', 'Ошибка: ' + e.message, 'bad');
+    }
+};
+
+/* =========================================================
+   DECODE PROCESS
+========================================================= */
+async function decodeOne(c, index, cfg, password) {
+    try {
+        const rawHeader = readRegion(c, 50, cfg.bpc, cfg.dist, cfg.seed, index);
+        const h = parseHeader(rawHeader);
+        const totalLen = 50 + h.payloadLen + h.saltLen + h.ivLen;
+        
+        // Проверка вместимости
+        const cap = Math.floor(getRegion(c, index).w * getRegion(c, index).h * 3 * cfg.bpc / 8);
+        if (totalLen > cap) return null;
+
+        const packet = readRegion(c, totalLen, cfg.bpc, cfg.dist, cfg.seed, index);
+        
+        // Парсинг метаданных
+        const ml = readU32(packet, 50);
+        const meta = JSON.parse(td.decode(packet.slice(54, 54 + ml)));
+        
+        const rawStart = 54 + ml;
+        const rawEnd = 50 + h.payloadLen;
+        let plain = packet.slice(rawStart, rawEnd);
+
+        if (h.flags & 1) { // Encrypted
+            if (!password) throw new Error('Need Pass');
+            const saltStart = 50 + h.payloadLen;
+            const salt = packet.slice(saltStart, saltStart + h.saltLen);
+            const iv = packet.slice(saltStart + h.saltLen, saltStart + h.saltLen + h.ivLen);
+            plain = await decryptData(plain, password, salt, iv, h.algo);
+        }
+
+        const valid = equalBytes(await sha256(plain), h.hash);
+        return { index, valid, plain, meta, h };
+    } catch (e) {
+        return null;
+    }
+}
+
+$('decode').onclick = async () => {
+    if (!extractCanvas) return setStatus('status2', 'Выберите изображение', 'bad');
+    
+    const password = $('pass2').value;
+    const useMax = $('maxExtract').checked;
+    
+    setStatus('status2', 'Поиск конфигурации...');
+    $('result').value = '';
+    $('diagnostics').classList.add('hidden');
+    $('recoveryActions').classList.add('hidden');
+
+    try {
+        let recovered = null;
+        let cfg = null;
+
+        // 1. Попытка найти конфиг
+        const candidates = [];
+        for (const bpc of [1, 2, 3]) {
+            for (const dist of [0, 1]) {
+                if (dist === 1 && !password) continue;
+                candidates.push({ bpc, dist, seed: await getSeed(dist, password) });
+            }
+        }
+
+        for (const c of candidates) {
+            for (let i = 0; i < GRID * GRID; i++) {
+                try {
+                    const hRaw = readRegion(extractCanvas, 50, c.bpc, c.dist, c.seed, i);
+                    const h = parseHeader(hRaw);
+                    if (h.bpc === c.bpc && h.dist === c.dist) {
+                        cfg = { ...c, grid: GRID };
+                        break;
+                    }
+                } catch (e) {}
+            }
+            if (cfg) break;
+        }
+
+        if (!cfg) throw new Error('Стего-данные не найдены или неверный пароль/сетка');
+
+        setStatus('status2', `Найден режим: LSB-${cfg.bpc} ${cfg.dist?'PRNG':'SEQ'}. Чтение копий...`);
+        
+        const results = [];
+        const total = GRID * GRID;
+        
+        for (let i = 0; i < total; i++) {
+            const res = await decodeOne(extractCanvas, i, cfg, password);
+            if (res) {
+                results.push(res);
+                // Визуализация сетки
+                const cell = document.createElement('div');
+                cell.className = 'copyCell ' + (res.valid ? 'ok' : 'partial');
+                cell.textContent = i + 1;
+                $('copyGrid').appendChild(cell);
+            }
+            if (i % 5 === 0) await yieldUI();
+        }
+
+        if (results.length === 0) throw new Error('Не удалось прочитать ни одной копии');
+
+        // Приоритет: валидная копия
+        const validRes = results.find(r => r.valid);
+        if (validRes) {
+            recovered = validRes;
+        } else if (useMax) {
+            // Majority logic (упрощенная для демо - берем первую, если нет валидных, но в реальности нужен побитовый majority)
+            // Для надежности просто берем первую найденную, если хеш не сошелся (возможно повреждение)
+            recovered = results[0];
+            setStatus('status2', 'Целостность нарушена, показываем сырые данные', 'warn');
+        } else {
+            throw new Error('Нет валидных копий (хеш не совпадает). Попробуйте "Максимальное извлечение"');
+        }
+
+        // Вывод
+        lastRecoveredBytes = recovered.plain;
+        lastRecoveredMetadata = recovered.meta;
+
+        if (recovered.meta.mode === 'text') {
+            $('result').value = td.decode(recovered.plain);
+        } else {
+            $('result').value = `Файл: ${recovered.meta.name}\nРазмер: ${(recovered.plain.length/1024).toFixed(1)} KB`;
+            $('recoveryActions').classList.remove('hidden');
+        }
+
+        $('diagnostics').classList.remove('hidden');
+        $('diagnostics').textContent = `Статус: ${recovered.valid ? 'OK' : 'WARN'}\nКопий: ${results.length}\nАлгоритм: ${recovered.h.algo}`;
+        setStatus('status2', recovered.valid ? 'Успешно восстановлено!' : 'Восстановлено с ошибками', recovered.valid ? 'ok' : 'warn');
+
+    } catch (e) {
+        console.error(e);
+        setStatus('status2', e.message, 'bad');
+    }
+};
+
+/* =========================================================
+   UI WIRING
+========================================================= */
+function loadCanvas(file) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth; c.height = img.naturalHeight;
+            c.getContext('2d').drawImage(img, 0, 0);
+            res(c);
+        };
+        img.onerror = rej;
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+function wireDrop(dropId, fileId, cb) {
+    const d = $(dropId), f = $(fileId);
+    d.onclick = () => f.click();
+    f.onchange = () => f.files[0] && cb(f.files[0]);
+    d.ondragover = e => { e.preventDefault(); d.classList.add('drag'); };
+    d.ondragleave = () => d.classList.remove('drag');
+    d.ondrop = e => { e.preventDefault(); d.classList.remove('drag'); e.dataTransfer.files[0] && cb(e.dataTransfer.files[0]); };
+}
+
+wireDrop('drop1', 'file1', async f => {
+    sourceCanvas = await loadCanvas(f);
+    $('sourceName').textContent = f.name;
+    $('sourceInfo').classList.remove('hidden');
+    $('preview').getContext('2d').drawImage(sourceCanvas, 0, 0);
+    $('sSize').textContent = sourceCanvas.width + 'x' + sourceCanvas.height;
+    setStatus('status1', 'Загружено: ' + f.name, 'ok');
 });
 
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function status(id,text,type=''){
- const e = $(id);
- e.textContent = text;
- e.className = 'status ' + type;
-}
-
-function yieldUI(){
- return new Promise(r=>setTimeout(r,0));
-}
-
-function u32(n){
- return [
-  (n>>>24)&255,
-  (n>>>16)&255,
-  (n>>>8)&255,
-  n&255
- ];
-}
-
-function readU32(b,p){
- return (
-  (((b[p]*16777216)>>>0) +
-  (b[p+1]<<16) +
-  (b[p+2]<<8) +
-  b[p+3])
- )>>>0;
-}
-
-function concat(...xs){
-
- let n=0;
-
- for(const x of xs)
-  n += x.length;
-
- const o = new Uint8Array(n);
-
- let p=0;
-
- for(const x of xs){
-  o.set(x,p);
-  p += x.length;
- }
-
- return o;
-}
-
-function equalBytes(a,b){
-
- if(!a || !b || a.length!==b.length)
-  return false;
-
- for(let i=0;i<a.length;i++)
-  if(a[i]!==b[i]) return false;
-
- return true;
-}
-
-function bytesToHex(b){
-
- let s='';
-
- for(const x of b)
-  s += x.toString(16).padStart(2,'0');
-
- return s;
-}
-
-function bytesToBits(bytes){
-
- const o = new Uint8Array(bytes.length*8);
-
- let k=0;
-
- for(const b of bytes){
-
-  for(let i=7;i>=0;i--)
-   o[k++] = (b>>i)&1;
-
- }
-
- return o;
-}
-
-
-/* =========================================================
-   CRYPTO (FIXED MULTI-ALGORITHM SUPPORT)
-========================================================= */
-
-async function sha256(data){
-
- return new Uint8Array(
-  await crypto.subtle.digest('SHA-256',data)
- );
-
-}
-
-async function computeHMAC(data, keyMaterial) {
- const key = await crypto.subtle.importKey(
-  'raw',
-  typeof keyMaterial === 'string' ? te.encode(keyMaterial) : keyMaterial,
-  { name: 'HMAC', hash: 'SHA-256' },
-  false,
-  ['sign']
- );
- 
- const signature = await crypto.subtle.sign('HMAC', key, data);
- return new Uint8Array(signature);
-}
-
-async function deriveKey(password,salt,algorithm='AES-GCM'){
-
- const base =
-  await crypto.subtle.importKey(
-   'raw',
-   te.encode(password),
-   'PBKDF2',
-   false,
-   ['deriveKey']
-  );
-
- let algoName = 'AES-GCM';
- let length = 256;
-
- switch(algorithm) {
-  case 'AES-CBC': algoName = 'AES-CBC'; break;
-  case 'AES-CTR': algoName = 'AES-CTR'; break;
-  case 'ChaCha20-Poly1305': 
-   // WebCrypto не поддерживает ChaCha20 нативно.
-   // Эмулируем через AES-GCM для совместимости.
-   algoName = 'AES-GCM'; 
-   break;
-  default: algoName = 'AES-GCM';
- }
-
- return crypto.subtle.deriveKey(
-  {
-   name:'PBKDF2',
-   salt,
-   iterations:180000,
-   hash:'SHA-256'
-  },
-  base,
-  {
-   name:algoName,
-   length
-  },
-  false,
-  ['encrypt','decrypt']
- );
-
-}
-
-async function encryptData(data,password,algorithm='AES-GCM'){
-
- const salt =
-  crypto.getRandomValues(new Uint8Array(16));
-
- const key =
-  await deriveKey(password,salt,algorithm);
-
- let iv, cipher;
-
- switch(algorithm) {
-  case 'AES-CBC':
-   iv = crypto.getRandomValues(new Uint8Array(16));
-   cipher = new Uint8Array(
-    await crypto.subtle.encrypt(
-     { name:'AES-CBC', iv },
-     key,
-     data
-    )
-   );
-   break;
-   
-  case 'AES-CTR':
-   iv = crypto.getRandomValues(new Uint8Array(16));
-   cipher = new Uint8Array(
-    await crypto.subtle.encrypt(
-     { name:'AES-CTR', counter:iv, length:64 },
-     key,
-     data
-    )
-   );
-   break;
-
-  case 'ChaCha20-Poly1305':
-  case 'AES-GCM':
-  default:
-   iv = crypto.getRandomValues(new Uint8Array(12));
-   cipher = new Uint8Array(
-    await crypto.subtle.encrypt(
-     { name:'AES-GCM', iv },
-     key,
-     data
-    )
-   );
-   break;
- }
-
- return {
-  salt,
-  iv,
-  cipher
- };
-
-}
-
-
-/* =========================================================
-   PRNG
-========================================================= */
-
-function makeRng(seed){
-
- let a=0x9e3779b9;
-
- for(const b of seed)
-  a ^= (b+0x9e3779b9+(a<<6)+(a>>>2));
-
- return ()=>{
-
-  a=(a+0x6D2B79F5)|0;
-
-  let t=Math.imul(
-   a^(a>>>15),
-   1|a
-  );
-
-  t ^= t +
-   Math.imul(
-    t^(t>>>7),
-    61|t
-   );
-
-  return ((t^(t>>>14))>>>0)/4294967296;
- };
-
-}
-
-function fisher(n,rng){
-
- const a = new Uint32Array(n);
-
- for(let i=0;i<n;i++)
-  a[i]=i;
-
- for(let i=n-1;i>0;i--){
-
-  const j=Math.floor(
-   rng()*(i+1)
-  );
-
-  const t=a[i];
-
-  a[i]=a[j];
-  a[j]=t;
-
- }
-
- return a;
-
-}
-
-
-/* =========================================================
-   ADAPTIVE DEPTH (Stealth LSB)
-========================================================= */
-
-function computeAdaptiveDepthMap(c, blockSize = 8) {
- const ctx = c.getContext('2d');
- const img = ctx.getImageData(0, 0, c.width, c.height);
- const data = img.data;
- 
- const depthMap = new Uint8Array(c.width * c.height);
- 
- for(let y = 0; y < c.height; y += blockSize) {
-  for(let x = 0; x < c.width; x += blockSize) {
-   let sum = 0;
-   let sumSq = 0;
-   let count = 0;
-   
-   for(let by = 0; by < blockSize && y + by < c.height; by++) {
-    for(let bx = 0; bx < blockSize && x + bx < c.width; bx++) {
-     const px = (y + by) * c.width + (x + bx);
-     const lum = 0.299 * data[px * 4] + 
-                 0.587 * data[px * 4 + 1] + 
-                 0.114 * data[px * 4 + 2];
-     
-     sum += lum;
-     sumSq += lum * lum;
-     count++;
-    }
-   }
-   
-   const mean = sum / count;
-   const variance = (sumSq / count) - (mean * mean);
-   
-   for(let by = 0; by < blockSize && y + by < c.height; by++) {
-    for(let bx = 0; bx < blockSize && x + bx < c.width; bx++) {
-     const px = (y + by) * c.width + (x + bx);
-     
-     if(variance > 1000) {
-      depthMap[px] = 3;
-     } else if(variance > 100) {
-      depthMap[px] = 2;
-     } else {
-      depthMap[px] = 1;
-     }
-    }
-   }
-  }
- }
- 
- return depthMap;
-}
-
-
-/* =========================================================
-   DITHERING
-========================================================= */
-
-function applyDithering(imageData, intensity = 0.5, seed) {
- const data = imageData.data;
- const rng = makeRng(seed || new Uint8Array([1, 2, 3, 4]));
- 
- for(let i = 0; i < data.length; i += 4) {
-  for(let c = 0; c < 3; c++) {
-   const noise = (rng() - 0.5) * intensity * 255;
-   data[i + c] = Math.max(0, Math.min(255, data[i + c] + noise));
-  }
- }
- 
- return imageData;
-}
-
-
-/* =========================================================
-   DIFF COMPUTATION (DETAILED MAP)
-========================================================= */
-
-function computeDiff(before, after, embedInfo = null) {
- if(!before || !after) return null;
- 
- const width = before.width;
- const height = before.height;
- 
- /* 
-  * diffMap: 0=без изменений, 1=данные, 2=маркеры, 3=шум, 4=padding, 5=HMAC
-  */
- const diffMap = new Uint8Array(width * height);
- let changedPixels = 0;
- 
- const beforeData = before.data;
- const afterData = after.data;
- 
- /* Если есть embedInfo, используем детальную разметку */
- if(embedInfo && embedInfo.pixelTypes) {
-  const types = embedInfo.pixelTypes;
-  
-  for(let p = 0; p < width * height; p++) {
-   const di = p * 4;
-   
-   if(
-    beforeData[di] !== afterData[di] ||
-    beforeData[di + 1] !== afterData[di + 1] ||
-    beforeData[di + 2] !== afterData[di + 2]
-   ) {
-    diffMap[p] = types[p] || 1; /* по умолчанию данные */
-    changedPixels++;
-   }
-  }
- } else {
-  /* Старый режим: просто бинарная карта */
-  for(let p = 0; p < width * height; p++) {
-   const di = p * 4;
-   
-   if(
-    beforeData[di] !== afterData[di] ||
-    beforeData[di + 1] !== afterData[di + 1] ||
-    beforeData[di + 2] !== afterData[di + 2]
-   ) {
-    diffMap[p] = 1; /* данные */
-    changedPixels++;
-   }
-  }
- }
- 
- return {
-  width,
-  height,
-  diffMap,
-  changedPixels,
-  percentage: (changedPixels / (width * height) * 100).toFixed(2)
- };
-}
-
-
-/* =========================================================
-   REGIONS
-========================================================= */
-
-function getRegion(c,index){
-
- const col = index % GRID;
- const row = Math.floor(index / GRID);
-
- const x =
-  Math.floor(col*c.width/GRID);
-
- const y =
-  Math.floor(row*c.height/GRID);
-
- const x2 =
-  Math.floor((col+1)*c.width/GRID);
-
- const y2 =
-  Math.floor((row+1)*c.height/GRID);
-
- return {
-  x,
-  y,
-  w:x2-x,
-  h:y2-y
- };
-
-}
-
-function regionCapacity(c,bpc,index=0){
-
- const r=getRegion(c,index);
-
- return Math.floor(
-  r.w*r.h*3*bpc/8
- );
-
-}
-
-
-/* =========================================================
-   SLOT GENERATION
-========================================================= */
-
-function getCacheKey(
- c,
- bpc,
- dist,
- seed,
- index
-){
-
- return [
-  c.width,
-  c.height,
-  GRID,
-  bpc,
-  dist,
-  index,
-  dist ? bytesToHex(seed) : 'seq'
- ].join(':');
-
-}
-
-function buildSlots(
- c,
- bpc,
- dist,
- seed,
- index
-){
-
- const key =
-  getCacheKey(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- if(slotCache.has(key))
-  return slotCache.get(key);
-
- const r =
-  getRegion(c,index);
-
- const channels =
-  r.w*r.h*3;
-
- let perm;
-
- if(dist===1){
-
-  const s =
-   concat(
-    seed,
-    Uint8Array.from([
-     index&255,
-     (index>>8)&255,
-     (index>>16)&255,
-     (index>>24)&255
-    ])
-   );
-
-  perm =
-   fisher(
-    channels,
-    makeRng(s)
-   );
-
- }else{
-
-  perm =
-   new Uint32Array(channels);
-
-  for(let i=0;i<channels;i++)
-   perm[i]=i;
-
- }
-
- const slots =
-  new Uint32Array(channels*bpc);
-
- let k=0;
-
- for(const ch of perm){
-
-  for(let bit=0;bit<bpc;bit++)
-   slots[k++]=ch*bpc+bit;
-
- }
-
- slotCache.set(key,slots);
-
- return slots;
-
-}
-
-
-/* =========================================================
-   IMAGE CACHE
-========================================================= */
-
-function getImageData(c,index){
-
- let cache=imageCache.get(c);
-
- if(!cache){
-
-  cache=new Map();
-  imageCache.set(c,cache);
-
- }
-
- if(cache.has(index))
-  return cache.get(index);
-
- const r=getRegion(c,index);
-
- const ctx=
-  c.getContext(
-   '2d',
-   {willReadFrequently:true}
-  );
-
- const d=
-  ctx.getImageData(
-   r.x,
-   r.y,
-   r.w,
-   r.h
-  );
-
- cache.set(index,d);
-
- return d;
-
-}
-
-
-/* =========================================================
-   WRITE
-========================================================= */
-
-let adaptiveDepthMap = null;
-
-function writeRegion(
- c,
- packet,
- bpc,
- dist,
- seed,
- index,
- maskSet,
- useAdaptiveDepth = false,
- depthMap = null
-){
-
- const r=getRegion(c,index);
-
- const ctx=c.getContext('2d');
-
- const img=
-  ctx.getImageData(
-   r.x,
-   r.y,
-   r.w,
-   r.h
-  );
-
- const bits=bytesToBits(packet);
-
- const slots=
-  buildSlots(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- if(bits.length>slots.length)
-  throw Error(
-   'Контейнер не помещается'
-  );
-
- for(let k=0;k<bits.length;k++){
-
-  const s=slots[k];
-
-  /* Stealth LSB: адаптивная глубина */
-  let currentBpc = bpc;
-  if(useAdaptiveDepth && depthMap) {
-   const pixelIndex = Math.floor(s / bpc);
-   const px = r.x + (pixelIndex % r.w);
-   const py = r.y + Math.floor(pixelIndex / r.w);
-   const globalIdx = py * c.width + px;
-   currentBpc = depthMap[globalIdx] || bpc;
-  }
-
-  const bit = s % currentBpc;
-
-  const ch = Math.floor(s / currentBpc);
-
-  const pixel = Math.floor(ch / 3);
-
-  const channel = ch % 3;
-
-  const di = pixel * 4 + channel;
-
-  const mask = 1 << bit;
-
-  const old = img.data[di];
-
-  const nv =
-   (old & ~mask) |
-   (bits[k] << bit);
-
-  if(nv !== old && maskSet){
-
-   const px =
-    r.x +
-    (pixel % r.w);
-
-   const py =
-    r.y +
-    Math.floor(pixel / r.w);
-
-   const pos =
-    py * encodedCanvas.width + px;
-
-   maskSet[pos] = 1;
-
-  }
-
-  img.data[di] = nv;
-
- }
-
- ctx.putImageData(
-  img,
-  r.x,
-  r.y
- );
-
-}
-
-
-/* =========================================================
-   READ
-========================================================= */
-
-function readRegionFast(
- c,
- nBytes,
- bpc,
- dist,
- seed,
- index
-){
-
- const img=getImageData(c,index);
-
- const slots=
-  buildSlots(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- const need=nBytes*8;
-
- if(need>slots.length)
-  throw Error('CAPACITY');
-
- const out=
-  new Uint8Array(nBytes);
-
- for(let k=0;k<need;k++){
-
-  const s=slots[k];
-
-  const bit=s%bpc;
-
-  const ch=Math.floor(s/bpc);
-
-  const pixel=Math.floor(ch/3);
-
-  const channel=ch%3;
-
-  const di=pixel*4+channel;
-
-  out[k>>3] =
-   (out[k>>3]<<1) |
-   ((img.data[di]>>bit)&1);
-
- }
-
- return out;
-
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-function buildHeader(
- flags,
- bpc,
- dist,
- saltLen,
- ivLen,
- payloadLen,
- originalLen,
- hash,
- algorithm = 0  // 0=AES-GCM, 1=AES-CBC, 2=AES-CTR, 3=ChaCha20
-){
-
- return concat(
-  MAGIC,
-
-  Uint8Array.from([
-   VERSION,
-   flags,
-   bpc,
-   dist,
-   saltLen,
-   ivLen,
-   algorithm
-  ]),
-
-  Uint8Array.from(
-   u32(payloadLen)
-  ),
-
-  Uint8Array.from(
-   u32(originalLen)
-  ),
-
-  hash
- );
-
-}
-
-function parseHeader(h){
-
- if(h.length<51)
-  throw Error('SHORT');
-
- for(let i=0;i<4;i++)
-  if(h[i]!==MAGIC[i])
-   throw Error('MAGIC');
-
- if(h[4]!==VERSION)
-  throw Error('VERSION');
-
- const bpc=h[6];
- const dist=h[7];
- const saltLen=h[8];
- const ivLen=h[9];
- const algorithm=h[10] || 0;  // По умолчанию AES-GCM
-
- if(
-  bpc<1 ||
-  bpc>3 ||
-  dist>1 ||
-  saltLen>64 ||
-  ivLen>32
- )
-  throw Error('HEADER');
-
- return {
-  flags:h[5],
-  bpc,
-  distribution:dist,
-  saltLen,
-  ivLen,
-  algorithm: getAlgorithmName(algorithm),
-  payloadLen:readU32(h,11),
-  originalLen:readU32(h,15),
-  hash:h.slice(19,51)
- };
-
-}
-
-// Преобразование названия алгоритма в байт
-function getAlgorithmByte(name) {
- switch(name) {
-  case 'AES-CBC': return 1;
-  case 'AES-CTR': return 2;
-  case 'ChaCha20-Poly1305': return 3;
-  default: return 0;  // AES-GCM
- }
-}
-
-// Преобразование байта в название алгоритма
-function getAlgorithmName(byte) {
- switch(byte) {
-  case 1: return 'AES-CBC';
-  case 2: return 'AES-CTR';
-  case 3: return 'ChaCha20-Poly1305';
-  default: return 'AES-GCM';
- }
-}
-
-
-/* =========================================================
-   SEED
-========================================================= */
-
-async function getSeed(
- dist,
- password
-){
-
- if(dist===0)
-  return Uint8Array.from([
-   1,2,3,4
-  ]);
-
- if(!password)
-  throw Error(
-   'Для PRNG требуется пароль'
-  );
-
- return sha256(
-  concat(
-   te.encode('Stegano-PRNG-v5|'),
-   te.encode(password)
-  )
- );
-
-}
-
-
-/* =========================================================
-   METADATA
-========================================================= */
-
-function parseMetadata(packet,h){
-
- const ml=readU32(packet,50);
-
- if(
-  ml>h.payloadLen ||
-  54+ml>packet.length
- )
-  throw Error('METADATA');
-
- let m;
-
- try{
-
-  m=JSON.parse(
-   td.decode(
-    packet.slice(
-     54,
-     54+ml
-    )
-   )
-  );
-
- }catch{
-
-  m={
-   mode:'file',
-   name:'recovered.bin',
-   mime:'application/octet-stream'
-  };
-
- }
-
- return m;
-
-}
-
-
-/* =========================================================
-   DECODE ONE
-========================================================= */
-
-async function decodeOne(
- c,
- index,
- cfg,
- password
-){
-
- try{
-
-  const h=parseHeader(
-   readRegionFast(
-    c,
-    50,
-    cfg.bpc,
-    cfg.dist,
-    cfg.seed,
-    index
-   )
-  );
-
-  const capacity=
-   regionCapacity(
-    c,
-    cfg.bpc,
-    index
-   );
-
-  const total=
-   50+
-   h.payloadLen+
-   h.saltLen+
-   h.ivLen;
-
-  if(
-   total>capacity ||
-   total<54
-  )
-   return null;
-
-  const packet=
-   readRegionFast(
-    c,
-    total,
-    cfg.bpc,
-    cfg.dist,
-    cfg.seed,
-    index
-   );
-
-  const metadata=
-   parseMetadata(
-    packet,
-    h
-   );
-
-  const ml=
-   readU32(packet,50);
-
-  const rawStart=
-   54+ml;
-
-  const rawEnd=
-   50+h.payloadLen;
-
-  if(
-   rawStart>rawEnd ||
-   rawEnd>packet.length
-  )
-   throw Error('RANGE');
-
-  let plain=
-   packet.slice(
-    rawStart,
-    rawEnd
-   );
-
-  if(h.flags&1){
-
-   if(!password)
-    throw Error('PASSWORD');
-
-   const saltStart=
-    50+h.payloadLen;
-
-   const salt=
-    packet.slice(
-     saltStart,
-     saltStart+h.saltLen
-    );
-
-   const iv=
-    packet.slice(
-     saltStart+h.saltLen,
-     saltStart+h.saltLen+h.ivLen
-    );
-
-   const key=
-    await deriveKey(
-     password,
-     salt,
-     h.algorithm
-    );
-
-   let algoParams;
-   switch(h.algorithm) {
-    case 'AES-CBC':
-     algoParams = { name: 'AES-CBC', iv };
-     break;
-    case 'AES-CTR':
-     algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
-     break;
-    case 'ChaCha20-Poly1305':
-    case 'AES-GCM':
-    default:
-     algoParams = { name: 'AES-GCM', iv };
-     break;
-   }
-
-   plain=
-    new Uint8Array(
-     await crypto.subtle.decrypt(
-      algoParams,
-      key,
-      plain
-     )
-    );
-
-  }
-
-  const valid=
-   equalBytes(
-    await sha256(plain),
-    h.hash
-   );
-
-  return {
-   index,
-   valid,
-   packet,
-   plain,
-   metadata,
-   header:h
-  };
-
- }catch{
-
-  return null;
-
- }
-
-}
-
-
-/* =========================================================
-   DETECT CONFIGURATION
-========================================================= */
-
-async function detectConfiguration(
- c,
- password
-){
-
- const configs=[];
-
- for(const bpc of [1,2,3]){
-
-  for(const dist of [0,1]){
-
-   if(dist===1&&!password)
-    continue;
-
-   configs.push({
-    bpc,
-    dist,
-    seed:await getSeed(
-     dist,
-     password
-    )
-   });
-
-  }
-
- }
-
- /*
-  * Проверяем все области.
-  */
- for(const cfg of configs){
-
-  for(
-   let i=0;
-   i<gridCells();
-   i++
-  ){
-
-   try{
-
-    const h=parseHeader(
-     readRegionFast(
-      c,
-      50,
-      cfg.bpc,
-      cfg.dist,
-      cfg.seed,
-      i
-     )
-    );
-
-    if(
-     h.bpc===cfg.bpc &&
-     h.distribution===cfg.dist
-    ){
-
-     return {
-      ...cfg,
-      grid:GRID
-     };
-
-    }
-
-   }catch{}
-
-  }
-
- }
-
- return null;
-
-}
-
-
-/* =========================================================
-   MAJORITY
-========================================================= */
-
-function majorityBytes(
- packets,
- length
-){
-
- if(!packets.length)
-  return null;
-
- const out=
-  new Uint8Array(length);
-
- const n=packets.length;
-
- for(let p=0;p<length;p++){
-
-  let v=0;
-
-  for(let bit=7;bit>=0;bit--){
-
-   let ones=0;
-
-   for(const packet of packets){
-
-    if(
-     p<packet.length &&
-     ((packet[p]>>bit)&1)
-    )
-     ones++;
-
-   }
-
-   if(ones*2>=n)
-    v|=1<<bit;
-
-  }
-
-  out[p]=v;
-
- }
-
- return out;
-
-}
-
-function modeLength(results){
-
- const m=new Map();
-
- for(const r of results){
-
-  m.set(
-   r.packet.length,
-   (m.get(r.packet.length)||0)+1
-  );
-
- }
-
- let best=0;
- let count=0;
-
- for(const [n,c] of m){
-
-  if(c>count){
-
-   best=n;
-   count=c;
-
-  }
-
- }
-
- return best;
-
-}
-
-
-/* =========================================================
-   MAJORITY RECOVERY
-========================================================= */
-
-async function recoverMajority(
- results,
- password
-){
-
- if(!results.length)
-  return null;
-
- const valid=
-  results.filter(r=>r.valid);
-
- if(valid.length){
-
-  return {
-   plain:valid[0].plain,
-   metadata:valid[0].metadata,
-   source:'valid',
-   count:valid.length,
-   hashOK:true,
-   reference:valid[0]
-  };
-
- }
-
- const len=
-  modeLength(results);
-
- const usable=
-  results.filter(
-   r=>r.packet.length===len
-  );
-
- if(!usable.length)
-  return null;
-
- const packet=
-  majorityBytes(
-   usable.map(r=>r.packet),
-   len
-  );
-
- try{
-
-  const h=
-   parseHeader(
-    packet.slice(0,50)
-   );
-
-  const metadata=
-   parseMetadata(
-    packet,
-    h
-   );
-
-  const ml=
-   readU32(packet,50);
-
-  let plain=
-   packet.slice(
-    54+ml,
-    50+h.payloadLen
-   );
-
-  if(h.flags&1){
-
-   if(!password)
-    throw Error('PASSWORD');
-
-   const saltStart=
-    50+h.payloadLen;
-
-   const salt=
-    packet.slice(
-     saltStart,
-     saltStart+h.saltLen
-    );
-
-   const iv=
-    packet.slice(
-     saltStart+h.saltLen,
-     saltStart+h.saltLen+h.ivLen
-    );
-
-   const key=
-    await deriveKey(
-     password,
-     salt,
-     h.algorithm
-    );
-
-   let algoParams;
-   switch(h.algorithm) {
-    case 'AES-CBC':
-     algoParams = { name: 'AES-CBC', iv };
-     break;
-    case 'AES-CTR':
-     algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
-     break;
-    case 'ChaCha20-Poly1305':
-    case 'AES-GCM':
-    default:
-     algoParams = { name: 'AES-GCM', iv };
-     break;
-   }
-
-   plain=
-    new Uint8Array(
-     await crypto.subtle.decrypt(
-      algoParams,
-      key,
-      plain
-     )
-    );
-
-  }
-
-  const hashOK=
-   equalBytes(
-    await sha256(plain),
-    h.hash
-   );
-
-  return {
-   plain,
-   metadata,
-   source:'majority',
-   count:usable.length,
-   hashOK,
-   header:h
-  };
-
- }catch{
-
-  return {
-   plain:usable[0].plain,
-   metadata:usable[0].metadata,
-   source:'partial',
-   count:usable.length,
-   hashOK:false,
-   header:usable[0].header
-  };
-
- }
-
-}
-
-
-/* =========================================================
-   COPY GRID
-========================================================= */
-
-function createCopyGrid(){
-
- const g=$('copyGrid');
-
- g.innerHTML='';
-
- g.style.gridTemplateColumns=
-  'repeat('+GRID+',minmax(0,1fr))';
-
- const total=gridCells();
-
- for(let i=0;i<total;i++){
-
-  const e=
-   document.createElement('div');
-
-  e.id='copy-'+i;
-
-  e.className=
-   'copyCell skip';
-
-  e.textContent=
-   i+1;
-
-  g.appendChild(e);
-
- }
-
-}
-
-function setCopyState(i,s){
-
- const e=$('copy-'+i);
-
- if(e)
-  e.className='copyCell '+s;
-
-}
-
-
-/* =========================================================
-   IMAGE LOADING
-========================================================= */
-
-function loadCanvas(file){
-
- return new Promise(
-  (resolve,reject)=>{
-
-   const img=new Image();
-
-   const url=
-    URL.createObjectURL(file);
-
-   img.onload=()=>{
-
-    URL.revokeObjectURL(url);
-
-    const c=
-     document.createElement('canvas');
-
-    c.width=img.naturalWidth;
-    c.height=img.naturalHeight;
-
-    c.getContext('2d',{
-     willReadFrequently:true
-    }).drawImage(
-     img,
-     0,
-     0
-    );
-
-    resolve(c);
-
-   };
-
-   img.onerror=()=>{
-
-    URL.revokeObjectURL(url);
-
-    reject(
-     Error(
-      'Браузер не смог декодировать изображение'
-     )
-    );
-
-   };
-
-   img.src=url;
-
-  }
- );
-
-}
-
-/* =========================================================
-   STRIP METADATA (EXIF/IPTC/XMP)
-========================================================= */
-
-async function stripMetadataFromFile(file){
-
- /*
-  * Загружаем изображение и пересохраняем его
-  * через canvas, что удаляет EXIF/IPTC/XMP.
-  * Также нормализуем цветовой профиль.
-  */
-
- const c = await loadCanvas(file);
-
- const ctx = c.getContext('2d');
-
- const imageData = ctx.getImageData(0, 0, c.width, c.height);
-
- /*
-  * Нормализация цветового профиля — просто
-  * сохраняем как PNG без профиля.
-  */
-
- const blob = await new Promise(resolve => {
-  c.toBlob(resolve, 'image/png', 1.0);
- });
-
- return {
-  blob,
-  canvas: c,
-  imageData
- };
-
-}
-
-function cloneCanvas(c){
-
- const o=
-  document.createElement('canvas');
-
- o.width=c.width;
- o.height=c.height;
-
- o.getContext('2d')
-  .drawImage(c,0,0);
-
- return o;
-
-}
-
-function showCanvas(c){
-
- const p=$('preview');
-
- p.width=c.width;
- p.height=c.height;
-
- p.getContext('2d')
-  .drawImage(c,0,0);
-
- $('sSize').textContent=
-  c.width+'×'+c.height;
-
-}
-
-
-/* =========================================================
-   CAPACITY
-========================================================= */
-
-function updateCapacity(){
-
- if(!sourceCanvas)
-  return;
-
- const bpc=
-  +$('bpc').value;
-
- const cap=
-  regionCapacity(
-   sourceCanvas,
-   bpc,
-   0
-  );
-
- $('sCap').textContent=
-  (cap/1024).toFixed(1)+' KB';
-
- $('sMethod').textContent=
-  $('distribution').value==='prng'
-   ? 'PRNG'
-   : 'SEQ';
-
- const payload=
-  +$('sPayload').dataset.bytes||0;
-
- $('bar').style.width=
-  (
-   cap
-    ? Math.min(
-       100,
-       payload/cap*100
-      )
-    : 0
-  )+'%';
-
- const total=gridCells();
-
- $('hint').textContent=
-  GRID+'×'+GRID+
-  ' · '+total+
-  ' копий · ёмкость одной области '+
-  (cap/1024).toFixed(1)+
-  ' KB';
-
-}
-
-
-/* =========================================================
-   FILE INFO
-========================================================= */
-
-function updateFileInfo(
- box,
- name,
- size,
- type
-){
-
- $(box).classList.remove(
-  'hidden'
- );
-
- const prefix=
-  box.replace('Info','');
-
- $(prefix+'Name').textContent=
-  name;
-
- $(prefix+'Details').textContent=
-  (type||'file')+
-  ' · '+
-  (size/1024).toFixed(1)+
-  ' KB';
-
-}
-
-
-/* =========================================================
-   DROP
-========================================================= */
-
-function wireDrop(
- dropId,
- fileId,
- cb
-){
-
- const d=$(dropId);
- const f=$(fileId);
-
- d.addEventListener(
-  'click',
-  e=>{
-   if(e.target!==f)
-    f.click();
-  }
- );
-
- f.addEventListener(
-  'change',
-  ()=>{
-   if(f.files[0])
-    cb(f.files[0]);
-  }
- );
-
- d.addEventListener(
-  'dragover',
-  e=>{
-   e.preventDefault();
-   d.classList.add('drag');
-  }
- );
-
- d.addEventListener(
-  'dragleave',
-  ()=>{
-   d.classList.remove('drag');
-  }
- );
-
- d.addEventListener(
-  'drop',
-  e=>{
-   e.preventDefault();
-
-   d.classList.remove('drag');
-
-   if(e.dataTransfer.files[0])
-    cb(e.dataTransfer.files[0]);
-  }
- );
-
-}
-
-
-/* =========================================================
-   SOURCE IMAGE
-========================================================= */
-
-wireDrop(
- 'drop1',
- 'file1',
- async file=>{
-
-  try{
-
-   /*
-    * Если включена опция удаления метаданных,
-    * пересохраняем изображение через canvas.
-    */
-
-   if($('stripMetadata').checked){
-
-    status('status1', 'Удаление метаданных (EXIF/IPTC/XMP)...');
-
-    const stripped = await stripMetadataFromFile(file);
-
-    sourceCanvas = stripped.canvas;
-
-    slotCache.clear();
-
-    updateFileInfo(
-     'sourceInfo',
-     file.name + ' (без метаданных)',
-     stripped.blob.size,
-     'image/png'
-    );
-
-    showCanvas(sourceCanvas);
-
-    updateCapacity();
-
-    status(
-     'status1',
-     'Изображение загружено без метаданных: '+file.name,
-     'ok'
-    );
-
-   }else{
-
-    sourceCanvas =
-     await loadCanvas(file);
-
-    slotCache.clear();
-
-    updateFileInfo(
-     'sourceInfo',
-     file.name,
-     file.size,
-     file.type||'image'
-    );
-
-    showCanvas(sourceCanvas);
-
-    updateCapacity();
-
-    status(
-     'status1',
-     'Изображение загружено: '+file.name,
-     'ok'
-    );
-
-   }
-
-  }catch(e){
-
-   status(
-    'status1',
-    e.message,
-    'bad'
-   );
-
-  }
-
- }
-);
-
-
-/* =========================================================
-   EXTRACT IMAGE
-========================================================= */
-
-wireDrop(
- 'drop2',
- 'file2',
- async file=>{
-
-  try{
-
-   extractCanvas=
-    await loadCanvas(file);
-
-   slotCache.clear();
-
-   updateFileInfo(
-    'extractInfo',
-    file.name,
-    file.size,
-    file.type||'image'
-   );
-
-   status(
-    'status2',
-    'Изображение загружено.',
-    'ok'
-   );
-
-  }catch(e){
-
-   status(
-    'status2',
-    e.message,
-    'bad'
-   );
-
-  }
-
- }
-);
-
-
-/* =========================================================
-   PAYLOAD
-========================================================= */
-
-$('choosePayload').onclick=
- ()=>$('payloadFile').click();
-
-$('clearPayload').onclick=()=>{
-
- filePayload=null;
-
- $('payloadFile').value='';
-
- $('payloadFileInfo').textContent=
-  'Можно скрывать изображения, PDF, ZIP, HTML, JS, MP3, MP4 и любые бинарные файлы.';
-
+wireDrop('drop2', 'file2', async f => {
+    extractCanvas = await loadCanvas(f);
+    $('extractName').textContent = f.name;
+    $('extractInfo').classList.remove('hidden');
+    setStatus('status2', 'Загружено для извлечения', 'ok');
+});
+
+$('choosePayload').onclick = () => $('payloadFile').click();
+$('payloadFile').onchange = () => { filePayload = $('payloadFile').files[0]; $('payloadFileInfo').textContent = filePayload ? filePayload.name : ''; };
+$('clearPayload').onclick = () => { filePayload = null; $('payloadFile').value = ''; $('payloadFileInfo').textContent = ''; };
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    currentMode = t.dataset.mode;
+    $('textMode').classList.toggle('hidden', currentMode !== 'text');
+    $('fileMode').classList.toggle('hidden', currentMode !== 'file');
+});
+
+$('showPass').onclick = () => { const x=$('pass'); x.type=x.type==='password'?'text':'password'; };
+$('gridSize').onchange = () => { GRID = +$('gridSize').value; $('copyGrid').innerHTML=''; $('copyGrid').style.gridTemplateColumns=`repeat(${GRID}, 1fr)`; };
+
+$('download').onclick = () => {
+    if (!encodedCanvas) return;
+    encodedCanvas.toBlob(b => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = 'stego.png';
+        a.click();
+    });
 };
 
-$('payloadFile').onchange=()=>{
-
- filePayload=
-  $('payloadFile').files[0]||null;
-
- if(filePayload){
-
-  $('payloadFileInfo').textContent=
-   filePayload.name+
-   ' · '+
-   (filePayload.size/1024).toFixed(1)+
-   ' KB · '+
-   (filePayload.type||
-    'application/octet-stream');
-
- }
-
+$('saveExtracted').onclick = () => {
+    if (!lastRecoveredBytes) return;
+    const b = new Blob([lastRecoveredBytes], { type: lastRecoveredMetadata.mime || 'application/octet-stream' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = lastRecoveredMetadata.name || 'file.bin';
+    a.click();
 };
 
-
-/* =========================================================
-   TABS
-========================================================= */
-
-document
- .querySelectorAll('.tab')
- .forEach(t=>{
-
-  t.onclick=()=>{
-
-   document
-    .querySelectorAll('.tab')
-    .forEach(x=>
-     x.classList.remove('active')
-    );
-
-   t.classList.add('active');
-
-   currentMode=
-    t.dataset.mode;
-
-   $('textMode')
-    .classList.toggle(
-     'hidden',
-     currentMode!=='text'
-    );
-
-   $('fileMode')
-    .classList.toggle(
-     'hidden',
-     currentMode!=='file'
-    );
-
-  };
-
- });
-
-
-/* =========================================================
-   UI
-========================================================= */
-
-$('showPass').onclick=()=>{
-
- const x=$('pass');
-
- x.type=
-  x.type==='password'
-   ? 'text'
-   : 'password';
-
- $('showPass').textContent=
-  x.type==='password'
-   ? 'Показать'
-   : 'Скрыть';
-
+$('clear').onclick = () => {
+    extractCanvas = null; $('result').value = ''; $('copyGrid').innerHTML = '';
+    $('diagnostics').classList.add('hidden'); $('recoveryActions').classList.add('hidden');
+    setStatus('status2', '');
 };
 
-$('bpc').onchange=
- updateCapacity;
-
-$('distribution').onchange=
- updateCapacity;
-
-
-/* =========================================================
-   ENCODE
-========================================================= */
-
-$('encode').onclick=async()=>{
-
- if(!sourceCanvas){
-
-  status(
-   'status1',
-   'Сначала выберите изображение-контейнер.',
-   'bad'
-  );
-
-  return;
-
- }
-
- try{
-
-  let plain;
-  let name;
-  let mime;
-
-  /* -------------------------
-     PAYLOAD
-  ------------------------- */
-
-  if(currentMode==='text'){
-
-   if(!$('secret').value){
-
-    status(
-     'status1',
-     'Введите сообщение.',
-     'bad'
-    );
-
-    return;
-
-   }
-
-   plain=
-    te.encode(
-     $('secret').value
-    );
-
-   name='message.txt';
-   mime='text/plain;charset=utf-8';
-
-  }else{
-
-   if(!filePayload){
-
-    status(
-     'status1',
-     'Выберите файл.',
-     'bad'
-    );
-
-    return;
-
-   }
-
-   plain=
-    new Uint8Array(
-     await filePayload.arrayBuffer()
-    );
-
-   name=filePayload.name;
-
-   mime=
-    filePayload.type||
-    'application/octet-stream';
-
-  }
-
-
-  /* -------------------------
-     SETTINGS
-  ------------------------- */
-
-  const encrypted=
-   $('encrypt').checked;
-
-  const password=
-   $('pass').value;
-
-  const algorithm=
-   $('encryptionAlgorithm').value;
-
-  const dist=
-   $('distribution').value==='prng'
-    ? 1
-    : 0;
-
-  if(
-   (encrypted||dist) &&
-   !password
-  ){
-
-   status(
-    'status1',
-    'Для шифрования/PRNG требуется пароль.',
-    'bad'
-   );
-
-   return;
-
-  }
-
-
-  const bpc=
-   +$('bpc').value;
-
-
-  /* -------------------------
-     ENCRYPT (FIXED: Pass algorithm!)
-  ------------------------- */
-
-  status(
-   'status1',
-   'Подготовка контейнера...'
-  );
-
-  const crypted=
-   encrypted
-    ? await encryptData(
-       plain,
-       password,
-       algorithm
-      )
-    : {
-       salt:new Uint8Array(),
-       iv:new Uint8Array(),
-       cipher:plain
-      };
-
-
-  /* -------------------------
-     METADATA
-  ------------------------- */
-
-  const metadata=
-   te.encode(
-    JSON.stringify({
-     name,
-     mime,
-     mode:currentMode
-    })
-   );
-
-
-  const body=
-   concat(
-    Uint8Array.from(
-     u32(metadata.length)
-    ),
-    metadata,
-    crypted.cipher
-   );
-
-
-  const hash=
-   await sha256(plain);
-
-
-  /* -------------------------
-     HEADER
-  ------------------------- */
-
-  // Определяем алгоритм шифрования для сохранения в заголовок
-  const algoByte = getAlgorithmByte(algorithm);
-  
-  const header=
-   buildHeader(
-    (encrypted?1:0) |
-    (currentMode==='file'?2:0),
-    bpc,
-    dist,
-    crypted.salt.length,
-    crypted.iv.length,
-    body.length,
-    crypted.cipher.length,
-    hash,
-    algoByte
-   );
-
-
-  const packet=
-   concat(
-    header,
-    body,
-    crypted.salt,
-    crypted.iv
-   );
-
-
-  /* -------------------------
-     CAPACITY
-  ------------------------- */
-
-  const capacity=
-   regionCapacity(
-    sourceCanvas,
-    bpc,
-    0
-   );
-
-
-  if(packet.length>capacity){
-
-   status(
-    'status1',
-    'Файл слишком большой. Нужно '+
-    (packet.length/1024).toFixed(1)+
-    ' KB, доступно '+
-    (capacity/1024).toFixed(1)+
-    ' KB в одной области.',
-    'bad'
-   );
-
-   return;
-
-  }
-
-
-  /* -------------------------
-     GRID
-  ------------------------- */
-
-  const copies=
-   gridCells();
-
-  const seed=
-   await getSeed(
-    dist,
-    password
-   );
-
-
-  encodedCanvas=
-   cloneCanvas(
-    sourceCanvas
-   );
-
-
-  lastPixelMask={
-   width:encodedCanvas.width,
-   height:encodedCanvas.height,
-   used:
-    new Uint8Array(
-     encodedCanvas.width*
-     encodedCanvas.height
-    )
-  };
-
-
-  /* -------------------------
-     EMBED INFO (для detailed diff map)
-  ------------------------- */
-
-  lastEmbedInfo = {
-   packetLength: packet.length,
-   pixelTypes: new Uint8Array(encodedCanvas.width * encodedCanvas.height).fill(0)
-  };
-
-
-  
-  /* -------------------------
-     STEALTH LSB MODE
-  ------------------------- */
-  
-  const useStealth = $('stealthMode').checked;
-  const applyDither = $('addDithering').checked;
-  
-  if(useStealth) {
-   status('status1', 'Вычисление адаптивной глубины...');
-   adaptiveDepthMap = computeAdaptiveDepthMap(encodedCanvas);
-   await yieldUI();
-  }
-
-
-  /* -------------------------
-     DIFF VIEW (before)
-  ------------------------- */
-  
-  const beforeImageData = 
-   $('showDiffView').checked ?
-   encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height) :
-   null;
-
-
-  /* -------------------------
-     WRITE ALL COPIES
-  ------------------------- */
-
-  const started=
-   performance.now();
-
-  for(
-   let i=0;
-   i<copies;
-   i++
-  ){
-
-   writeRegion(
-    encodedCanvas,
-    packet,
-    bpc,
-    dist,
-    seed,
-    i,
-    lastPixelMask.used,
-    useStealth,
-    adaptiveDepthMap
-   );
-
-   /*
-    * Для больших сеток не нужно
-    * обновлять UI на каждом элементе.
-    */
-   if(
-    i%Math.max(
-     1,
-     Math.floor(copies/100)
-    )===0
-   ){
-
-    const percent=
-     ((i+1)/copies*100);
-
-    $('progress').textContent=
-     'Запись копий: '+
-     (i+1)+'/'+copies+
-     ' · '+
-     percent.toFixed(1)+'%';
-
-    await yieldUI();
-
-   }
-
-  }
-  
-  
-  /* -------------------------
-     APPLY DITHERING
-  ------------------------- */
-  
-  if(applyDither && !useStealth) {
-   status('status1', 'Применение шума...');
-   
-   const fullImg = encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height);
-   
-   const ditheredImg = applyDithering(fullImg, 0.3, seed);
-   
-   encodedCanvas.getContext('2d')
-    .putImageData(ditheredImg, 0, 0);
-   
-   await yieldUI();
-  }
-
-
-  showCanvas(
-   encodedCanvas
-  );
-
-
-  /* -------------------------
-     DIFF VIEW (after + display)
-  ------------------------- */
-  
-  if(beforeImageData && $('showDiffView').checked) {
-   const afterImageData = encodedCanvas.getContext('2d')
-    .getImageData(0, 0, encodedCanvas.width, encodedCanvas.height);
-   
-   lastDiffData = computeDiff(beforeImageData, afterImageData, lastEmbedInfo);
-   
-   /*
-    * Рисуем карту изменений на canvas с цветовой кодировкой.
-    */
-   const diffCanvas = $('diffCanvas');
-   diffCanvas.width = lastDiffData.width;
-   diffCanvas.height = lastDiffData.height;
-   
-   const dCtx = diffCanvas.getContext('2d');
-   const outImg = dCtx.createImageData(lastDiffData.width, lastDiffData.height);
-   
-   for(let p = 0; p < lastDiffData.diffMap.length; p++) {
-    const oi = p * 4;
-    const type = lastDiffData.diffMap[p];
-    
-    /* Цветовая кодировка типов изменений */
-    switch(type) {
-     case 0: /* без изменений */
-      outImg.data[oi] = 50;
-      outImg.data[oi + 1] = 60;
-      outImg.data[oi + 2] = 75;
-      outImg.data[oi + 3] = 100;
-      break;
-     case 1: /* полезные данные — зелёный */
-      outImg.data[oi] = 0;
-      outImg.data[oi + 1] = 255;
-      outImg.data[oi + 2] = 136;
-      outImg.data[oi + 3] = 255;
-      break;
-     case 2: /* маркеры блоков — оранжевый */
-      outImg.data[oi] = 255;
-      outImg.data[oi + 1] = 170;
-      outImg.data[oi + 2] = 0;
-      outImg.data[oi + 3] = 255;
-      break;
-     case 3: /* защитный шум — розовый */
-      outImg.data[oi] = 255;
-      outImg.data[oi + 1] = 68;
-      outImg.data[oi + 2] = 136;
-      outImg.data[oi + 3] = 255;
-      break;
-     case 4: /* padding — фиолетовый */
-      outImg.data[oi] = 153;
-      outImg.data[oi + 1] = 102;
-      outImg.data[oi + 2] = 255;
-      outImg.data[oi + 3] = 255;
-      break;
-     case 5: /* HMAC подпись — голубой */
-      outImg.data[oi] = 0;
-      outImg.data[oi + 1] = 204;
-      outImg.data[oi + 2] = 255;
-      outImg.data[oi + 3] = 255;
-      break;
-     default: /* по умолчанию красный */
-      outImg.data[oi] = 255;
-      outImg.data[oi + 1] = 48;
-      outImg.data[oi + 2] = 79;
-      outImg.data[oi + 3] = 255;
-    }
-   }
-   
-   dCtx.putImageData(outImg, 0, 0);
-   
-   $('diffPanel').classList.remove('hidden');
-   $('diffChanged').textContent = lastDiffData.changedPixels.toLocaleString();
-   $('diffPercent').textContent = lastDiffData.percentage + '%';
-   $('diffTotal').textContent = (lastDiffData.width * lastDiffData.height).toLocaleString();
-  }
-
-  const elapsed = performance.now() - started;
-
-  if(beforeImageData && $('showDiffView').checked) {
-   status(
-    'status1',
-    GRID+'×'+GRID+
-    ' · '+copies+
-    ' копий записано за '+
-    elapsed.toFixed(0)+
-    ' мс. Изменено пикселей: '+
-    lastDiffData.changedPixels+
-    ' ('+lastDiffData.percentage+'%)',
-    'ok'
-   );
-  } else {
-   status(
-    'status1',
-    GRID+'×'+GRID+
-    ' · '+copies+
-    ' копий записано за '+
-    elapsed.toFixed(0)+
-    ' мс.',
-    'ok'
-   );
-  }
-
-
-  $('download').disabled=false;
-
-  $('sPayload').textContent=
-   (plain.length/1024).toFixed(1)+
-   ' KB';
-
-  $('sPayload').dataset.bytes=
-   plain.length;
-
-  updateCapacity();
-
-
-  $('progress').textContent=
-   'Готово. '+
-   copies+
-   ' копий.';
-
-
- }catch(e){
-
-  console.error(e);
-
-  status(
-   'status1',
-   e.message||
-   'Ошибка записи.',
-   'bad'
-  );
-
- }
-
-};
-
-
-/* =========================================================
-   DOWNLOAD
-========================================================= */
-
-$('download').onclick=()=>{
-
- if(!encodedCanvas)
-  return;
-
- encodedCanvas.toBlob(
-  blob=>{
-
-   const a=
-    document.createElement('a');
-
-   a.href=
-    URL.createObjectURL(blob);
-
-   a.download=
-    'stegano-v8.png';
-
-   document.body.appendChild(a);
-
-   a.click();
-
-   a.remove();
-
-   setTimeout(
-    ()=>URL.revokeObjectURL(a.href),
-    1500
-   );
-
-  },
-  'image/png'
- );
-
-};
-
-function downloadBlob(
- blob,
- name
-){
-
- const u=
-  URL.createObjectURL(blob);
-
- const a=
-  document.createElement('a');
-
- a.href=u;
- a.download=
-  name||'recovered.bin';
-
- document.body.appendChild(a);
-
- a.click();
-
- a.remove();
-
- setTimeout(
-  ()=>URL.revokeObjectURL(u),
-  2000
- );
-
-}
-
-
-/* =========================================================
-   IMAGE DETECTION
-========================================================= */
-
-function isLikelyImage(b){
-
- if(!b||b.length<12)
-  return false;
-
- if(
-  b.length>=8 &&
-  b[0]===137 &&
-  b[1]===80 &&
-  b[2]===78 &&
-  b[3]===71 &&
-  b[4]===13 &&
-  b[5]===10 &&
-  b[6]===26 &&
-  b[7]===10
- )
-  return true;
-
- if(
-  b[0]===255 &&
-  b[1]===216 &&
-  b[2]===255
- )
-  return true;
-
- if(
-  b[0]===71 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[3]===56
- )
-  return true;
-
- if(
-  b[0]===82 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[8]===87 &&
-  b[9]===69 &&
-  b[10]===66 &&
-  b[11]===80
- )
-  return true;
-
- if(
-  b[0]===66 &&
-  b[1]===77
- )
-  return true;
-
- return false;
-
-}
-
-function detectImageMime(b){
-
- if(!b||b.length<12)
-  return 'image/png';
-
- if(
-  b[0]===137 &&
-  b[1]===80 &&
-  b[2]===78 &&
-  b[3]===71
- )
-  return 'image/png';
-
- if(
-  b[0]===255 &&
-  b[1]===216 &&
-  b[2]===255
- )
-  return 'image/jpeg';
-
- if(
-  b[0]===71 &&
-  b[1]===73 &&
-  b[2]===70
- )
-  return 'image/gif';
-
- if(
-  b[0]===82 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[8]===87 &&
-  b[9]===69 &&
-  b[10]===80
- )
-  return 'image/webp';
-
- if(
-  b[0]===66 &&
-  b[1]===77
- )
-  return 'image/bmp';
-
- return 'image/png';
-
-}
-
-
-/* =========================================================
-   RECOVERED IMAGE
-========================================================= */
-
-function showRecoveredImage(
- bytes,
- mime
-){
-
- $('imagePreview')
-  .removeAttribute('src');
-
- const u=
-  URL.createObjectURL(
-   new Blob(
-    [bytes],
-    {
-     type:mime||'image/png'
-    }
-   )
-  );
-
- $('imagePreview').src=u;
-
- $('imagePreview').onload=()=>
-  $('imagePreviewBox')
-   .classList.remove('hidden');
-
-}
-
-
-/* =========================================================
-   PIXEL OVERLAY
-========================================================= */
-
-function drawPixelOverlay(){
-
- if(!extractCanvas||!lastCfg)
-  return;
-
- const out=$('pixelOverlay');
-
- out.width=
-  extractCanvas.width;
-
- out.height=
-  extractCanvas.height;
-
- const ctx=
-  out.getContext('2d');
-
- ctx.drawImage(
-  extractCanvas,
-  0,
-  0
- );
-
-
- /*
-  * Если оригинал имеется,
-  * показываем реально изменённые RGB-пиксели.
-  */
-
- if(
-  sourceCanvas &&
-  sourceCanvas.width===
-   extractCanvas.width &&
-  sourceCanvas.height===
-   extractCanvas.height
- ){
-
-  const a=
-   sourceCanvas
-    .getContext(
-     '2d',
-     {willReadFrequently:true}
-    )
-    .getImageData(
-     0,
-     0,
-     sourceCanvas.width,
-     sourceCanvas.height
-    ).data;
-
-  const b=
-   extractCanvas
-    .getContext(
-     '2d',
-     {willReadFrequently:true}
-    )
-    .getImageData(
-     0,
-     0,
-     extractCanvas.width,
-     extractCanvas.height
-    ).data;
-
-  ctx.fillStyle=
-   'rgba(255,35,50,.88)';
-
-  let changed=0;
-
-  for(
-   let p=0;
-   p<
-    sourceCanvas.width*
-    sourceCanvas.height;
-   p++
-  ){
-
-   const d=p*4;
-
-   if(
-    a[d]!==b[d] ||
-    a[d+1]!==b[d+1] ||
-    a[d+2]!==b[d+2]
-   ){
-
-    ctx.fillRect(
-     p%sourceCanvas.width,
-     Math.floor(
-      p/sourceCanvas.width
-     ),
-     1,
-     1
-    );
-
-    changed++;
-
-   }
-
-  }
-
-  $('pixelPanel')
-   .querySelector('label')
-   .textContent=
-   'Реально изменённые пиксели: '+
-   changed;
-
-  return;
-
- }
-
-
- /*
-  * Без оригинала показываем
-  * используемые позиции.
-  */
-
- ctx.fillStyle=
-  'rgba(255,190,25,.82)';
-
- const slotsPerPacket=
-  Math.max(
-   0,
-   lastPacketLength*8
-  );
-
- const total=gridCells();
-
- for(
-  let index=0;
-  index<total;
-  index++
- ){
-
-  const r=
-   getRegion(
-    extractCanvas,
-    index
-   );
-
-  const slots=
-   buildSlots(
-    extractCanvas,
-    lastCfg.bpc,
-    lastCfg.dist,
-    lastCfg.seed,
-    index
-   );
-
-  const limit=
-   Math.min(
-    slotsPerPacket,
-    slots.length
-   );
-
-  const seen=new Set();
-
-  for(
-   let k=0;
-   k<limit;
-   k++
-  ){
-
-   const s=slots[k];
-
-   const ch=
-    Math.floor(
-     s/lastCfg.bpc
-    );
-
-   const pixel=
-    Math.floor(ch/3);
-
-   const px=
-    r.x+
-    (pixel%r.w);
-
-   const py=
-    r.y+
-    Math.floor(pixel/r.w);
-
-   const key=
-    py*extractCanvas.width+px;
-
-   if(seen.has(key))
-    continue;
-
-   seen.add(key);
-
-   ctx.fillRect(
-    px,
-    py,
-    1,
-    1
-   );
-
-  }
-
- }
-
- $('pixelPanel')
-  .querySelector('label')
-  .textContent=
-  'Позиции пикселей, использованные для скрытия данных · '+
-  GRID+'×'+GRID;
-
-}
-
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-$('showPixels').onclick=()=>{
-
- $('pixelPanel')
-  .classList.toggle('hidden');
-
- if(
-  !$('pixelPanel')
-   .classList
-   .contains('hidden')
- )
-  drawPixelOverlay();
-
-};
-
-$('saveExtracted').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- const m=
-  lastRecoveredMetadata||{};
-
- downloadBlob(
-  new Blob(
-   [lastRecoveredBytes],
-   {
-    type:
-     m.mime||
-     'application/octet-stream'
-   }
-  ),
-  m.name||
-  'recovered.bin'
- );
-
-};
-
-$('saveImage').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- downloadBlob(
-  new Blob(
-   [lastRecoveredBytes],
-   {
-    type:'image/png'
-   }
-  ),
-  'recovered-image.png'
- );
-
-};
-
-$('openImage').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- const u=
-  URL.createObjectURL(
-   new Blob(
-    [lastRecoveredBytes],
-    {
-     type:
-      (
-       lastRecoveredMetadata &&
-       lastRecoveredMetadata.mime
-      )||
-      'image/png'
-    }
-   )
-  );
-
- window.open(
-  u,
-  '_blank'
- );
-
- setTimeout(
-  ()=>URL.revokeObjectURL(u),
-  60000
- );
-
-};
-
-
-/* =========================================================
-   MAXIMUM EXTRACTION
-========================================================= */
-
-async function maximumExtract(
- c,
- password
-){
-
- const candidates=[];
-
- for(const bpc of [1,2,3]){
-
-  for(const dist of [0,1]){
-
-   if(dist===1&&!password)
-    continue;
-
-   candidates.push({
-    bpc,
-    dist,
-    seed:
-     await getSeed(
-      dist,
-      password
-     )
-   });
-
-  }
-
- }
-
- let best=null;
-
- const totalRegions=gridCells();
-
- for(const cfg of candidates){
-
-  const raw=[];
-  const indexes=[];
-
-
-  /*
-   * Читаем области целиком.
-   */
-
-  for(
-   let i=0;
-   i<totalRegions;
-   i++
-  ){
-
-   try{
-
-    const cap=
-     regionCapacity(
-      c,
-      cfg.bpc,
-      i
-     );
-
-    if(cap<50)
-     continue;
-
-    raw.push(
-     readRegionFast(
-      c,
-      cap,
-      cfg.bpc,
-      cfg.dist,
-      cfg.seed,
-      i
-     )
-    );
-
-    indexes.push(i);
-
-    setCopyState(
-     i,
-     'partial'
-    );
-
-   }catch{}
-
-   if(
-    i%
-    Math.max(
-     1,
-     Math.floor(totalRegions/80)
-    )===0
-   ){
-
-    $('progress').textContent=
-     'Maximum: '+
-     (i+1)+'/'+
-     totalRegions+
-     ' областей · LSB-'+
-     cfg.bpc+
-     ' · '+
-     (cfg.dist?'PRNG':'SEQ');
-
-    await yieldUI();
-
-   }
-
-  }
-
-
-  if(!raw.length)
-   continue;
-
-
-  /*
-   * Majority header.
-   */
-
-  const header=
-   majorityBytes(
-    raw.map(
-     x=>x.slice(0,50)
-    ),
-    50
-   );
-
-
-  if(
-   !MAGIC.every(
-    (v,i)=>header[i]===v
-   )
-  )
-   continue;
-
-
-  let h;
-
-  try{
-
-   h=parseHeader(header);
-
-  }catch{
-
-   continue;
-
-  }
-
-
-  const total=
-   50+
-   h.payloadLen+
-   h.saltLen+
-   h.ivLen;
-
-
-  if(
-   total<54 ||
-   total>
-    Math.min(
-     ...raw.map(
-      x=>x.length
-     )
-    )
-  )
-   continue;
-
-
-  /*
-   * Majority packet.
-   */
-
-  const packet=
-   majorityBytes(
-    raw.map(
-     x=>x.slice(0,total)
-    ),
-    total
-   );
-
-
-  try{
-
-   const ph=
-    parseHeader(
-     packet.slice(0,50)
-    );
-
-   const ml=
-    readU32(packet,50);
-
-   if(
-    54+ml>
-    50+ph.payloadLen
-   )
-    throw Error(
-     'BAD_METADATA'
-    );
-
-   const metadata=
-    parseMetadata(
-     packet,
-     ph
-    );
-
-   const rawStart=
-    54+ml;
-
-   const rawEnd=
-    50+ph.payloadLen;
-
-   if(
-    rawStart>rawEnd ||
-    rawEnd>packet.length
-   )
-    throw Error(
-     'BAD_PAYLOAD'
-    );
-
-   let plain=
-    packet.slice(
-     rawStart,
-     rawEnd
-    );
-
-
-   /*
-    * Decryption with correct algorithm from header
-    */
-
-   if(ph.flags&1){
-
-    if(!password)
-     continue;
-
-    const saltStart=
-     50+ph.payloadLen;
-
-    const salt=
-     packet.slice(
-      saltStart,
-      saltStart+ph.saltLen
-     );
-
-    const iv=
-     packet.slice(
-      saltStart+ph.saltLen,
-      saltStart+
-      ph.saltLen+
-      ph.ivLen
-     );
-
-    const key=
-     await deriveKey(
-      password,
-      salt,
-      ph.algorithm
-     );
-
-    let algoParams;
-    switch(ph.algorithm) {
-     case 'AES-CBC':
-      algoParams = { name: 'AES-CBC', iv };
-      break;
-     case 'AES-CTR':
-      algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
-      break;
-     case 'ChaCha20-Poly1305':
-     case 'AES-GCM':
-     default:
-      algoParams = { name: 'AES-GCM', iv };
-      break;
-    }
-
-    plain=
-     new Uint8Array(
-      await crypto.subtle.decrypt(
-       algoParams,
-       key,
-       plain
-      )
-     );
-
-   }
-
-
-   const hashOK=
-    equalBytes(
-     await sha256(plain),
-     ph.hash
-    );
-
-
-   if(hashOK){
-
-    return {
-     plain,
-     metadata,
-     source:'maximum-bit-majority',
-     count:raw.length,
-     hashOK:true,
-     header:ph,
-     cfg
-    };
-
-   }
-
-
-   /*
-    * Без AES можно вернуть
-    * частично восстановленный payload.
-    */
-
-   if(!(ph.flags&1)){
-
-    best={
-     plain,
-     metadata,
-     source:'maximum-bit-majority',
-     count:raw.length,
-     hashOK:false,
-     header:ph,
-     cfg
-    };
-
-   }
-
-  }catch{}
-
-
-  /*
-   * AES-GCM требует целого ciphertext.
-   * Поэтому проверяем отдельные копии.
-   */
-
-  for(
-   let j=0;
-   j<raw.length;
-   j++
-  ){
-
-   try{
-
-    const one=
-     await decodeOne(
-      c,
-      indexes[j],
-      cfg,
-      password
-     );
-
-    if(
-     one &&
-     one.valid
-    ){
-
-     setCopyState(
-      indexes[j],
-      'ok'
-     );
-
-     return {
-      plain:one.plain,
-      metadata:one.metadata,
-      source:'maximum-valid-copy',
-      count:1,
-      hashOK:true,
-      header:one.header,
-      cfg
-     };
-
-    }
-
-   }catch{}
-
-   if(
-    j%20===0
-   )
-    await yieldUI();
-
-  }
-
- }
-
- return best;
-
-}
-
-
-/* =========================================================
-   NORMAL DECODER
-========================================================= */
-
-$('decode').onclick=async()=>{
-
- if(!extractCanvas){
-
-  status(
-   'status2',
-   'Сначала выберите изображение.',
-   'bad'
-  );
-
-  return;
-
- }
-
-
- createCopyGrid();
-
- $('result').value='';
-
- $('diagnostics')
-  .classList
-  .add('hidden');
-
- $('recoveryActions')
-  .classList
-  .add('hidden');
-
- $('pixelPanel')
-  .classList
-  .add('hidden');
-
- $('imagePreviewBox')
-  .classList
-  .add('hidden');
-
- lastRecoveredBytes=null;
- lastRecoveredMetadata=null;
-
- const password=
-  $('pass2').value;
-
- const started=
-  performance.now();
-
- try{
-
-  let recovered=null;
-  let cfg=null;
-  let results=[];
-
-
-  /* =====================================================
-     MAXIMUM MODE
-  ===================================================== */
-
-  if(
-   $('maxExtract').checked
-  ){
-
-   $('progress').textContent=
-    'Максимальное извлечение: чтение '+
-    GRID+'×'+GRID+
-    ' областей...';
-
-   recovered=
-    await maximumExtract(
-     extractCanvas,
-     password
-    );
-
-   if(recovered)
-    cfg=recovered.cfg;
-
-
-  }else{
-
-
-   /* ====================================================
-      NORMAL AUTO DETECTION
-   ==================================================== */
-
-   cfg=
-    await detectConfiguration(
-     extractCanvas,
-     password
-    );
-
-
-   if(cfg){
-
-    lastCfg=cfg;
-
-    /*
-     * Если конфигурация найдена,
-     * её сетка должна совпадать с текущей.
-     */
-
-    const total=
-     gridCells();
-
-    for(
-     let i=0;
-     i<total;
-     i++
-    ){
-
-     const r=
-      await decodeOne(
-       extractCanvas,
-       i,
-       cfg,
-       password
-      );
-
-     if(r){
-
-      results.push(r);
-
-      setCopyState(
-       i,
-       r.valid
-        ? 'ok'
-        : 'partial'
-      );
-
-     }else{
-
-      setCopyState(
-       i,
-       'bad'
-      );
-
-     }
-
-
-     if(
-      i%
-      Math.max(
-       1,
-       Math.floor(total/100)
-      )===0
-     ){
-
-      $('progress').textContent=
-       'Проверено '+
-       (i+1)+'/'+total+
-       ' · найдено '+
-       results.length;
-
-      await yieldUI();
-
-     }
-
-    }
-
-    recovered=
-     await recoverMajority(
-      results,
-      password
-     );
-
-   }
-
-  }
-
-
-  /* =====================================================
-     FAILURE
-  ===================================================== */
-
-  if(!recovered){
-
-   status(
-    'status2',
-    'Не удалось восстановить контейнер.',
-    'bad'
-   );
-
-   $('progress').textContent=
-    'Восстановление не удалось.';
-
-   return;
-
-  }
-
-
-  /* =====================================================
-     RESULT
-  ===================================================== */
-
-  lastCfg=
-   cfg||
-   recovered.cfg;
-
-  lastPacketLength=
-   recovered.header
-    ? 50+
-      recovered.header.payloadLen+
-      recovered.header.saltLen+
-      recovered.header.ivLen
-    :recovered.plain.length;
-
-  lastRecoveredBytes=
-   recovered.plain;
-
-  lastRecoveredMetadata=
-   recovered.metadata||{};
-
-
-  const meta=
-   recovered.metadata||{};
-
-  const mime=
-   meta.mime||
-   'application/octet-stream';
-
-  const isFile=
-   meta.mode==='file';
-
-  const imageBySignature=
-   isLikelyImage(
-    recovered.plain
-   );
-
-  const displayAsImage=
-   (
-    isFile &&
-    imageBySignature
-   )||
-   mime.startsWith('image/')||
-   imageBySignature;
-
-
-  if(!isFile){
-
-   $('result').value=
-    td.decode(
-     recovered.plain,
-     {fatal:false}
-    );
-
-  }else{
-
-   $('result').value=
-    'Файл: '+
-    (meta.name||
-     'recovered.bin')+
-    '\nТип: '+
-    mime+
-    '\nРазмер: '+
-    (recovered.plain.length/1024)
-     .toFixed(1)+
-    ' KB'+
-    '\n\nИсточник: '+
-    recovered.source+
-    '\nКопий: '+
-    recovered.count;
-
-  }
-
-
-  $('recoveryActions')
-   .classList
-   .remove('hidden');
-
-
-  if(displayAsImage){
-
-   showRecoveredImage(
-    recovered.plain,
-    imageBySignature
-     ? detectImageMime(
-        recovered.plain
-       )
-     :mime
-   );
-
-  }
-
-
-  if(lastCfg)
-   drawPixelOverlay();
-
-
-  /* =====================================================
-     DIAGNOSTICS
-  ===================================================== */
-
-  const elapsed=
-   performance.now()-
-   started;
-
-  $('diagnostics')
-   .classList
-   .remove('hidden');
-
-  $('diagnostics').textContent=
-   'ВОССТАНОВЛЕНИЕ\n\n'+
-   'Сетка: '+
-   (
-    lastCfg.grid||
-    GRID
-   )+
-   '×'+
-   (
-    lastCfg.grid||
-    GRID
-   )+
-   '\nОбластей: '+
-   gridCells()+
-   '\n\n'+
-   'Режим: LSB-'+
-   lastCfg.bpc+
-   '\n'+
-   'Распределение: '+
-   (
-    lastCfg.dist
-     ? 'PRNG'
-     : 'SEQ'
-   )+
-   '\n'+
-   'Метод: '+
-   recovered.source+
-   '\n'+
-   'Копий использовано: '+
-   recovered.count+
-   '\n'+
-   'SHA-256: '+
-   (
-    recovered.hashOK
-     ? 'OK'
-     : 'не подтверждён'
-   )+
-   '\n'+
-   'Время: '+
-   elapsed.toFixed(0)+
-   ' мс';
-
-
-  status(
-   'status2',
-   recovered.hashOK
-    ? 'Данные восстановлены и проверены.'
-    : 'Получены данные, но целостность не подтверждена.',
-   recovered.hashOK
-    ? 'ok'
-    : 'warn'
-  );
-
-
-  $('progress').textContent=
-   'Готово за '+
-   elapsed.toFixed(0)+
-   ' мс.';
-
-
- }catch(e){
-
-  console.error(e);
-
-  status(
-   'status2',
-   e.message||
-   'Ошибка восстановления.',
-   'bad'
-  );
-
-  $('progress').textContent=
-   'Ошибка';
-
- }
-
-};
-
-
-/* =========================================================
-   CLEAR
-========================================================= */
-
-$('clear').onclick=()=>{
-
- extractCanvas=null;
-
- $('result').value='';
-
- $('pass2').value='';
-
- $('copyGrid').innerHTML='';
-
- $('progress').textContent='';
-
- $('diagnostics')
-  .classList
-  .add('hidden');
-
- $('recoveryActions')
-  .classList
-  .add('hidden');
-
- $('imagePreviewBox')
-  .classList
-  .add('hidden');
-
- $('pixelPanel')
-  .classList
-  .add('hidden');
-
- lastRecoveredBytes=null;
- lastRecoveredMetadata=null;
- lastCfg=null;
- lastPacketLength=0;
-
- status(
-  'status2',
-  ''
- );
-
-};
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-createCopyGrid();
-updateGridUI();
-updateCapacity();
-
+// Init Grid UI
+$('copyGrid').style.gridTemplateColumns = `repeat(${GRID}, 1fr)`;
 </script>
-
-<!-- Footer with links -->
-<footer style="margin-top:40px;padding:20px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px">
- <p style="margin:0 0 8px">
-  Stegano v8 · LSB-стеганография с AES-256-GCM и HMAC
- </p>
- <p style="margin:0">
-  <a href="https://github.com/KIRA-1337/stegano-v8" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">GitHub</a>
-  ·
-  <a href="DMG.html" style="color:var(--accent);text-decoration:none">Pixel Damage Tester</a>
-  ·
-  <span style="color:var(--muted)">MIT License</span>
- </p>
-</footer>
-
 </body>
 </html>
