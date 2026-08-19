@@ -3049,16 +3049,6 @@ $('encode').onclick=async()=>{
 
 
   /* -------------------------
-     EMBED INFO (для detailed diff map)
-  ------------------------- */
-  
-  lastEmbedInfo = {
-   packetLength: packet.length,
-   pixelTypes: new Uint8Array(encodedCanvas.width * encodedCanvas.height).fill(0)
-  };
-
-
-  /* -------------------------
      CAPACITY
   ------------------------- */
 
@@ -3116,6 +3106,17 @@ $('encode').onclick=async()=>{
      encodedCanvas.height
     )
   };
+
+
+  /* -------------------------
+     EMBED INFO (для detailed diff map)
+  ------------------------- */
+
+  lastEmbedInfo = {
+   packetLength: packet.length,
+   pixelTypes: new Uint8Array(encodedCanvas.width * encodedCanvas.height).fill(0)
+  };
+
 
   
   /* -------------------------
