@@ -4,4763 +4,653 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b12">
-
-<title>Stegano v9 Multi</title>
-
+<title>Stegano v10 Lab</title>
 <style>
 :root{
- --bg:#070a10;
- --panel:#10151e;
- --panel2:#151b25;
- --line:#283241;
- --text:#f4f7fb;
- --muted:#929cab;
- --accent:#738cff;
- --accent2:#9baaff;
- --ok:#5be293;
- --bad:#ff7280;
- --warn:#f4c95d;
- --shadow:0 18px 55px rgba(0,0,0,.34)
+ --bg:#070a10; --panel:#10151e; --line:#283241; --text:#f4f7fb;
+ --muted:#929cab; --accent:#738cff; --ok:#5be293; --bad:#ff7280; --warn:#f4c95d;
 }
-
 *{box-sizing:border-box}
-
 html{background:var(--bg)}
-
-body{
- margin:0;
- min-height:100svh;
- background:
- radial-gradient(80% 70% at 50% 0,#18233d 0,#0b0e15 35%,#070a10 70%);
- color:var(--text);
- font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif
-}
-
+body{margin:0;min-height:100svh;background:radial-gradient(80% 70% at 50% 0,#18233d 0,#0b0e15 35%,#070a10 70%);color:var(--text);font:15px/1.5 system-ui,sans-serif}
 button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.4;cursor:not-allowed}
+button{cursor:pointer} button:disabled{opacity:.4;cursor:not-allowed}
+.app{width:min(1180px,100%);margin:auto;padding:max(18px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px}
+.brand h1{margin:0;font-size:clamp(30px,6vw,50px);line-height:1;letter-spacing:-1.8px}
+.brand p{margin:9px 0 0;color:var(--muted)}
+.pill{border:1px solid var(--line);background:#0e131b;border-radius:999px;padding:8px 12px;font-size:12px;color:#c0c9d7;white-space:nowrap}
 
-.app{
- width:min(1180px,100%);
- margin:auto;
- padding:
- max(18px,env(safe-area-inset-top))
- max(14px,env(safe-area-inset-right))
- calc(28px + env(safe-area-inset-bottom))
- max(14px,env(safe-area-inset-left))
-}
+.main-tabs{display:flex;gap:6px;margin-bottom:20px;background:#0a0e14;padding:6px;border-radius:16px;border:1px solid var(--line)}
+.main-tab{flex:1;background:transparent;color:var(--muted);font-size:15px;font-weight:600;border-radius:12px;transition:all .2s;border:none;padding:10px}
+.main-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.main-tab.active{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(115,140,255,.3)}
 
-.top{
- display:flex;
- justify-content:space-between;
- align-items:flex-end;
- gap:16px;
- margin-bottom:22px
-}
+.view-section{display:none;animation:fadeIn .3s ease}
+.view-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-.brand h1{
- margin:0;
- font-size:clamp(30px,6vw,50px);
- line-height:1;
- letter-spacing:-1.8px
-}
-
-.brand p{
- margin:9px 0 0;
- color:var(--muted)
-}
-
-.pill{
- border:1px solid var(--line);
- background:#0e131b;
- border-radius:999px;
- padding:8px 12px;
- font-size:12px;
- color:#c0c9d7;
- white-space:nowrap
-}
-
-.main-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: #0a0e14;
-    padding: 6px;
-    border-radius: 16px;
-    border: 1px solid var(--line);
-}
-
-.main-tab {
-    flex: 1;
-    background: transparent;
-    color: var(--muted);
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 12px;
-    transition: all 0.2s;
-}
-
-.main-tab:hover {
-    color: var(--text);
-    background: rgba(255,255,255,0.03);
-}
-
-.main-tab.active {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(115, 140, 255, 0.3);
-}
-
-.view-section {
-    display: none; 
-    animation: fadeIn 0.3s ease;
-}
-
-.view-section.active {
-    display: block; 
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.layout{
- display:grid;
- grid-template-columns:1fr; 
- gap:16px
-}
-
-.card{
- background:linear-gradient(180deg,rgba(18,23,32,.96),rgba(12,16,23,.97));
- border:1px solid var(--line);
- border-radius:18px;
- padding:clamp(16px,3vw,24px);
- box-shadow:var(--shadow);
- margin-bottom: 16px;
-}
-
+.card{background:linear-gradient(180deg,rgba(18,23,32,.96),rgba(12,16,23,.97));border:1px solid var(--line);border-radius:18px;padding:clamp(16px,3vw,24px);box-shadow:0 18px 55px rgba(0,0,0,.34);margin-bottom:16px}
+.card h2{margin:0 0 15px;font-size:19px}
 .wide{grid-column:1/-1}
 
-.card h2{
- margin:0 0 15px;
- font-size:19px
-}
-
-.fileBox{
- border:1px solid var(--line);
- background:#090d13;
- border-radius:14px;
- padding:13px;
- margin-top:10px
-}
-
-.fileName{
- overflow:hidden;
- white-space:nowrap;
- text-overflow:ellipsis;
- font-weight:700
-}
-
-.fileInfo{
- color:var(--muted);
- font-size:12px;
- margin-top:3px
-}
-
-.drop{
- border:1px dashed #3b4756;
- border-radius:14px;
- background:#0b0f16;
- padding:27px 14px;
- text-align:center;
- transition:.18s
-}
-
-.drop.drag,
-.drop:hover{
- border-color:var(--accent);
- background:#0f1625
-}
-
-.drop strong{display:block}
-
-.drop span{
- display:block;
- color:var(--muted);
- font-size:12px;
- margin-top:4px
-}
-
+.drop{border:1px dashed #3b4756;border-radius:14px;background:#0b0f16;padding:27px 14px;text-align:center;transition:.18s}
+.drop.drag,.drop:hover{border-color:var(--accent);background:#0f1625}
+.drop strong{display:block} .drop span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
 input[type=file]{display:none}
 
-label{
- display:block;
- margin:14px 0 7px;
- color:#aeb8c8;
- font-size:12px
-}
+label{display:block;margin:14px 0 7px;color:#aeb8c8;font-size:12px}
+textarea,input[type=password],select{width:100%;border:1px solid var(--line);border-radius:12px;background:#090d13;color:var(--text);padding:12px 13px;outline:0}
+textarea{min-height:160px;resize:vertical}
+textarea:focus,input:focus,select:focus{border-color:#6479d0}
 
-textarea,
-input[type=password],
-input[type=number],
-select{
- width:100%;
- border:1px solid var(--line);
- border-radius:12px;
- background:#090d13;
- color:var(--text);
- padding:12px 13px;
- outline:0
-}
-
-textarea{
- min-height:160px;
- resize: vertical; 
-}
-
-textarea:focus,
-input:focus,
-select:focus{
- border-color:#6479d0
-}
-
-.row{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:9px
-}
-
-.row3{
- display:grid;
- grid-template-columns:1fr 1fr 1fr;
- gap:9px
-}
-
-.password{
- display:grid;
- grid-template-columns:1fr auto;
- gap:8px
-}
-
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.password{display:grid;grid-template-columns:1fr auto;gap:8px}
 .password button{min-width:92px}
 
-button{
- border:0;
- border-radius:12px;
- min-height:45px;
- padding:11px 14px;
- font-weight:750;
- background:var(--accent);
- color:#fff
-}
+button{border:0;border-radius:12px;min-height:45px;padding:11px 14px;font-weight:750;background:var(--accent);color:#fff}
+button.secondary{background:#252d39;color:#ebf0f7}
+button.ghost{background:transparent;border:1px solid var(--line);color:#dce3ed}
+button.danger{background:#54232b}
 
-button.secondary{
- background:#252d39;
- color:#ebf0f7
-}
+.toggle{display:flex;align-items:center;gap:9px;margin:12px 0;color:#bac4d1;font-size:13px}
+.toggle input{width:17px;height:17px;accent-color:var(--accent)}
 
-button.ghost{
- background:transparent;
- border:1px solid var(--line);
- color:#dce3ed
-}
+.status{min-height:20px;color:var(--muted);font-size:12px;margin-top:10px}
+.ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
 
-button.danger{
- background:#54232b
-}
+canvas{display:block;width:100%;max-height:500px;object-fit:contain;background:#05070a;border:1px solid var(--line);border-radius:14px}
 
-.toggle{
- display:flex;
- align-items:center;
- gap:9px;
- margin:12px 0;
- color:#bac4d1;
- font-size:13px
-}
+.tabs{display:flex;gap:7px;margin-bottom:15px;background:#0a0e14;border:1px solid var(--line);padding:5px;border-radius:12px}
+.tab{flex:1;background:transparent;color:#9da8b8;min-height:40px;border:none;border-radius:8px}
+.tab.active{background:#232b38;color:#fff}
 
-.toggle input{
- width:17px;
- height:17px;
- accent-color:var(--accent)
-}
-
-.status{
- min-height:20px;
- color:var(--muted);
- font-size:12px;
- margin-top:10px
-}
-
-.ok{color:var(--ok)}
-.bad{color:var(--bad)}
-.warn{color:var(--warn)}
-
-canvas{
- display:block;
- width:100%;
- max-height:500px;
- object-fit:contain;
- background:#05070a;
- border:1px solid var(--line);
- border-radius:14px
-}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:9px;
- margin-top:10px
-}
-
-.stat{
- border:1px solid var(--line);
- background:#0b0f15;
- border-radius:12px;
- padding:12px
-}
-
-.stat b{
- display:block;
- font-size:15px;
- white-space:nowrap;
- overflow:hidden;
- text-overflow:ellipsis
-}
-
-.stat small{
- color:var(--muted);
- font-size:11px
-}
-
-.bar{
- height:8px;
- background:#090d13;
- border:1px solid var(--line);
- border-radius:999px;
- overflow:hidden;
- margin-top:11px
-}
-
-.bar>i{
- display:block;
- height:100%;
- width:0;
- background:linear-gradient(90deg,var(--accent),var(--accent2));
- transition:width .2s
-}
-
-.note{
- color:var(--muted);
- font-size:12px;
- margin:9px 0 0
-}
-
-.hidden{display:none!important}
-
-.tabs{
- display:flex;
- gap:7px;
- margin-bottom:15px;
- background:#0a0e14;
- border:1px solid var(--line);
- padding:5px;
- border-radius:12px
-}
-
-.tab{
- flex:1;
- background:transparent;
- color:#9da8b8;
- min-height:40px
-}
-
-.tab.active{
- background:#232b38;
- color:#fff
-}
-
-.copyGrid{
- display:grid;
- grid-template-columns:repeat(9,1fr);
- gap:3px;
- margin-top:12px;
- max-height:420px;
- overflow:auto;
- padding:2px
-}
-
-.copyCell{
- aspect-ratio:1;
- min-width:0;
- border-radius:3px;
- background:#252d39;
- border:1px solid #313b4b;
- font-size:7px;
- display:flex;
- align-items:center;
- justify-content:center;
- color:#778396;
- cursor: pointer;
- transition: transform 0.1s, border-color 0.1s;
- user-select: none;
-}
-
-.copyCell:hover {
-    border-color: var(--accent);
-    z-index: 1;
-}
-
-.copyCell:active {
-    transform: scale(0.95);
-}
-
-.copyCell.selected {
-    border: 2px solid var(--accent2);
-    box-shadow: 0 0 8px var(--accent);
-    z-index: 2;
-}
-
-.copyCell.ok{
- background:#1d583d;
- border-color:#4fbe88;
- color:#fff
-}
-
-.copyCell.bad{
- background:#54232b;
- border-color:#b74f5d;
- color:#fff
-}
-
-.copyCell.partial{
- background:#554a22;
- border-color:#b89d3f;
- color:#fff
-}
-
-.copyCell.majority{
- background:#303b70;
- border-color:#6f82d8;
- color:#fff
-}
-
+.copyGrid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin-top:12px;max-height:420px;overflow:auto;padding:2px}
+.copyCell{aspect-ratio:1;min-width:0;border-radius:3px;background:#252d39;border:1px solid #313b4b;font-size:7px;display:flex;align-items:center;justify-content:center;color:#778396;cursor:pointer;user-select:none}
+.copyCell:hover{border-color:var(--accent);z-index:1}
+.copyCell.selected{border:2px solid #9baaff;box-shadow:0 0 8px var(--accent);z-index:2}
+.copyCell.ok{background:#1d583d;border-color:#4fbe88;color:#fff}
+.copyCell.bad{background:#54232b;border-color:#b74f5d;color:#fff}
+.copyCell.partial{background:#554a22;border-color:#b89d3f;color:#fff}
 .copyCell.skip{opacity:.35}
 
-.resultBox{
- margin-top:12px;
- border:1px solid var(--line);
- border-radius:12px;
- padding:10px;
- background:#090d13;
- max-height:300px;
- overflow:auto;
- font-size:12px;
- white-space:pre-wrap;
- resize: vertical; 
- min-height: 100px;
-}
-
-.progressText{
- margin-top:7px;
- color:var(--muted);
- font-size:11px
-}
-
-.actionGrid{
- display:grid;
- grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
- gap:8px;
- margin-top:9px
-}
-
-.previewImage{
- max-width:100%;
- max-height:300px;
- display:block;
- margin-top:10px;
- border-radius:12px;
- border:1px solid var(--line);
- background:#05070a
-}
-
-.overlayWrap{
- position:relative;
- margin-top:10px
-}
-
+.resultBox{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px;background:#090d13;max-height:300px;overflow:auto;font-size:12px;white-space:pre-wrap;resize:vertical;min-height:100px}
+.actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:9px}
+.previewImage{max-width:100%;max-height:300px;display:block;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#05070a}
+.overlayWrap{position:relative;margin-top:10px}
 .overlayWrap canvas{max-height:600px}
 
-.legend{
- display:flex;
- gap:12px;
- flex-wrap:wrap;
- color:var(--muted);
- font-size:11px;
- margin-top:7px
-}
+/* Analysis specific */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.analysis-card{background:#0b0f16;border:1px solid var(--line);border-radius:12px;padding:16px}
+.analysis-card h3{margin:0 0 10px;font-size:14px;color:var(--accent)}
+.chunk-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.chunk-table th,.chunk-table td{padding:4px 8px;border-bottom:1px solid var(--line);text-align:left}
+.chunk-table th{color:var(--muted)}
+.chunk-table tr.suspicious{background:rgba(255,114,128,.15);color:var(--bad)}
+.diff-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}
+.diff-dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 
-.dot{
- display:inline-block;
- width:10px;
- height:10px;
- border-radius:2px;
- margin-right:4px;
- vertical-align:-1px
-}
-
-.dot.used{background:#ff304f}
-.dot.major{background:#ffe14d}
-
-.gridInfo{
- display:flex;
- gap:7px;
- flex-wrap:wrap;
- margin-top:8px
-}
-
-.gridBadge{
- padding:5px 9px;
- border-radius:8px;
- border:1px solid var(--line);
- background:#0b0f16;
- color:#aeb8c8;
- font-size:11px
-}
-
+.hidden{display:none!important}
+.note{color:var(--muted);font-size:12px;margin:9px 0 0}
+.gridInfo{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.gridBadge{padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#0b0f16;color:#aeb8c8;font-size:11px}
 .gridBadge b{color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:10px}
+.stat{border:1px solid var(--line);background:#0b0f15;border-radius:12px;padding:12px}
+.stat b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat small{color:var(--muted);font-size:11px}
+.bar{height:8px;background:#090d13;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:11px}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#9baaff);transition:width .2s}
+.fileBox{border:1px solid var(--line);background:#090d13;border-radius:14px;padding:13px;margin-top:10px}
+.fileName{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:700}
+.fileInfo{color:var(--muted);font-size:12px;margin-top:3px}
 
 @media(max-width:760px){
- .top{
-  align-items:flex-start;
-  flex-direction:column
- }
-
+ .top{align-items:flex-start;flex-direction:column}
+ .analysis-grid{grid-template-columns:1fr}
  .stats{grid-template-columns:1fr 1fr}
-
  .row3{grid-template-columns:1fr 1fr}
-
- .pill{white-space:normal}
 }
-
 @media(max-width:430px){
- .row,.row3,.fileButtons{grid-template-columns:1fr}
-
+ .row,.row3{grid-template-columns:1fr}
  .password{grid-template-columns:1fr}
-
- .card{border-radius:15px}
-
- .copyGrid{gap:2px}
-
- .copyCell{font-size:5px}
+ .main-tab{font-size:13px;padding:8px}
 }
 </style>
 </head>
-
 <body>
-
 <div class="app">
 
 <header class="top">
- <div class="brand">
-  <h1>Stegano</h1>
-  <p>Multi-mode: LSB · Alpha · Metadata · AfterIEND</p>
- </div>
-
- <div class="pill">
-  v9 · AES-256-GCM · 4 режима
- </div>
+ <div class="brand"><h1>Stegano</h1><p>LSB · Alpha · Meta · Append · Analysis</p></div>
+ <div class="pill">v10 Lab</div>
 </header>
 
 <nav class="main-tabs">
-    <button class="main-tab active" onclick="switchMainTab('encode')">🔒 Скрыть данные</button>
-    <button class="main-tab" onclick="switchMainTab('decode')">🔓 Извлечь данные</button>
+ <button class="main-tab active" onclick="switchTab('encode')">🔒 Скрыть</button>
+ <button class="main-tab" onclick="switchTab('decode')">🔓 Извлечь</button>
+ <button class="main-tab" onclick="switchTab('analyze')">🔍 Анализ</button>
 </nav>
 
-<main class="layout">
-
-<!-- =========================
-     VIEW: ENCODE
-========================= -->
+<!-- ==================== ENCODE ==================== -->
 <div id="view-encode" class="view-section active">
-
 <section class="card">
-
-<h2>Настройка и сокрытие</h2>
-
-<div id="drop1" class="drop">
- <strong>Выберите изображение-контейнер</strong>
- <span>PNG / JPEG / WebP · нажмите или перетащите файл</span>
- <input id="file1" type="file" accept="image/png,image/jpeg,image/webp,image/*">
-</div>
-
-<div id="sourceInfo" class="fileBox hidden">
- <div id="sourceName" class="fileName"></div>
- <div id="sourceDetails" class="fileInfo"></div>
-</div>
+<h2>Скрыть данные</h2>
+<div id="drop1" class="drop"><strong>Выберите контейнер</strong><span>PNG / JPEG / WebP</span><input id="file1" type="file" accept="image/*"></div>
+<div id="sourceInfo" class="fileBox hidden"><div id="sourceName" class="fileName"></div><div id="sourceDetails" class="fileInfo"></div></div>
+<div id="verifyWarning" class="status bad hidden"></div>
 
 <div class="tabs">
- <button class="tab active" data-mode="text" type="button">Текст</button>
- <button class="tab" data-mode="file" type="button">Файл</button>
+ <button class="tab active" data-mode="text" onclick="setMode(this,'text')">Текст</button>
+ <button class="tab" data-mode="file" onclick="setMode(this,'file')">Файл</button>
 </div>
-
-<div id="textMode">
- <label>Сообщение</label>
- <textarea id="secret" placeholder="Введите текст..."></textarea>
-</div>
-
-<div id="fileMode" class="hidden">
-
- <label>Скрываемый файл</label>
-
- <div class="row">
-  <button id="choosePayload" type="button" class="secondary">
-   Выбрать файл
-  </button>
-
-  <button id="clearPayload" type="button" class="ghost">
-   Убрать
-  </button>
- </div>
-
- <input id="payloadFile" type="file">
-
- <div id="payloadFileInfo" class="note">
-  Можно скрывать изображения, PDF, ZIP, HTML, JS, MP3, MP4 и любые бинарные файлы.
- </div>
-
-</div>
+<div id="textMode"><label>Сообщение</label><textarea id="secret" placeholder="Текст..."></textarea></div>
+<div id="fileMode" class="hidden"><label>Файл</label><div class="row"><button id="choosePayload" class="secondary" onclick="$('payloadFile').click()">Выбрать</button><button class="ghost" onclick="clearPayload()">Убрать</button></div><input id="payloadFile" type="file"><div id="payloadFileInfo" class="note"></div></div>
 
 <label>Пароль</label>
+<div class="password"><input id="pass" type="password" placeholder="AES / PRNG"><button class="secondary" onclick="togglePass('pass',this)">Показать</button></div>
+<div class="toggle"><input id="encrypt" type="checkbox"><span>AES-256-GCM</span></div>
 
-<div class="password">
- <input id="pass" type="password" placeholder="Пароль для AES / PRNG">
- <button id="showPass" class="secondary" type="button">Показать</button>
-</div>
-
-<div class="toggle">
- <input id="encrypt" type="checkbox">
- <span>AES-256-GCM + случайная соль/IV</span>
-</div>
-
-<!-- НОВЫЙ БЛОК: РЕЖИМ СОКРЫТИЯ -->
 <label>Режим сокрытия</label>
-<select id="hideMethod">
-    <option value="lsb">LSB (RGB) · Сетка копий · Совместим с JPEG</option>
-    <option value="alpha">Alpha-канал · Только PNG · Высокая ёмкость</option>
-    <option value="metadata">PNG Metadata (tEXt) · Не меняет пиксели</option>
-    <option value="append">After IEND · После конца файла · Самый стойкий</option>
+<select id="hideMethod" onchange="onMethodChange()">
+ <option value="lsb">LSB (RGB) · Сетка копий</option>
+ <option value="alpha">Alpha-канал · Только PNG</option>
+ <option value="metadata">PNG Metadata (tEXt)</option>
+ <option value="append">After IEND</option>
 </select>
-<div id="methodNote" class="note">LSB использует сетку для избыточности. Другие режимы пишут одну копию.</div>
+<div id="methodNote" class="note"></div>
 
-<!-- Параметры LSB (скрываются для других режимов) -->
 <div id="lsbParams">
-    <div class="row3">
-     <div>
-      <label>Бит на канал</label>
-      <select id="bpc">
-       <option value="1">LSB-1 · качество</option>
-       <option value="2">LSB-2 · баланс</option>
-       <option value="3">LSB-3 · ёмкость</option>
-      </select>
-     </div>
-
-     <div>
-      <label>Распределение</label>
-      <select id="distribution">
-       <option value="seq">Последовательно</option>
-       <option value="prng">PRNG по паролю</option>
-      </select>
-     </div>
-
-     <div>
-      <label>Размер сетки</label>
-      <select id="gridSize">
-       <option value="3">3×3 · 9</option>
-       <option value="5">5×5 · 25</option>
-       <option value="9" selected>9×9 · 81</option>
-       <option value="16">16×16 · 256</option>
-       <option value="25">25×25 · 625</option>
-       <option value="32">32×32 · 1024</option>
-       <option value="64">64×64 · 4096</option>
-      </select>
-     </div>
-    </div>
-
-    <div class="gridInfo">
-     <div class="gridBadge">Копий: <b id="copyCount">81</b></div>
-     <div class="gridBadge">Областей: <b id="regionCount">81</b></div>
-     <div class="gridBadge">Сетка: <b id="gridLabel">9×9</b></div>
-    </div>
+ <div class="row3">
+  <div><label>BPC</label><select id="bpc"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+  <div><label>Distribution</label><select id="distribution"><option value="seq">SEQ</option><option value="prng">PRNG</option></select></div>
+  <div><label>Grid</label><select id="gridSize" onchange="updateGridUI()"><option value="3">3×3</option><option value="9" selected>9×9</option><option value="16">16×16</option><option value="32">32×32</option></select></div>
+ </div>
+ <div class="gridInfo"><div class="gridBadge">Копий: <b id="copyCount">81</b></div><div class="gridBadge">Сетка: <b id="gridLabel">9×9</b></div></div>
 </div>
 
-<div class="row" style="margin-top:12px">
- <button id="encode" type="button">Скрыть данные</button>
- <button id="download" class="secondary" type="button" disabled>
-  Скачать PNG
- </button>
-</div>
-
+<div class="row" style="margin-top:12px"><button id="encode" onclick="doEncode()">Скрыть</button><button id="download" class="secondary" disabled onclick="doDownload()">Скачать PNG</button></div>
 <div id="status1" class="status"></div>
-
 </section>
-
-<section class="card wide">
-
-<h2>Предпросмотр контейнера</h2>
-
-<canvas id="preview" width="1" height="1"></canvas>
-
-<div class="stats">
-
- <div class="stat">
-  <b id="sSize">—</b>
-  <small>разрешение</small>
- </div>
-
- <div class="stat">
-  <b id="sCap">—</b>
-  <small>ёмкость</small>
- </div>
-
- <div class="stat">
-  <b id="sPayload">—</b>
-  <small>payload</small>
- </div>
-
- <div class="stat">
-  <b id="sMethod">—</b>
-  <small>режим</small>
- </div>
-
-</div>
-
-<div class="bar">
- <i id="bar"></i>
-</div>
-
-<p id="hint" class="note">
- Выберите режим сокрытия выше.
-</p>
-
+<section class="card wide"><h2>Предпросмотр</h2><canvas id="preview" width="1" height="1"></canvas>
+<div class="stats"><div class="stat"><b id="sSize">—</b><small>размер</small></div><div class="stat"><b id="sCap">—</b><small>ёмкость</small></div><div class="stat"><b id="sPayload">—</b><small>payload</small></div><div class="stat"><b id="sMethod">—</b><small>метод</small></div></div>
+<div class="bar"><i id="bar"></i></div>
 </section>
-
 </div>
 
-
-<!-- =========================
-     VIEW: DECODE
-========================= -->
+<!-- ==================== DECODE ==================== -->
 <div id="view-decode" class="view-section">
-
 <section class="card">
-
-<h2>Извлечение данных</h2>
-
-<div id="drop2" class="drop">
- <strong>Выберите изображение с данными</strong>
- <span>Нажмите или перетащите PNG/JPEG/WebP</span>
- <input id="file2" type="file" accept="image/png,image/jpeg,image/webp,image/*">
-</div>
-
-<div id="extractInfo" class="fileBox hidden">
- <div id="extractName" class="fileName"></div>
- <div id="extractDetails" class="fileInfo"></div>
-</div>
-
-<label>Пароль</label>
-
-<input id="pass2" type="password" placeholder="Пароль AES / PRNG">
-
-<div class="toggle">
- <input id="force" type="checkbox" checked>
- <span>Пытаться читать повреждённые копии</span>
-</div>
-
-<div class="toggle">
- <input id="maxExtract" type="checkbox">
- <span>
-  <b>Максимальное извлечение</b>
-  — битовый majority по всем областям (только LSB)
- </span>
-</div>
-
-<div class="row">
-
- <button id="decode" type="button">
-  Восстановить
- </button>
-
- <button id="bruteforce" type="button" class="danger">
-  🔓 Брутфорс (до 6 символов)
- </button>
-
- <button id="clear" class="secondary" type="button">
-  Очистить
- </button>
-
-</div>
-
+<h2>Извлечь данные</h2>
+<div id="drop2" class="drop"><strong>Выберите стего-контейнер</strong><span>PNG / JPEG / WebP</span><input id="file2" type="file" accept="image/*"></div>
+<div id="extractInfo" class="fileBox hidden"><div id="extractName" class="fileName"></div><div id="extractDetails" class="fileInfo"></div></div>
+<label>Пароль</label><input id="pass2" type="password" placeholder="AES / PRNG">
+<div class="toggle"><input id="maxExtract" type="checkbox"><span>Максимальное извлечение (majority)</span></div>
+<div class="row"><button onclick="doDecode()">Восстановить</button><button class="danger" id="bruteforce" onclick="startBruteforce()">🔓 Брутфорс</button><button class="secondary" onclick="doClear()">Очистить</button></div>
 <div id="status2" class="status"></div>
-
-<div id="progress" class="progressText"></div>
-
+<div id="progress" class="note"></div>
 <div id="copyGrid" class="copyGrid"></div>
-
-<label>Результат (нажмите на ячейку сетки для LSB)</label>
-
-<textarea id="result" readonly placeholder="Результат восстановления..."></textarea>
-
+<label>Результат</label><textarea id="result" readonly></textarea>
 <div id="recoveryActions" class="actionGrid hidden">
-
- <button id="saveExtracted" type="button">
-  Сохранить общее
- </button>
- 
- <button id="saveCellExtracted" type="button" class="secondary" disabled>
-  Сохранить из ячейки
- </button>
- 
- <button id="saveAllZip" type="button" class="secondary">
-  📦 Скачать ZIP (все копии)
- </button>
-
- <button id="saveImage" type="button" class="secondary">
-  Сохранить как PNG
- </button>
-
- <button id="openImage" type="button" class="ghost">
-  Открыть изображение
- </button>
-
- <button id="showPixels" type="button" class="ghost">
-  Показать пиксели
- </button>
-
+ <button onclick="saveExtracted()">Сохранить</button>
+ <button id="saveCellBtn" class="secondary" disabled onclick="saveCell()">Из ячейки</button>
+ <button class="secondary" onclick="saveZip()">📦 ZIP все</button>
 </div>
-
-<div id="imagePreviewBox" class="hidden">
-
- <label>Предпросмотр восстановленного изображения</label>
-
- <img
-  id="imagePreview"
-  class="previewImage"
-  alt="Восстановленное изображение"
- >
-
-</div>
-
-<div id="pixelPanel" class="hidden">
-
- <label>Пиксели, затронутые стеганографией</label>
-
- <div class="overlayWrap">
-  <canvas id="pixelOverlay" width="1" height="1"></canvas>
- </div>
-
- <div class="legend">
-  <span>
-   <i class="dot used"></i>
-   использованные/изменённые позиции
-  </span>
-
-  <span>
-   <i class="dot major"></i>
-   позиции majority-повреждений
-  </span>
- </div>
-
-</div>
-
+<div id="imagePreviewBox" class="hidden"><label>Preview</label><img id="imagePreview" class="previewImage"></div>
 <div id="diagnostics" class="resultBox hidden"></div>
+</section>
+</div>
 
+<!-- ==================== ANALYZE ==================== -->
+<div id="view-analyze" class="view-section">
+<section class="card">
+<h2>Стеганоанализ</h2>
+<div id="drop3" class="drop"><strong>Загрузите изображение для анализа</strong><span>PNG рекомендуется</span><input id="file3" type="file" accept="image/*"></div>
+<div id="analyzeStatus" class="status"></div>
 </section>
 
+<div id="analyzeResults" class="hidden">
+<div class="analysis-grid">
+
+ <!-- Chi-Square -->
+ <div class="analysis-card">
+  <h3>📊 Chi-Square LSB Test</h3>
+  <canvas id="chiCanvas" width="400" height="150"></canvas>
+  <div id="chiResult" class="note"></div>
+ </div>
+
+ <!-- LSB Histogram -->
+ <div class="analysis-card">
+  <h3>📈 LSB Гистограмма</h3>
+  <canvas id="lsbHistCanvas" width="400" height="150"></canvas>
+  <div id="lsbHistResult" class="note"></div>
+ </div>
+
+ <!-- Alpha Anomaly -->
+ <div class="analysis-card">
+  <h3>👁 Alpha Channel Map</h3>
+  <canvas id="alphaCanvas" width="400" height="300"></canvas>
+  <div id="alphaResult" class="note"></div>
+ </div>
+
+ <!-- PNG Chunks -->
+ <div class="analysis-card">
+  <h3>🧩 PNG Chunks</h3>
+  <div style="max-height:250px;overflow:auto"><table class="chunk-table" id="chunkTable"><thead><tr><th>Type</th><th>Size</th><th>Offset</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+ </div>
+
+ <!-- After IEND -->
+ <div class="analysis-card">
+  <h3>🔎 After-IEND Data</h3>
+  <div id="iendResult" class="note">Нет данных после IEND</div>
+ </div>
+
+ <!-- Diff -->
+ <div class="analysis-card">
+  <h3>🔄 Сравнение (Diff)</h3>
+  <div class="row"><button class="secondary" onclick="$('diffOrig').click()">Оригинал</button><button class="secondary" onclick="$('diffStego').click()">Стего</button></div>
+  <input id="diffOrig" type="file" accept="image/*" class="hidden">
+  <input id="diffStego" type="file" accept="image/*" class="hidden">
+  <canvas id="diffCanvas" width="400" height="300" style="margin-top:8px"></canvas>
+  <div class="diff-legend">
+   <span><i class="diff-dot" style="background:#ff3040"></i>RGB изменён</span>
+   <span><i class="diff-dot" style="background:#4080ff"></i>Alpha изменён</span>
+   <span><i class="diff-dot" style="background:#40ff80"></i>Оба изменены</span>
+  </div>
+  <div id="diffStats" class="note"></div>
+ </div>
+
+</div>
+</div>
+</section>
 </div>
 
-
-</main>
-
-<footer>
- Обработка выполняется локально в браузере. Файлы не отправляются на сервер.
-</footer>
-
+<footer style="text-align:center;color:var(--muted);font-size:11px;margin-top:20px">Local processing only · No server uploads</footer>
 </div>
-
 
 <script>
 'use strict';
+const $=id=>document.getElementById(id);
+const te=new TextEncoder(), td=new TextDecoder();
+const MAGIC=Uint8Array.from([83,84,71,53]);
+let GRID=9, sourceCanvas=null, sourceFileRaw=null, encodedCanvas=null, extractCanvas=null, extractFileRaw=null;
+let currentMode='text', filePayload=null, lastRecoveredBytes=null, lastRecoveredMetadata=null;
+let lastCfg=null, lastDecodeResults=[], selectedCellIndex=-1, bruteforceAborted=false;
+let encodedBlob=null;
 
-/* =========================================================
-   TABS LOGIC
-========================================================= */
-function switchMainTab(tabName) {
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.main-tab').forEach(el => el.classList.remove('active'));
-    
-    document.getElementById('view-' + tabName).classList.add('active');
-    
-    const buttons = document.querySelectorAll('.main-tab');
-    if(tabName === 'encode') buttons[0].classList.add('active');
-    else buttons[1].classList.add('active');
+function switchTab(t){document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.main-tab').forEach(e=>e.classList.remove('active'));$('view-'+t).classList.add('active');document.querySelectorAll('.main-tab')[{encode:0,decode:1,analyze:2}[t]].classList.add('active')}
+function setMode(btn,m){currentMode=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');$('textMode').classList.toggle('hidden',m!=='text');$('fileMode').classList.toggle('hidden',m!=='file')}
+function togglePass(id,btn){const x=$(id);x.type=x.type==='password'?'text':'password';btn.textContent=x.type==='password'?'Показать':'Скрыть'}
+function clearPayload(){filePayload=null;$('payloadFile').value='';$('payloadFileInfo').textContent=''}
+function status(id,t,c=''){$(id).textContent=t;$(id).className='status '+c}
+function yieldUI(){return new Promise(r=>setTimeout(r,0))}
+function u32(n){return[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255]}
+function readU32(b,p){return(((b[p]*16777216)>>>0)+(b[p+1]<<16)+(b[p+2]<<8)+b[p+3])>>>0}
+function concat(...xs){let n=0;for(const x of xs)n+=x.length;const o=new Uint8Array(n);let p=0;for(const x of xs){o.set(x,p);p+=x.length}return o}
+function equalBytes(a,b){if(!a||!b||a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true}
+function bytesToHex(b){let s='';for(const x of b)s+=x.toString(16).padStart(2,'0');return s}
+function bytesToBits(bytes){const o=new Uint8Array(bytes.length*8);let k=0;for(const b of bytes)for(let i=7;i>=0;i--)o[k++]=(b>>i)&1;return o}
+
+// Crypto
+async function sha256(d){return new Uint8Array(await crypto.subtle.digest('SHA-256',d))}
+async function deriveKey(pw,salt){const b=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:180000,hash:'SHA-256'},b,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encryptData(data,pw){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveKey(pw,salt);return{salt,iv,cipher:new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,data))}}
+
+// PRNG
+function makeRng(seed){let a=0x9e3779b9;for(const b of seed)a^=(b+0x9e3779b9+(a<<6)+(a>>>2));return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t^=t+Math.imul(t^(t>>>7),61|t);return((t^(t>>>14))>>>0)/4294967296}}
+function fisher(n,rng){const a=new Uint32Array(n);for(let i=0;i<n;i++)a[i]=i;for(let i=n-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+// Grid
+function gridCells(){return GRID*GRID}
+function updateGridUI(){GRID=+$('gridSize').value;$('copyCount').textContent=gridCells();$('gridLabel').textContent=GRID+'×'+GRID;updateCapacity()}
+function getRegion(c,i){const col=i%GRID,row=Math.floor(i/GRID),x=Math.floor(col*c.width/GRID),y=Math.floor(row*c.height/GRID);return{x,y,w:Math.floor((col+1)*c.width/GRID)-x,h:Math.floor((row+1)*c.height/GRID)-y}}
+function regionCapacity(c,bpc,i=0){const r=getRegion(c,i);return Math.floor(r.w*r.h*3*bpc/8)}
+
+// Slots
+function buildSlots(c,bpc,dist,seed,index){const r=getRegion(c,index),ch=r.w*r.h*3;let perm;if(dist===1){perm=fisher(ch,makeRng(concat(seed,Uint8Array.from([index&255,(index>>8)&255,(index>>16)&255,(index>>24)&255]))))}else{perm=new Uint32Array(ch);for(let i=0;i<ch;i++)perm[i]=i}const slots=new Uint32Array(ch*bpc);let k=0;for(const c of perm)for(let b=0;b<bpc;b++)slots[k++]=c*bpc+b;return slots}
+
+// Image
+function loadCanvas(file){return new Promise((res,rej)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0);res(c)};img.onerror=()=>{URL.revokeObjectURL(url);rej(Error('Decode error'))};img.src=url})}
+function cloneCanvas(c){const o=document.createElement('canvas');o.width=c.width;o.height=c.height;o.getContext('2d').drawImage(c,0,0);return o}
+function showCanvas(c){const p=$('preview');p.width=c.width;p.height=c.height;p.getContext('2d').drawImage(c,0,0);$('sSize').textContent=c.width+'×'+c.height}
+
+// Wire drops
+function wireDrop(dId,fId,cb){const d=$(dId),f=$(fId);d.onclick=e=>{if(e.target!==f)f.click()};f.onchange=()=>f.files[0]&&cb(f.files[0]);d.ondragover=e=>{e.preventDefault();d.classList.add('drag')};d.ondragleave=()=>d.classList.remove('drag');d.ondrop=e=>{e.preventDefault();d.classList.remove('drag');e.dataTransfer.files[0]&&cb(e.dataTransfer.files[0])}}
+
+wireDrop('drop1','file1',async f=>{try{sourceCanvas=await loadCanvas(f);sourceFileRaw=f;$('sourceInfo').classList.remove('hidden');$('sourceName').textContent=f.name;$('sourceDetails').textContent=(f.type||'image')+' · '+(f.size/1024).toFixed(1)+' KB';showCanvas(sourceCanvas);updateCapacity();status('status1','Загружено: '+f.name,'ok');await verifyContainer(f)}catch(e){status('status1',e.message,'bad')}});
+wireDrop('drop2','file2',async f=>{try{extractCanvas=await loadCanvas(f);extractFileRaw=f;$('extractInfo').classList.remove('hidden');$('extractName').textContent=f.name;$('extractDetails').textContent=(f.type||'image')+' · '+(f.size/1024).toFixed(1)+' KB';status('status2','Загружено','ok')}catch(e){status('status2',e.message,'bad')}});
+wireDrop('drop3','file3',async f=>{try{status('analyzeStatus','Анализ...','warn');await runAnalysis(f);status('analyzeStatus','Анализ завершён','ok')}catch(e){status('analyzeStatus',e.message,'bad')}});
+
+$('choosePayload').onclick=()=>$('payloadFile').click();
+$('payloadFile').onchange=()=>{filePayload=$('payloadFile').files[0];if(filePayload)$('payloadFileInfo').textContent=filePayload.name+' · '+(filePayload.size/1024).toFixed(1)+' KB'};
+$('gridSize').onchange=updateGridUI;
+
+function onMethodChange(){const m=$('hideMethod').value;$('lsbParams').classList.toggle('hidden',m!=='lsb');updateCapacity()}
+function updateCapacity(){if(!sourceCanvas)return;const m=$('hideMethod').value;let cap=0,lbl='';if(m==='lsb'){cap=regionCapacity(sourceCanvas,+$('bpc').value,0);lbl=$('distribution').value==='prng'?'LSB-PRNG':'LSB-SEQ'}else if(m==='alpha'){cap=sourceCanvas.width*sourceCanvas.height;lbl='Alpha'}else if(m==='metadata'){cap=1048576;lbl='tEXt'}else{cap=104857600;lbl='Append'}$('sCap').textContent=cap>1048576?(cap/1048576).toFixed(1)+' MB':(cap/1024).toFixed(1)+' KB';$('sMethod').textContent=lbl;const pl=+$('sPayload').dataset.bytes||0;$('bar').style.width=(cap?Math.min(100,pl/cap*100):0)+'%'}
+
+// Header
+function buildHeader(flags,bpc,dist,saltLen,ivLen,payloadLen,origLen,hash,method){const ff=(flags&0x0F)|((method&0x0F)<<4);return concat(MAGIC,Uint8Array.from([5,ff,bpc,dist,saltLen,ivLen]),Uint8Array.from(u32(payloadLen)),Uint8Array.from(u32(origLen)),hash)}
+function parseHeader(h){if(h.length<50)throw Error('SHORT');for(let i=0;i<4;i++)if(h[i]!==MAGIC[i])throw Error('MAGIC');const ff=h[5],method=(ff>>4)&0x0F,flags=ff&0x0F;return{flags,method,bpc:h[6],distribution:h[7],saltLen:h[8],ivLen:h[9],payloadLen:readU32(h,10),originalLen:readU32(h,14),hash:h.slice(18,50)}}
+function parseMetadata(p,h){const ml=readU32(p,50);try{return JSON.parse(td.decode(p.slice(54,54+ml)))}catch{return{mode:'file',name:'recovered.bin',mime:'application/octet-stream'}}}
+async function getSeed(d,pw){return d===0?Uint8Array.from([1,2,3,4]):sha256(concat(te.encode('Stegano-PRNG-v5|'),te.encode(pw)))}
+
+// LSB Read/Write
+function getImageData(c,i){const r=getRegion(c,i);return c.getContext('2d',{willReadFrequently:true}).getImageData(r.x,r.y,r.w,r.h)}
+function writeRegion(c,pkt,bpc,dist,seed,idx,mask){const r=getRegion(c,idx),ctx=c.getContext('2d'),img=ctx.getImageData(r.x,r.y,r.w,r.h),bits=bytesToBits(pkt),slots=buildSlots(c,bpc,dist,seed,idx);for(let k=0;k<bits.length;k++){const s=slots[k],bit=s%bpc,ch=Math.floor(s/bpc),px=Math.floor(ch/3),cn=ch%3,di=px*4+cn,m=1<<bit,old=img.data[di],nv=(old&~m)|(bits[k]<<bit);if(nv!==old&&mask){const pos=(r.y+Math.floor(px/r.w))*c.width+r.x+(px%r.w);mask[pos]=1}img.data[di]=nv}ctx.putImageData(img,r.x,r.y)}
+function readRegionFast(c,n,bpc,dist,seed,idx){const img=getImageData(c,idx),slots=buildSlots(c,bpc,dist,seed,idx),out=new Uint8Array(n);for(let k=0;k<n*8;k++){const s=slots[k],bit=s%bpc,ch=Math.floor(s/bpc),px=Math.floor(ch/3),cn=ch%3;out[k>>3]=(out[k>>3]<<1)|((img.data[px*4+cn]>>bit)&1)}return out}
+
+// Non-LSB encoders
+function encodeAlpha(canvas,pkt){const ctx=canvas.getContext('2d'),d=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<pkt.length;i++)d.data[i*4+3]=pkt[i];for(let i=pkt.length;i<canvas.width*canvas.height;i++)d.data[i*4+3]=255;ctx.putImageData(d,0,0)}
+function decodeAlpha(canvas){const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height),r=new Uint8Array(canvas.width*canvas.height);for(let i=0;i<r.length;i++)r[i]=d.data[i*4+3];return r}
+async function encodeMetadata(file,pkt){const buf=await file.arrayBuffer(),png=new Uint8Array(buf);const kw=te.encode('SteganoData'),sep=new Uint8Array([0]);let bin='';for(let i=0;i<pkt.length;i++)bin+=String.fromCharCode(pkt[i]);const b64=te.encode(btoa(bin));const cd=concat(kw,sep,b64),ct=te.encode('tEXt'),ci=concat(Uint8Array.from(u32(cd.length)),ct,cd,Uint8Array.from(u32(crc32(concat(ct,cd)))));return concat(png.slice(0,33),ci,png.slice(33))}
+async function decodeMetadata(file){const buf=await file.arrayBuffer(),png=new Uint8Array(buf);let off=8;while(off<png.length){const len=readU32(png,off),type=td.decode(png.slice(off+4,off+8));if(type==='tEXt'){const d=png.slice(off+8,off+8+len),ni=d.indexOf(0);if(ni>0&&td.decode(d.slice(0,ni))==='SteganoData'){try{const b=atob(td.decode(d.slice(ni+1))),r=new Uint8Array(b.length);for(let i=0;i<b.length;i++)r[i]=b.charCodeAt(i);return r}catch{}}}if(type==='IEND')break;off+=12+len}return null}
+async function encodeAppend(file,pkt){const buf=await file.arrayBuffer(),png=new Uint8Array(buf);const mk=te.encode('STEGANO_APPEND_V1');return concat(png,mk,Uint8Array.from(u32(pkt.length)),pkt)}
+async function decodeAppend(file){const buf=await file.arrayBuffer(),d=new Uint8Array(buf),mk=te.encode('STEGANO_APPEND_V1');for(let i=d.length-mk.length-4;i>=0;i--){let m=true;for(let j=0;j<mk.length;j++)if(d[i+j]!==mk[j]){m=false;break}if(m){const ps=i+mk.length,len=readU32(d,ps),ds=ps+4;if(ds+len<=d.length)return d.slice(ds,ds+len)}}return null}
+
+// Verify container before encode
+async function verifyContainer(file){
+    const w=$('verifyWarning');
+    w.classList.add('hidden');
+    try {
+        // Check append
+        const ad=await decodeAppend(file);
+        if(ad){w.textContent='⚠ ОБНАРУЖЕНЫ ДАННЫЕ AFTER-IEND ('+ad.length+' байт). Запись может перезаписать скрытое.';w.classList.remove('hidden');return}
+        // Check metadata
+        const md=await decodeMetadata(file);
+        if(md){w.textContent='⚠ ОБНАРУЖЕНЫ ДАННЫЕ В tEXt CHUNK. Запись может перезаписать скрытое.';w.classList.remove('hidden');return}
+        // Quick LSB check on first region
+        const c=await loadCanvas(file);
+        const dummySeed=Uint8Array.from([1,2,3,4]);
+        for(const bpc of [1,2,3]){try{const h=parseHeader(readRegionFast(c,50,bpc,0,dummySeed,0));w.textContent='⚠ ОБНАРУЖЕНЫ LSB-ДАННЫЕ (BPC='+bpc+'). Запись перезапишет существующие данные.';w.classList.remove('hidden');return}catch{}}
+    } catch{}
 }
 
+// Encode
+async function doEncode(){
+ if(!sourceCanvas){status('status1','Выберите контейнер','bad');return}
+ let plain,name,mime;
+ if(currentMode==='text'){if(!$('secret').value){status('status1','Введите текст','bad');return}plain=te.encode($('secret').value);name='msg.txt';mime='text/plain;charset=utf-8'}
+ else{if(!filePayload){status('status1','Выберите файл','bad');return}plain=new Uint8Array(await filePayload.arrayBuffer());name=filePayload.name;mime=filePayload.type||'application/octet-stream'}
+ const enc=$('encrypt').checked,pw=$('pass').value,ms=$('hideMethod').value;
+ const methodId={lsb:0,alpha:1,metadata:2,append:3}[ms];
+ const dist=$('distribution').value==='prng'?1:0,bpc=+$('bpc').value;
+ if((enc||dist)&&!pw){status('status1','Нужен пароль','bad');return}
+ status('status1','Кодирование...');
+ const cr=enc?await encryptData(plain,pw):{salt:new Uint8Array(),iv:new Uint8Array(),cipher:plain};
+ const meta=te.encode(JSON.stringify({name,mime,mode:currentMode}));
+ const body=concat(Uint8Array.from(u32(meta.length)),meta,cr.cipher);
+ const hash=await sha256(plain);
+ const hdr=buildHeader((enc?1:0)|(currentMode==='file'?2:0),bpc,dist,cr.salt.length,cr.iv.length,body.length,cr.cipher.length,hash,methodId);
+ const pkt=concat(hdr,body,cr.salt,cr.iv);
 
-/* =========================================================
-   CORE
-========================================================= */
+ if(ms==='lsb'){
+  const cap=regionCapacity(sourceCanvas,bpc,0);
+  if(pkt.length>cap){status('status1','Слишком большой: нужно '+(pkt.length/1024).toFixed(1)+'KB, доступно '+(cap/1024).toFixed(1)+'KB','bad');return}
+  const seed=await getSeed(dist,pw);encodedCanvas=cloneCanvas(sourceCanvas);
+  for(let i=0;i<gridCells();i++){writeRegion(encodedCanvas,pkt,bpc,dist,seed,i,null);if(i%Math.max(1,Math.floor(gridCells()/50))===0)await yieldUI()}
+  showCanvas(encodedCanvas);encodedBlob=await new Promise(r=>encodedCanvas.toBlob(r,'image/png'));
+ }else if(ms==='alpha'){encodedCanvas=cloneCanvas(sourceCanvas);encodeAlpha(encodedCanvas,pkt);showCanvas(encodedCanvas);encodedBlob=await new Promise(r=>encodedCanvas.toBlob(r,'image/png'))}
+ else if(ms==='metadata'){const b=await encodeMetadata(sourceFileRaw,pkt);encodedBlob=new Blob([b],{type:'image/png'});showCanvas(sourceCanvas)}
+ else{const b=await encodeAppend(sourceFileRaw,pkt);encodedBlob=new Blob([b],{type:'image/png'});showCanvas(sourceCanvas)}
 
-const $ = id => document.getElementById(id);
+ $('download').disabled=false;$('sPayload').textContent=(plain.length/1024).toFixed(1)+' KB';$('sPayload').dataset.bytes=plain.length;updateCapacity();status('status1','Готово ('+ms+')','ok');
+}
 
-const MAGIC = Uint8Array.from([83,84,71,53]); // STG5
-const VERSION = 5;
+function doDownload(){if(!encodedBlob)return;const a=document.createElement('a');a.href=URL.createObjectURL(encodedBlob);a.download='stegano.png';document.body.appendChild(a);a.click();a.remove()}
 
-// Идентификаторы методов
-const METHOD_LSB = 0;
-const METHOD_ALPHA = 1;
-const METHOD_META = 2;
-const METHOD_APPEND = 3;
+// Decode packet helper
+async function decodePacket(pkt,pw){try{const h=parseHeader(pkt.slice(0,50)),m=parseMetadata(pkt,h),ml=readU32(pkt,50),rs=54+ml,re=50+h.payloadLen;let plain=pkt.slice(rs,re);if(h.flags&1){if(!pw)throw Error('PASSWORD');const ss=50+h.payloadLen,s=pkt.slice(ss,ss+h.saltLen),iv=pkt.slice(ss+h.saltLen,ss+h.saltLen+h.ivLen),key=await deriveKey(pw,s);plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv},key,plain))}return{plain,metadata:m,hashOK:equalBytes(await sha256(plain),h.hash),header:h}}catch{return null}}
 
-let GRID = 9;
+// Decode
+async function doDecode(){
+ if(!extractCanvas){status('status2','Выберите изображение','bad');return}
+ createCopyGrid();$('result').value='';$('diagnostics').classList.add('hidden');$('recoveryActions').classList.add('hidden');$('imagePreviewBox').classList.add('hidden');
+ lastRecoveredBytes=null;lastRecoveredMetadata=null;
+ const pw=$('pass2').value;let recovered=null,cfg=null,results=[],method='unknown';
+ status('status2','Проверка методов...','warn');
 
-const te = new TextEncoder();
-const td = new TextDecoder();
+ // Try Append
+ if(extractFileRaw){const d=await decodeAppend(extractFileRaw);if(d){recovered=await decodePacket(d,pw);if(recovered)method='append'}}
+ // Try Meta
+ if(!recovered&&extractFileRaw){const d=await decodeMetadata(extractFileRaw);if(d){recovered=await decodePacket(d,pw);if(recovered)method='meta'}}
+ // Try Alpha
+ if(!recovered){const d=decodeAlpha(extractCanvas);try{const h=parseHeader(d.slice(0,50));const tl=50+h.payloadLen+h.saltLen+h.ivLen;if(tl<=d.length){recovered=await decodePacket(d.slice(0,tl),pw);if(recovered)method='alpha'}}catch{}}
+ // LSB fallback
+ if(!recovered){
+  status('status2','Проверка LSB...','warn');
+  const configs=[];for(const bpc of[1,2,3])configs.push({bpc,dist:0,seed:Uint8Array.from([1,2,3,4])});
+  if(pw)for(const bpc of[1,2,3])configs.push({bpc,dist:1,seed:await getSeed(1,pw)});
+  for(const c of configs){for(let i=0;i<gridCells();i++){try{const h=parseHeader(readRegionFast(extractCanvas,50,c.bpc,c.dist,c.seed,i));if(h.bpc===c.bpc&&h.distribution===c.dist){cfg={...c,grid:GRID};break}}catch{}}if(cfg)break}
+  if(cfg){lastCfg=cfg;method='lsb';for(let i=0;i<gridCells();i++){const r=await decodeOne(extractCanvas,i,cfg,pw);if(r){results.push(r);lastDecodeResults[i]=r;setCopyState(i,r.valid?'ok':'partial')}else setCopyState(i,'bad');if(i%Math.max(1,Math.floor(gridCells()/100))===0)await yieldUI()}recovered=await recoverMajority(results,pw)}
+ }
+ if(!recovered){status('status2','Не найдено','bad');return}
+ lastRecoveredBytes=recovered.plain;lastRecoveredMetadata=recovered.metadata||{};
+ const mn={lsb:'LSB',alpha:'Alpha',meta:'tEXt',append:'AfterIEND'}[method];
+ const m=recovered.metadata||{},isF=m.mode==='file';
+ $('result').value=isF?'Файл: '+(m.name||'?')+'\nТип: '+(m.mime||'?')+'\nМетод: '+mn:'\n'+td.decode(recovered.plain,{fatal:false});
+ $('recoveryActions').classList.remove('hidden');
+ $('saveCellBtn').classList.toggle('hidden',method!=='lsb');
+ if(isLikelyImage(recovered.plain)){const u=URL.createObjectURL(new Blob([recovered.plain],{type:detectMime(recovered.plain)}));$('imagePreview').src=u;$('imagePreviewBox').classList.remove('hidden')}
+ $('diagnostics').classList.remove('hidden');$('diagnostics').textContent='Метод: '+mn+'\nHash: '+(recovered.hashOK?'OK':'FAIL')+'\nИсточник: '+(recovered.source||method);
+ status('status2','Восстановлено ('+mn+')','ok');
+}
 
-let sourceCanvas = null;
-let sourceFileRaw = null; // Сырой файл для non-LSB методов
-let encodedCanvas = null;
-let extractCanvas = null;
-let extractFileRaw = null; // Сырой файл для декодера non-LSB
+async function decodeOne(c,i,cfg,pw){try{const h=parseHeader(readRegionFast(c,50,cfg.bpc,cfg.dist,cfg.seed,i));const cap=regionCapacity(c,cfg.bpc,i);const total=50+h.payloadLen+h.saltLen+h.ivLen;if(total>cap||total<54)return null;const pkt=readRegionFast(c,total,cfg.bpc,cfg.dist,cfg.seed,i);const m=parseMetadata(pkt,h);const ml=readU32(pkt,50);let plain=pkt.slice(54+ml,50+h.payloadLen);if(h.flags&1){if(!pw)return null;const ss=50+h.payloadLen;const key=await deriveKey(pw,pkt.slice(ss,ss+h.saltLen));plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:pkt.slice(ss+h.saltLen,ss+h.saltLen+h.ivLen)},key,plain))}return{index:i,valid:equalBytes(await sha256(plain),h.hash),packet:pkt,plain,metadata:m,header:h}}catch{return null}}
+function majorityBytes(pkts,len){const out=new Uint8Array(len),n=pkts.length;for(let p=0;p<len;p++){let v=0;for(let b=7;b>=0;b--){let ones=0;for(const pk of pkts)if(p<pk.length&&((pk[p]>>b)&1))ones++;if(ones*2>=n)v|=1<<b}out[p]=v}return out}
+async function recoverMajority(results,pw){const valid=results.filter(r=>r.valid);if(valid.length)return{plain:valid[0].plain,metadata:valid[0].metadata,source:'valid',count:valid.length,hashOK:true,header:valid[0].header};const m=new Map();for(const r of results)m.set(r.packet.length,(m.get(r.packet.length)||0)+1);let best=0,bc=0;for(const[n,c]of m)if(c>bc){best=n;bc=c}const usable=results.filter(r=>r.packet.length===best);if(!usable.length)return null;const pkt=majorityBytes(usable.map(r=>r.packet),best);return await decodePacket(pkt,pw)||{plain:usable[0].plain,metadata:usable[0].metadata,source:'partial',count:usable.length,hashOK:false,header:usable[0].header}}
 
-let currentMode = 'text';
-let filePayload = null;
+function createCopyGrid(){const g=$('copyGrid');g.innerHTML='';g.style.gridTemplateColumns='repeat('+GRID+',minmax(0,1fr))';lastDecodeResults=new Array(gridCells()).fill(null);selectedCellIndex=-1;$('saveCellBtn').disabled=true;for(let i=0;i<gridCells();i++){const e=document.createElement('div');e.id='copy-'+i;e.className='copyCell skip';e.textContent=i+1;e.onclick=()=>handleCellClick(i);g.appendChild(e)}}
+function setCopyState(i,s){const e=$('copy-'+i);if(e)e.className='copyCell '+s}
+function handleCellClick(i){document.querySelectorAll('.copyCell.selected').forEach(e=>e.classList.remove('selected'));const c=$('copy-'+i);if(c)c.classList.add('selected');selectedCellIndex=i;const r=lastDecodeResults[i];$('saveCellBtn').disabled=!r||!r.plain;$('result').value=r?td.decode(r.plain,{fatal:false}):'Ячейка '+(i+1)+': нет данных'}
+function saveExtracted(){if(!lastRecoveredBytes)return;const m=lastRecoveredMetadata||{};dlBlob(new Blob([lastRecoveredBytes],{type:m.mime||'application/octet-stream'}),m.name||'recovered.bin')}
+function saveCell(){if(selectedCellIndex<0)return;const r=lastDecodeResults[selectedCellIndex];if(!r||!r.plain)return;dlBlob(new Blob([r.plain],{type:(r.metadata||{}).mime||'application/octet-stream'}),'cell_'+(selectedCellIndex+1)+'.bin')}
+function saveZip(){const files=[];for(let i=0;i<lastDecodeResults.length;i++){const r=lastDecodeResults[i];if(r&&r.plain)files.push({name:'cell_'+String(i+1).padStart(3,'0')+'.bin',data:r.plain})}if(!files.length)return;dlBlob(new Blob([createZip(files)],{type:'application/zip'}),'all.zip')}
+function dlBlob(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove()}
+function doClear(){extractCanvas=null;extractFileRaw=null;$('result').value='';$('pass2').value='';$('copyGrid').innerHTML='';$('diagnostics').classList.add('hidden');$('recoveryActions').classList.add('hidden');$('imagePreviewBox').classList.add('hidden');lastRecoveredBytes=null;lastRecoveredMetadata=null;lastDecodeResults=[];status('status2','')}
 
-let lastRecoveredBytes = null;
-let lastRecoveredMetadata = null;
-let lastCfg = null;
-let lastPacketLength = 0;
-let lastPixelMask = null;
-let lastUsedMethod = null; // 'lsb', 'alpha', 'meta', 'append'
+// CRC32
+const crcT=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c}return t})();
+function crc32(d){let c=0xFFFFFFFF;for(let i=0;i<d.length;i++)c=crcT[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function createZip(files){const lh=[],ch=[];let off=0;const enc=new TextEncoder();for(const f of files){const nb=enc.encode(f.name),crc=crc32(f.data);const l=new Uint8Array(30+nb.length+f.data.length),lv=new DataView(l.buffer);lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint32(14,crc,true);lv.setUint32(18,f.data.length,true);lv.setUint32(22,f.data.length,true);lv.setUint16(26,nb.length,true);l.set(nb,30);l.set(f.data,30+nb.length);lh.push(l);const c=new Uint8Array(46+nb.length),cv=new DataView(c.buffer);cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint32(16,crc,true);cv.setUint32(20,f.data.length,true);cv.setUint32(24,f.data.length,true);cv.setUint16(28,nb.length,true);cv.setUint32(42,off,true);c.set(nb,46);ch.push(c);off+=l.length}let cs=0;for(const c of ch)cs+=c.length;const e=new Uint8Array(22),ev=new DataView(e.buffer);ev.setUint32(0,0x06054b50,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);ev.setUint32(12,cs,true);ev.setUint32(16,off,true);return concat(...lh,...ch,e)}
+function isLikelyImage(b){if(!b||b.length<12)return false;return(b[0]===137&&b[1]===80)||(b[0]===255&&b[1]===216)||(b[0]===71&&b[1]===73)}
+function detectMime(b){if(!b||b.length<12)return'image/png';if(b[0]===137&&b[1]===80)return'image/png';if(b[0]===255&&b[1]===216)return'image/jpeg';if(b[0]===71&&b[1]===73)return'image/gif';return'image/png'}
 
-let lastDecodeResults = []; 
-let selectedCellIndex = -1;
+// ===================== BRUTEFORCE =====================
+async function startBruteforce(){if(!extractCanvas){status('status2','Выберите изображение','bad');return}bruteforceAborted=false;const btn=$('bruteforce');btn.textContent='⏹ Стоп';btn.onclick=()=>{bruteforceAborted=true};status('status2','Брутфорс...','warn');let cfg=null,ti=-1;for(const bpc of[1,2,3])for(let i=0;i<gridCells();i++){try{const h=parseHeader(readRegionFast(extractCanvas,50,bpc,0,Uint8Array.from([1,2,3,4]),i));if(h.flags&1){cfg={bpc,dist:0,seed:Uint8Array.from([1,2,3,4])};ti=i;break}}catch{}}if(!cfg){status('status2','Нет зашифрованных копий','bad');btn.textContent='🔓 Брутфорс';btn.onclick=startBruteforce;return}
+const h=parseHeader(readRegionFast(extractCanvas,50,cfg.bpc,0,cfg.seed,ti));const tl=50+h.payloadLen+h.saltLen+h.ivLen;const fp=readRegionFast(extractCanvas,tl,cfg.bpc,0,cfg.seed,ti);const ss=50+h.payloadLen;const salt=fp.slice(ss,ss+h.saltLen),iv=fp.slice(ss+h.saltLen,ss+h.saltLen+h.ivLen),ct=fp.slice(54+readU32(fp,50),50+h.payloadLen),eh=h.hash;
+const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';let tested=0;const st=performance.now();
+for(let len=1;len<=4;len++){const total=Math.pow(chars.length,len);for(let i=0;i<total;i++){if(bruteforceAborted){status('status2','Остановлено','warn');btn.textContent='🔓 Брутфорс';btn.onclick=startBruteforce;return}let pass='',num=i;for(let p=0;p<len;p++){pass=chars[num%chars.length]+pass;num=Math.floor(num/chars.length)}tested++;if(tested%5===0){$('progress').textContent=tested+' · '+(tested/((performance.now()-st)/1000)).toFixed(1)+'/s · "'+pass+'"';await yieldUI()}try{const key=await deriveKey(pass,salt);const plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct));if(equalBytes(await sha256(plain),eh)){$('pass2').value=pass;status('status2','✅ НАЙДЕН: "'+pass+'"','ok');btn.textContent='🔓 Брутфорс';btn.onclick=startBruteforce;setTimeout(()=>doDecode(),300);return}}catch{}}}
+status('status2','Не найден ('+tested+')','bad');btn.textContent='🔓 Брутфорс';btn.onclick=startBruteforce}
 
-let bruteforceAborted = false;
+// ===================== ANALYSIS =====================
+async function runAnalysis(file){
+ $('analyzeResults').classList.remove('hidden');
+ const canvas=await loadCanvas(file);
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+ const data=imgData.data;
+ const w=canvas.width,h=canvas.height;
 
-const slotCache = new Map();
-const imageCache = new WeakMap();
+ // 1. Chi-Square LSB test
+ const blockSize=32;
+ const cols=Math.floor(w/blockSize),rows=Math.floor(h/blockSize);
+ const chiCanvas=$('chiCanvas');
+ chiCanvas.width=cols;chiCanvas.height=rows;
+ const chiCtx=chiCanvas.getContext('2d');
+ const chiImg=chiCtx.createImageData(cols,rows);
+ let avgChi=0,count=0;
 
-
-/* =========================================================
-   UI: METHOD SWITCHING
-========================================================= */
-
-$('hideMethod').addEventListener('change', () => {
-    const method = $('hideMethod').value;
-    const lsbParams = $('lsbParams');
-    const note = $('methodNote');
-    
-    if (method === 'lsb') {
-        lsbParams.classList.remove('hidden');
-        note.textContent = 'LSB использует сетку для избыточности. Совместим с JPEG.';
-    } else {
-        lsbParams.classList.add('hidden');
-        if (method === 'alpha') note.textContent = 'Alpha: данные в канале прозрачности. Только PNG. Высокая ёмкость.';
-        if (method === 'metadata') note.textContent = 'Metadata: данные в tEXt chunk. Не меняет пиксели. PNG only.';
-        if (method === 'append') note.textContent = 'After IEND: данные после конца PNG. Стойкий к копированию файла.';
+ for(let by=0;by<rows;by++){
+  for(let bx=0;bx<cols;bx++){
+   // Build histogram of pair values (PoV)
+   const hist=new Float64Array(128);
+   for(let y=by*blockSize;y<(by+1)*blockSize;y++){
+    for(let x=bx*blockSize;x<(bx+1)*blockSize;x++){
+     const idx=(y*w+x)*4;
+     for(let c=0;c<3;c++){
+      const val=data[idx+c];
+      hist[Math.floor(val/2)]++;
+     }
     }
-    updateCapacity();
-});
-
-
-/* =========================================================
-   GRID
-========================================================= */
-
-function gridCells(){
- return GRID * GRID;
-}
-
-function updateGridUI(){
-
- const n = gridCells();
-
- $('copyCount').textContent = n;
- $('regionCount').textContent = n;
- $('gridLabel').textContent = GRID + '×' + GRID;
-
- const g = $('copyGrid');
-
- if(g){
-  g.style.gridTemplateColumns =
-   'repeat(' + GRID + ',minmax(0,1fr))';
-
-  if(GRID >= 32){
-   g.style.maxHeight = '520px';
-  }else{
-   g.style.maxHeight = '420px';
+   }
+   // Chi-square statistic
+   const expected=(blockSize*blockSize*3)/128;
+   let chi=0;
+   for(let i=0;i<128;i++){
+    const diff=hist[i]-expected;
+    chi+=diff*diff/expected;
+   }
+   // Normalize: high chi = suspicious
+   const norm=Math.min(1,chi/300);
+   avgChi+=norm;count++;
+   const pi=(by*cols+bx)*4;
+   chiImg.data[pi]=Math.floor(norm*255);
+   chiImg.data[pi+1]=Math.floor((1-norm)*100);
+   chiImg.data[pi+2]=Math.floor((1-norm)*200);
+   chiImg.data[pi+3]=255;
   }
  }
+ chiCtx.putImageData(chiImg,0,0);
+ // Scale up for visibility
+ chiCanvas.style.width='100%';chiCanvas.style.height='auto';chiCanvas.style.imageRendering='pixelated';
+ const avgNorm=count?avgChi/count:0;
+ $('chiResult').textContent='Средняя вероятность LSB: '+(avgNorm*100).toFixed(1)+'%\n'+(avgNorm>0.3?'⚠ ПОДОЗРИТЕЛЬНО: равномерное распределение LSB':'✅ Норма: естественное распределение');
+ $('chiResult').className='note '+(avgNorm>0.3?'warn':'ok');
 
- updateCapacity();
-}
-
-$('gridSize').addEventListener('change',()=>{
-
- GRID = +$('gridSize').value;
-
- slotCache.clear();
-
- createCopyGrid();
- updateGridUI();
-
-});
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function status(id,text,type=''){
- const e = $(id);
- e.textContent = text;
- e.className = 'status ' + type;
-}
-
-function yieldUI(){
- return new Promise(r=>setTimeout(r,0));
-}
-
-function u32(n){
- return [
-  (n>>>24)&255,
-  (n>>>16)&255,
-  (n>>>8)&255,
-  n&255
- ];
-}
-
-function readU32(b,p){
- return (
-  (((b[p]*16777216)>>>0) +
-  (b[p+1]<<16) +
-  (b[p+2]<<8) +
-  b[p+3])
- )>>>0;
-}
-
-function concat(...xs){
-
- let n=0;
-
- for(const x of xs)
-  n += x.length;
-
- const o = new Uint8Array(n);
-
- let p=0;
-
- for(const x of xs){
-  o.set(x,p);
-  p += x.length;
+ // 2. LSB Histogram
+ const lsbHist=new Uint32Array(256);
+ for(let i=0;i<data.length;i+=4){
+  for(let c=0;c<3;c++) lsbHist[data[i+c]&0xFE]++;
  }
-
- return o;
-}
-
-function equalBytes(a,b){
-
- if(!a || !b || a.length!==b.length)
-  return false;
-
- for(let i=0;i<a.length;i++)
-  if(a[i]!==b[i]) return false;
-
- return true;
-}
-
-function bytesToHex(b){
-
- let s='';
-
- for(const x of b)
-  s += x.toString(16).padStart(2,'0');
-
- return s;
-}
-
-function bytesToBits(bytes){
-
- const o = new Uint8Array(bytes.length*8);
-
- let k=0;
-
- for(const b of bytes){
-
-  for(let i=7;i>=0;i--)
-   o[k++] = (b>>i)&1;
-
+ const lsbCanvas=$('lsbHistCanvas');
+ lsbCanvas.width=256;lsbCanvas.height=150;
+ const lsbCtx=lsbCanvas.getContext('2d');
+ lsbCtx.fillStyle='#0b0f16';lsbCtx.fillRect(0,0,256,150);
+ const maxH=Math.max(...lsbHist);
+ // Draw pairs
+ for(let i=0;i<128;i++){
+  const h1=lsbHist[i*2]/maxH*140;
+  const h2=lsbHist[i*2+1]/maxH*140;
+  const ratio=Math.abs(h1-h2)/(h1+h2+0.001);
+  // Green if similar (suspicious), red if different (natural)
+  const g=Math.floor((1-Math.min(1,ratio*5))*255);
+  const r=Math.floor(Math.min(1,ratio*5)*255);
+  lsbCtx.fillStyle=`rgb(${r},${g},50)`;
+  lsbCtx.fillRect(i*2,150-h1,1,h1);
+  lsbCtx.fillRect(i*2+1,150-h2,1,h2);
  }
+ // Calculate average pair similarity
+ let simSum=0;
+ for(let i=0;i<128;i++){const a=lsbHist[i*2],b=lsbHist[i*2+1];simSum+=1-Math.abs(a-b)/(a+b+1)}
+ const avgSim=simSum/128;
+ $('lsbHistResult').textContent='Среднее сходство пар: '+(avgSim*100).toFixed(1)+'%\n'+(avgSim>0.9?'⚠ ПОДОЗРИТЕЛЬНО: пары почти идентичны':'✅ Норма');
+ $('lsbHistResult').className='note '+(avgSim>0.9?'warn':'ok');
 
- return o;
-}
-
-
-/* =========================================================
-   CRYPTO
-========================================================= */
-
-async function sha256(data){
-
- return new Uint8Array(
-  await crypto.subtle.digest('SHA-256',data)
- );
-
-}
-
-async function deriveKey(password,salt){
-
- const base =
-  await crypto.subtle.importKey(
-   'raw',
-   te.encode(password),
-   'PBKDF2',
-   false,
-   ['deriveKey']
-  );
-
- return crypto.subtle.deriveKey(
-  {
-   name:'PBKDF2',
-   salt,
-   iterations:180000,
-   hash:'SHA-256'
-  },
-  base,
-  {
-   name:'AES-GCM',
-   length:256
-  },
-  false,
-  ['encrypt','decrypt']
- );
-
-}
-
-async function encryptData(data,password){
-
- const salt =
-  crypto.getRandomValues(new Uint8Array(16));
-
- const iv =
-  crypto.getRandomValues(new Uint8Array(12));
-
- const key =
-  await deriveKey(password,salt);
-
- const cipher =
-  new Uint8Array(
-   await crypto.subtle.encrypt(
-    {
-     name:'AES-GCM',
-     iv
-    },
-    key,
-    data
-   )
-  );
-
- return {
-  salt,
-  iv,
-  cipher
- };
-
-}
-
-
-/* =========================================================
-   PRNG
-========================================================= */
-
-function makeRng(seed){
-
- let a=0x9e3779b9;
-
- for(const b of seed)
-  a ^= (b+0x9e3779b9+(a<<6)+(a>>>2));
-
- return ()=>{
-
-  a=(a+0x6D2B79F5)|0;
-
-  let t=Math.imul(
-   a^(a>>>15),
-   1|a
-  );
-
-  t ^= t +
-   Math.imul(
-    t^(t>>>7),
-    61|t
-   );
-
-  return ((t^(t>>>14))>>>0)/4294967296;
- };
-
-}
-
-function fisher(n,rng){
-
- const a = new Uint32Array(n);
-
- for(let i=0;i<n;i++)
-  a[i]=i;
-
- for(let i=n-1;i>0;i--){
-
-  const j=Math.floor(
-   rng()*(i+1)
-  );
-
-  const t=a[i];
-
-  a[i]=a[j];
-  a[j]=t;
-
+ // 3. Alpha map
+ const alphaC=$('alphaCanvas');
+ alphaC.width=w;alphaC.height=h;
+ const aCtx=alphaC.getContext('2d');
+ const aImg=aCtx.createImageData(w,h);
+ let nonOpaque=0,semiTransparent=0;
+ for(let i=0;i<data.length;i+=4){
+  const a=data[i+3];
+  const pi=i;
+  if(a===255){aImg.data[pi]=20;aImg.data[pi+1]=20;aImg.data[pi+2]=30;aImg.data[pi+3]=255}
+  else if(a===0){aImg.data[pi]=100;aImg.data[pi+1]=0;aImg.data[pi+2]=0;aImg.data[pi+3]=255;nonOpaque++}
+  else{aImg.data[pi]=0;aImg.data[pi+1]=Math.floor(a);aImg.data[pi+2]=255-a;aImg.data[pi+3]=255;semiTransparent++}
  }
+ aCtx.putImageData(aImg,0,0);
+ alphaC.style.width='100%';alphaC.style.height='auto';
+ const totalPx=w*h;
+ $('alphaResult').textContent=`Прозрачных: ${nonOpaque} (${(nonOpaque/totalPx*100).toFixed(2)}%)\nПолупрозрачных: ${semiTransparent} (${(semiTransparent/totalPx*100).toFixed(2)}%)\n`+(semiTransparent>100?'⚠ Много полупрозрачных пикселей — возможна alpha-стеганография':'✅ Alpha канал чист');
+ $('alphaResult').className='note '+(semiTransparent>100?'warn':'ok');
 
- return a;
+ // 4. PNG Chunks
+ const tbody=$('chunkTable').querySelector('tbody');
+ tbody.innerHTML='';
+ try{
+  const buf=await file.arrayBuffer();
+  const png=new Uint8Array(buf);
+  if(png[0]===137&&png[1]===80){
+   let off=8;
+   const suspicious=['tEXt','iTXt','zTXt','sTER','pHYs'];
+   while(off<png.length){
+    const len=readU32(png,off);
+    const type=td.decode(png.slice(off+4,off+8));
+    const isSusp=suspicious.includes(type);
+    const tr=document.createElement('tr');
+    if(isSusp)tr.className='suspicious';
+    tr.innerHTML=`<td><b>${type}</b></td><td>${len}</td><td>0x${off.toString(16)}</td><td>${isSusp?'⚠ Подозрительный':''}</td>`;
+    tbody.appendChild(tr);
+    if(type==='IEND')break;
+    off+=12+len;
+   }
+  }else{tbody.innerHTML='<tr><td colspan="4">Не PNG файл</td></tr>'}
+ }catch{tbody.innerHTML='<tr><td colspan="4">Ошибка чтения</td></tr>'}
+
+ // 5. After IEND
+ try{
+  const buf=await file.arrayBuffer();
+  const d=new Uint8Array(buf);
+  const mk=te.encode('STEGANO_APPEND_V1');
+  let found=false;
+  for(let i=d.length-mk.length-4;i>=0;i--){
+   let m=true;for(let j=0;j<mk.length;j++)if(d[i+j]!==mk[j]){m=false;break}
+   if(m){
+    const ps=i+mk.length,len=readU32(d,ps);
+    $('iendResult').innerHTML=`<span class="warn">⚠ НАЙДЕНЫ ДАННЫЕ ПОСЛЕ IEND!</span>\nМаркер: STEGANO_APPEND_V1\nРазмер: ${len} байт\nHex: ${bytesToHex(d.slice(ps+4,ps+4+Math.min(64,len)))}`;
+    $('iendResult').className='note warn';
+    found=true;break;
+   }
+  }
+  if(!found){
+   // Also check for any trailing data after IEND chunk
+   let iendEnd=-1,off=8;
+   while(off<d.length){const len=readU32(d,off);const type=td.decode(d.slice(off+4,off+8));if(type==='IEND'){iendEnd=off+12+len;break}off+=12+len}
+   if(iendEnd>0&&iendEnd<d.length){
+    const trail=d.length-iendEnd;
+    $('iendResult').innerHTML=`<span class="warn">⚠ ${trail} байт после IEND</span>\nHex: ${bytesToHex(d.slice(iendEnd,iendEnd+Math.min(64,trail)))}`;
+    $('iendResult').className='note warn';
+   }else{
+    $('iendResult').textContent='✅ Нет данных после IEND';
+    $('iendResult').className='note ok';
+   }
+  }
+ }catch{$('iendResult').textContent='Ошибка чтения'}
 }
 
+// Diff
+let diffOrigCanvas=null,diffStegoCanvas=null;
+$('diffOrig').onchange=async function(){if(this.files[0])diffOrigCanvas=await loadCanvas(this.files[0]);if(diffOrigCanvas&&diffStegoCanvas)drawDiff()};
+$('diffStego').onchange=async function(){if(this.files[0])diffStegoCanvas=await loadCanvas(this.files[0]);if(diffOrigCanvas&&diffStegoCanvas)drawDiff()};
 
-/* =========================================================
-   REGIONS
-========================================================= */
-
-function getRegion(c,index){
-
- const col = index % GRID;
- const row = Math.floor(index / GRID);
-
- const x =
-  Math.floor(col*c.width/GRID);
-
- const y =
-  Math.floor(row*c.height/GRID);
-
- const x2 =
-  Math.floor((col+1)*c.width/GRID);
-
- const y2 =
-  Math.floor((row+1)*c.height/GRID);
-
- return {
-  x,
-  y,
-  w:x2-x,
-  h:y2-y
- };
-
-}
-
-function regionCapacity(c,bpc,index=0){
-
- const r=getRegion(c,index);
-
- return Math.floor(
-  r.w*r.h*3*bpc/8
- );
-
-}
-
-
-/* =========================================================
-   SLOT GENERATION
-========================================================= */
-
-function getCacheKey(
- c,
- bpc,
- dist,
- seed,
- index
-){
-
- return [
-  c.width,
-  c.height,
-  GRID,
-  bpc,
-  dist,
-  index,
-  dist ? bytesToHex(seed) : 'seq'
- ].join(':');
-
-}
-
-function buildSlots(
- c,
- bpc,
- dist,
- seed,
- index
-){
-
- const key =
-  getCacheKey(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- if(slotCache.has(key))
-  return slotCache.get(key);
-
- const r =
-  getRegion(c,index);
-
- const channels =
-  r.w*r.h*3;
-
- let perm;
-
- if(dist===1){
-
-  const s =
-   concat(
-    seed,
-    Uint8Array.from([
-     index&255,
-     (index>>8)&255,
-     (index>>16)&255,
-     (index>>24)&255
-    ])
-   );
-
-  perm =
-   fisher(
-    channels,
-    makeRng(s)
-   );
-
- }else{
-
-  perm =
-   new Uint32Array(channels);
-
-  for(let i=0;i<channels;i++)
-   perm[i]=i;
-
- }
-
- const slots =
-  new Uint32Array(channels*bpc);
-
- let k=0;
-
- for(const ch of perm){
-
-  for(let bit=0;bit<bpc;bit++)
-   slots[k++]=ch*bpc+bit;
-
- }
-
- slotCache.set(key,slots);
-
- return slots;
-
-}
-
-
-/* =========================================================
-   IMAGE CACHE
-========================================================= */
-
-function getImageData(c,index){
-
- let cache=imageCache.get(c);
-
- if(!cache){
-
-  cache=new Map();
-  imageCache.set(c,cache);
-
- }
-
- if(cache.has(index))
-  return cache.get(index);
-
- const r=getRegion(c,index);
-
- const ctx=
-  c.getContext(
-   '2d',
-   {willReadFrequently:true}
-  );
-
- const d=
-  ctx.getImageData(
-   r.x,
-   r.y,
-   r.w,
-   r.h
-  );
-
- cache.set(index,d);
-
- return d;
-
-}
-
-
-/* =========================================================
-   WRITE LSB
-========================================================= */
-
-function writeRegion(
- c,
- packet,
- bpc,
- dist,
- seed,
- index,
- maskSet
-){
-
- const r=getRegion(c,index);
-
+function drawDiff(){
+ const c=$('diffCanvas');
+ const w=Math.min(diffOrigCanvas.width,diffStegoCanvas.width);
+ const h=Math.min(diffOrigCanvas.height,diffStegoCanvas.height);
+ c.width=w;c.height=h;c.style.width='100%';c.style.height='auto';
  const ctx=c.getContext('2d');
-
- const img=
-  ctx.getImageData(
-   r.x,
-   r.y,
-   r.w,
-   r.h
-  );
-
- const bits=bytesToBits(packet);
-
- const slots=
-  buildSlots(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- if(bits.length>slots.length)
-  throw Error(
-   'Контейнер не помещается'
-  );
-
- for(let k=0;k<bits.length;k++){
-
-  const s=slots[k];
-
-  const bit=s%bpc;
-
-  const ch=Math.floor(s/bpc);
-
-  const pixel=Math.floor(ch/3);
-
-  const channel=ch%3;
-
-  const di=pixel*4+channel;
-
-  const mask=1<<bit;
-
-  const old=img.data[di];
-
-  const nv=
-   (old&~mask) |
-   (bits[k]<<bit);
-
-  if(nv!==old && maskSet){
-
-   const px =
-    r.x +
-    (pixel%r.w);
-
-   const py =
-    r.y +
-    Math.floor(pixel/r.w);
-
-   const pos =
-    py*encodedCanvas.width+px;
-
-   maskSet[pos]=1;
-
-  }
-
-  img.data[di]=nv;
-
+ const a=diffOrigCanvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;
+ const b=diffStegoCanvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;
+ const out=ctx.createImageData(w,h);
+ let rgbChanged=0,alphaChanged=0,bothChanged=0;
+ for(let i=0;i<w*h;i++){
+  const pi=i*4;
+  const rgbDiff=a[pi]!==b[pi]||a[pi+1]!==b[pi+1]||a[pi+2]!==b[pi+2];
+  const alphaDiff=a[pi+3]!==b[pi+3];
+  if(rgbDiff&&alphaDiff){out.data[pi]=64;out.data[pi+1]=255;out.data[pi+2]=128;out.data[pi+3]=255;bothChanged++}
+  else if(rgbDiff){out.data[pi]=255;out.data[pi+1]=48;out.data[pi+2]=64;out.data[pi+3]=255;rgbChanged++}
+  else if(alphaDiff){out.data[pi]=64;out.data[pi+1]=128;out.data[pi+2]=255;out.data[pi+3]=255;alphaChanged++}
+  else{out.data[pi]=20;out.data[pi+1]=20;out.data[pi+2]=30;out.data[pi+3]=255}
  }
-
- ctx.putImageData(
-  img,
-  r.x,
-  r.y
- );
-
+ ctx.putImageData(out,0,0);
+ $('diffStats').textContent=`RGB: ${rgbChanged} px · Alpha: ${alphaChanged} px · Оба: ${bothChanged} px · Всего изменено: ${rgbChanged+alphaChanged+bothChanged}/${w*h}`;
 }
 
-
-/* =========================================================
-   READ LSB
-========================================================= */
-
-function readRegionFast(
- c,
- nBytes,
- bpc,
- dist,
- seed,
- index
-){
-
- const img=getImageData(c,index);
-
- const slots=
-  buildSlots(
-   c,
-   bpc,
-   dist,
-   seed,
-   index
-  );
-
- const need=nBytes*8;
-
- if(need>slots.length)
-  throw Error('CAPACITY');
-
- const out=
-  new Uint8Array(nBytes);
-
- for(let k=0;k<need;k++){
-
-  const s=slots[k];
-
-  const bit=s%bpc;
-
-  const ch=Math.floor(s/bpc);
-
-  const pixel=Math.floor(ch/3);
-
-  const channel=ch%3;
-
-  const di=pixel*4+channel;
-
-  out[k>>3] =
-   (out[k>>3]<<1) |
-   ((img.data[di]>>bit)&1);
-
- }
-
- return out;
-
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-function buildHeader(
- flags,
- bpc,
- dist,
- saltLen,
- ivLen,
- payloadLen,
- originalLen,
- hash,
- method
-){
- // Добавляем method в flags (верхние 4 бита)
- // flags: bit0=encrypted, bit1=isFile, bits4-7=method
- const fullFlags = (flags & 0x0F) | ((method & 0x0F) << 4);
-
- return concat(
-  MAGIC,
-
-  Uint8Array.from([
-   VERSION,
-   fullFlags,
-   bpc,
-   dist,
-   saltLen,
-   ivLen
-  ]),
-
-  Uint8Array.from(
-   u32(payloadLen)
-  ),
-
-  Uint8Array.from(
-   u32(originalLen)
-  ),
-
-  hash
- );
-
-}
-
-function parseHeader(h){
-
- if(h.length<50)
-  throw Error('SHORT');
-
- for(let i=0;i<4;i++)
-  if(h[i]!==MAGIC[i])
-   throw Error('MAGIC');
-
- if(h[4]!==VERSION)
-  throw Error('VERSION');
-
- const fullFlags = h[5];
- const method = (fullFlags >> 4) & 0x0F;
- const flags = fullFlags & 0x0F;
- 
- const bpc=h[6];
- const dist=h[7];
- const saltLen=h[8];
- const ivLen=h[9];
-
- if(
-  bpc<1 ||
-  bpc>3 ||
-  dist>1 ||
-  saltLen>64 ||
-  ivLen>32
- )
-  throw Error('HEADER');
-
- return {
-  flags,
-  method,
-  bpc,
-  distribution:dist,
-  saltLen,
-  ivLen,
-  payloadLen:readU32(h,10),
-  originalLen:readU32(h,14),
-  hash:h.slice(18,50)
- };
-
-}
-
-
-/* =========================================================
-   SEED
-========================================================= */
-
-async function getSeed(
- dist,
- password
-){
-
- if(dist===0)
-  return Uint8Array.from([
-   1,2,3,4
-  ]);
-
- if(!password)
-  throw Error(
-   'Для PRNG требуется пароль'
-  );
-
- return sha256(
-  concat(
-   te.encode('Stegano-PRNG-v5|'),
-   te.encode(password)
-  )
- );
-
-}
-
-
-/* =========================================================
-   METADATA
-========================================================= */
-
-function parseMetadata(packet,h){
-
- const ml=readU32(packet,50);
-
- if(
-  ml>h.payloadLen ||
-  54+ml>packet.length
- )
-  throw Error('METADATA');
-
- let m;
-
- try{
-
-  m=JSON.parse(
-   td.decode(
-    packet.slice(
-     54,
-     54+ml
-    )
-   )
-  );
-
- }catch{
-
-  m={
-   mode:'file',
-   name:'recovered.bin',
-   mime:'application/octet-stream'
-  };
-
- }
-
- return m;
-
-}
-
-
-/* =========================================================
-   DECODE ONE (LSB)
-========================================================= */
-
-async function decodeOne(
- c,
- index,
- cfg,
- password
-){
-
- try{
-
-  const h=parseHeader(
-   readRegionFast(
-    c,
-    50,
-    cfg.bpc,
-    cfg.dist,
-    cfg.seed,
-    index
-   )
-  );
-
-  const capacity=
-   regionCapacity(
-    c,
-    cfg.bpc,
-    index
-   );
-
-  const total=
-   50+
-   h.payloadLen+
-   h.saltLen+
-   h.ivLen;
-
-  if(
-   total>capacity ||
-   total<54
-  )
-   return null;
-
-  const packet=
-   readRegionFast(
-    c,
-    total,
-    cfg.bpc,
-    cfg.dist,
-    cfg.seed,
-    index
-   );
-
-  const metadata=
-   parseMetadata(
-    packet,
-    h
-   );
-
-  const ml=
-   readU32(packet,50);
-
-  const rawStart=
-   54+ml;
-
-  const rawEnd=
-   50+h.payloadLen;
-
-  if(
-   rawStart>rawEnd ||
-   rawEnd>packet.length
-  )
-   throw Error('RANGE');
-
-  let plain=
-   packet.slice(
-    rawStart,
-    rawEnd
-   );
-
-  if(h.flags&1){
-
-   if(!password)
-    throw Error('PASSWORD');
-
-   const saltStart=
-    50+h.payloadLen;
-
-   const salt=
-    packet.slice(
-     saltStart,
-     saltStart+h.saltLen
-    );
-
-   const iv=
-    packet.slice(
-     saltStart+h.saltLen,
-     saltStart+h.saltLen+h.ivLen
-    );
-
-   const key=
-    await deriveKey(
-     password,
-     salt
-    );
-
-   plain=
-    new Uint8Array(
-     await crypto.subtle.decrypt(
-      {
-       name:'AES-GCM',
-       iv
-      },
-      key,
-      plain
-     )
-    );
-
-  }
-
-  const valid=
-   equalBytes(
-    await sha256(plain),
-    h.hash
-   );
-
-  return {
-   index,
-   valid,
-   packet,
-   plain,
-   metadata,
-   header:h
-  };
-
- }catch(e){
-     return null;
- }
-
-}
-
-
-/* =========================================================
-   DETECT CONFIGURATION (LSB)
-========================================================= */
-
-async function detectConfiguration(
- c,
- password
-){
-
- const configs=[];
-
- for(const bpc of [1,2,3]){
-
-  for(const dist of [0,1]){
-
-   if(dist===1&&!password)
-    continue;
-
-   configs.push({
-    bpc,
-    dist,
-    seed:await getSeed(
-     dist,
-     password
-    )
-   });
-
-  }
-
- }
-
- for(const cfg of configs){
-
-  for(
-   let i=0;
-   i<gridCells();
-   i++
-  ){
-
-   try{
-
-    const h=parseHeader(
-     readRegionFast(
-      c,
-      50,
-      cfg.bpc,
-      cfg.dist,
-      cfg.seed,
-      i
-     )
-    );
-
-    if(
-     h.bpc===cfg.bpc &&
-     h.distribution===cfg.dist
-    ){
-
-     return {
-      ...cfg,
-      grid:GRID
-     };
-
-    }
-
-   }catch{}
-
-  }
-
- }
-
- return null;
-
-}
-
-
-/* =========================================================
-   MAJORITY
-========================================================= */
-
-function majorityBytes(
- packets,
- length
-){
-
- if(!packets.length)
-  return null;
-
- const out=
-  new Uint8Array(length);
-
- const n=packets.length;
-
- for(let p=0;p<length;p++){
-
-  let v=0;
-
-  for(let bit=7;bit>=0;bit--){
-
-   let ones=0;
-
-   for(const packet of packets){
-
-    if(
-     p<packet.length &&
-     ((packet[p]>>bit)&1)
-    )
-     ones++;
-
-   }
-
-   if(ones*2>=n)
-    v|=1<<bit;
-
-  }
-
-  out[p]=v;
-
- }
-
- return out;
-
-}
-
-function modeLength(results){
-
- const m=new Map();
-
- for(const r of results){
-
-  m.set(
-   r.packet.length,
-   (m.get(r.packet.length)||0)+1
-  );
-
- }
-
- let best=0;
- let count=0;
-
- for(const [n,c] of m){
-
-  if(c>count){
-
-   best=n;
-   count=c;
-
-  }
-
- }
-
- return best;
-
-}
-
-
-/* =========================================================
-   MAJORITY RECOVERY
-========================================================= */
-
-async function recoverMajority(
- results,
- password
-){
-
- if(!results.length)
-  return null;
-
- const valid=
-  results.filter(r=>r.valid);
-
- if(valid.length){
-
-  return {
-   plain:valid[0].plain,
-   metadata:valid[0].metadata,
-   source:'valid',
-   count:valid.length,
-   hashOK:true,
-   reference:valid[0]
-  };
-
- }
-
- const len=
-  modeLength(results);
-
- const usable=
-  results.filter(
-   r=>r.packet.length===len
-  );
-
- if(!usable.length)
-  return null;
-
- const packet=
-  majorityBytes(
-   usable.map(r=>r.packet),
-   len
-  );
-
- try{
-
-  const h=
-   parseHeader(
-    packet.slice(0,50)
-   );
-
-  const metadata=
-   parseMetadata(
-    packet,
-    h
-   );
-
-  const ml=
-   readU32(packet,50);
-
-  let plain=
-   packet.slice(
-    54+ml,
-    50+h.payloadLen
-   );
-
-  if(h.flags&1){
-
-   if(!password)
-    throw Error('PASSWORD');
-
-   const saltStart=
-    50+h.payloadLen;
-
-   const salt=
-    packet.slice(
-     saltStart,
-     saltStart+h.saltLen
-    );
-
-   const iv=
-    packet.slice(
-     saltStart+h.saltLen,
-     saltStart+h.saltLen+h.ivLen
-    );
-
-   const key=
-    await deriveKey(
-     password,
-     salt
-    );
-
-   plain=
-    new Uint8Array(
-     await crypto.subtle.decrypt(
-      {
-       name:'AES-GCM',
-       iv
-      },
-      key,
-      plain
-     )
-    );
-
-  }
-
-  const hashOK=
-   equalBytes(
-    await sha256(plain),
-    h.hash
-   );
-
-  return {
-   plain,
-   metadata,
-   source:'majority',
-   count:usable.length,
-   hashOK,
-   header:h
-  };
-
- }catch{
-
-  return {
-   plain:usable[0].plain,
-   metadata:usable[0].metadata,
-   source:'partial',
-   count:usable.length,
-   hashOK:false,
-   header:usable[0].header
-  };
-
- }
-
-}
-
-
-/* =========================================================
-   COPY GRID
-========================================================= */
-
-function createCopyGrid(){
-
- const g=$('copyGrid');
-
- g.innerHTML='';
-
- g.style.gridTemplateColumns=
-  'repeat('+GRID+',minmax(0,1fr))';
-
- const total=gridCells();
- 
- lastDecodeResults = new Array(total).fill(null);
- selectedCellIndex = -1;
- $('saveCellExtracted').disabled = true;
-
- for(let i=0;i<total;i++){
-
-  const e=
-   document.createElement('div');
-
-  e.id='copy-'+i;
-
-  e.className=
-   'copyCell skip';
-
-  e.textContent=
-   i+1;
-   
-  e.onclick = () => handleCellClick(i);
-
-  g.appendChild(e);
-
- }
-
-}
-
-function setCopyState(i,s){
-
- const e=$('copy-'+i);
-
- if(e)
-  e.className='copyCell '+s;
-
-}
-
-function handleCellClick(index) {
-    document.querySelectorAll('.copyCell.selected').forEach(el => el.classList.remove('selected'));
-    
-    const cell = $('copy-'+index);
-    if(cell) cell.classList.add('selected');
-    
-    selectedCellIndex = index;
-
-    const result = lastDecodeResults[index];
-    const resBox = $('result');
-    const btnSaveCell = $('saveCellExtracted');
-    
-    if (result && result.plain && result.plain.length > 0) {
-        btnSaveCell.disabled = false;
-        btnSaveCell.textContent = `Сохранить из #${index+1}`;
-    } else {
-        btnSaveCell.disabled = true;
-        btnSaveCell.textContent = `Сохранить из ячейки`;
-    }
-    
-    if (!result) {
-        resBox.value = `Ячейка #${index+1}\n\nДанные отсутствуют или область не была прочитана.\nПопробуйте нажать "Восстановить".`;
-        return;
-    }
-
-    let output = `=== ЯЧЕЙКА #${index+1} ===\n`;
-    output += `Статус: ${result.valid ? 'ВАЛИДНА (OK)' : 'ПОВРЕЖДЕНА / ЧАСТИЧНА'}\n`;
-    output += `Источник: ${result.source || 'single-copy'}\n`;
-    
-    if (result.metadata) {
-        output += `\nМетаданные:\n`;
-        output += `  Имя: ${result.metadata.name || '-'}\n`;
-        output += `  Тип: ${result.metadata.mime || '-'}\n`;
-        output += `  Режим: ${result.metadata.mode || '-'}\n`;
-    }
-
-    if (result.plain && result.plain.length > 0) {
-        output += `\nРазмер данных: ${result.plain.length} байт\n`;
-        
-        let isBinary = false;
-        const sampleLen = Math.min(result.plain.length, 512);
-        for(let i=0; i<sampleLen; i++) {
-            const b = result.plain[i];
-            if (b === 0 || (b < 32 && b !== 9 && b !== 10 && b !== 13)) {
-                isBinary = true;
-                break;
-            }
-        }
-
-        output += `\n--- СОДЕРЖИМОЕ ---\n`;
-        
-        if (isBinary) {
-            output += `[Бинарные данные]\nHEX (первые 256 байт):\n`;
-            let hexStr = '';
-            const limit = Math.min(result.plain.length, 256);
-            for(let i=0; i<limit; i++) {
-                hexStr += result.plain[i].toString(16).padStart(2,'0') + ' ';
-                if ((i+1)%16 === 0) hexStr += '\n';
-            }
-            output += hexStr;
-            if (result.plain.length > 256) output += '\n...';
-        } else {
-            try {
-                output += td.decode(result.plain);
-            } catch(e) {
-                output += '[Ошибка декодирования текста]';
-            }
-        }
-    } else {
-        output += `\n[Нет полезных данных (пустой пакет)]`;
-    }
-
-    resBox.value = output;
-}
-
-
-/* =========================================================
-   IMAGE LOADING
-========================================================= */
-
-function loadCanvas(file){
-
- return new Promise(
-  (resolve,reject)=>{
-
-   const img=new Image();
-
-   const url=
-    URL.createObjectURL(file);
-
-   img.onload=()=>{
-
-    URL.revokeObjectURL(url);
-
-    const c=
-     document.createElement('canvas');
-
-    c.width=img.naturalWidth;
-    c.height=img.naturalHeight;
-
-    c.getContext('2d',{
-     willReadFrequently:true
-    }).drawImage(
-     img,
-     0,
-     0
-    );
-
-    resolve(c);
-
-   };
-
-   img.onerror=()=>{
-
-    URL.revokeObjectURL(url);
-
-    reject(
-     Error(
-      'Браузер не смог декодировать изображение'
-     )
-    );
-
-   };
-
-   img.src=url;
-
-  }
- );
-
-}
-
-function cloneCanvas(c){
-
- const o=
-  document.createElement('canvas');
-
- o.width=c.width;
- o.height=c.height;
-
- o.getContext('2d')
-  .drawImage(c,0,0);
-
- return o;
-
-}
-
-function showCanvas(c){
-
- const p=$('preview');
-
- p.width=c.width;
- p.height=c.height;
-
- p.getContext('2d')
-  .drawImage(c,0,0);
-
- $('sSize').textContent=
-  c.width+'×'+c.height;
-
-}
-
-
-/* =========================================================
-   CAPACITY
-========================================================= */
-
-function updateCapacity(){
-
- if(!sourceCanvas)
-  return;
-
- const method = $('hideMethod').value;
- let cap = 0;
- let methodLabel = '';
-
- if (method === 'lsb') {
-     const bpc = +$('bpc').value;
-     cap = regionCapacity(sourceCanvas, bpc, 0);
-     methodLabel = $('distribution').value==='prng' ? 'LSB-PRNG' : 'LSB-SEQ';
- } else if (method === 'alpha') {
-     // Alpha: 1 byte per pixel
-     cap = sourceCanvas.width * sourceCanvas.height;
-     methodLabel = 'Alpha Channel';
- } else if (method === 'metadata') {
-     // tEXt chunk limit ~1MB practically
-     cap = 1024 * 1024; 
-     methodLabel = 'PNG tEXt';
- } else if (method === 'append') {
-     // Limited only by filesystem, say 100MB
-     cap = 100 * 1024 * 1024;
-     methodLabel = 'After IEND';
- }
-
- $('sCap').textContent = method === 'lsb' 
-     ? (cap/1024).toFixed(1)+' KB (per region)'
-     : (cap > 1024*1024 ? (cap/1024/1024).toFixed(1)+' MB' : (cap/1024).toFixed(1)+' KB');
-
- $('sMethod').textContent = methodLabel;
-
- const payload = +$('sPayload').dataset.bytes||0;
-
- $('bar').style.width = (
-   cap
-    ? Math.min(100, payload/cap*100)
-    : 0
-  )+'%';
-
- const total = method === 'lsb' ? gridCells() : 1;
-
- $('hint').textContent = method === 'lsb'
-     ? GRID+'×'+GRID+' · '+total+' копий · ёмкость одной области '+(cap/1024).toFixed(1)+' KB'
-     : 'Одна копия · Ёмкость: '+$('sCap').textContent;
-}
-
-
-/* =========================================================
-   FILE INFO
-========================================================= */
-
-function updateFileInfo(
- box,
- name,
- size,
- type
-){
-
- $(box).classList.remove(
-  'hidden'
- );
-
- const prefix=
-  box.replace('Info','');
-
- $(prefix+'Name').textContent=
-  name;
-
- $(prefix+'Details').textContent=
-  (type||'file')+
-  ' · '+
-  (size/1024).toFixed(1)+
-  ' KB';
-
-}
-
-
-/* =========================================================
-   DROP
-========================================================= */
-
-function wireDrop(
- dropId,
- fileId,
- cb
-){
-
- const d=$(dropId);
- const f=$(fileId);
-
- d.addEventListener(
-  'click',
-  e=>{
-   if(e.target!==f)
-    f.click();
-  }
- );
-
- f.addEventListener(
-  'change',
-  ()=>{
-   if(f.files[0])
-    cb(f.files[0]);
-  }
- );
-
- d.addEventListener(
-  'dragover',
-  e=>{
-   e.preventDefault();
-   d.classList.add('drag');
-  }
- );
-
- d.addEventListener(
-  'dragleave',
-  ()=>{
-   d.classList.remove('drag');
-  }
- );
-
- d.addEventListener(
-  'drop',
-  e=>{
-   e.preventDefault();
-
-   d.classList.remove('drag');
-
-   if(e.dataTransfer.files[0])
-    cb(e.dataTransfer.files[0]);
-  }
- );
-
-}
-
-
-/* =========================================================
-   SOURCE IMAGE
-========================================================= */
-
-wireDrop(
- 'drop1',
- 'file1',
- async file=>{
-
-  try{
-
-   sourceCanvas=
-    await loadCanvas(file);
-    
-   sourceFileRaw = file;
-
-   slotCache.clear();
-
-   updateFileInfo(
-    'sourceInfo',
-    file.name,
-    file.size,
-    file.type||'image'
-   );
-
-   showCanvas(sourceCanvas);
-
-   updateCapacity();
-
-   status(
-    'status1',
-    'Изображение загружено: '+file.name,
-    'ok'
-   );
-
-  }catch(e){
-
-   status(
-    'status1',
-    e.message,
-    'bad'
-   );
-
-  }
-
- }
-);
-
-
-/* =========================================================
-   EXTRACT IMAGE
-========================================================= */
-
-wireDrop(
- 'drop2',
- 'file2',
- async file=>{
-
-  try{
-
-   extractCanvas=
-    await loadCanvas(file);
-    
-   extractFileRaw = file;
-
-   slotCache.clear();
-
-   updateFileInfo(
-    'extractInfo',
-    file.name,
-    file.size,
-    file.type||'image'
-   );
-
-   status(
-    'status2',
-    'Изображение загружено.',
-    'ok'
-   );
-
-  }catch(e){
-
-   status(
-    'status2',
-    e.message,
-    'bad'
-   );
-
-  }
-
- }
-);
-
-
-/* =========================================================
-   PAYLOAD
-========================================================= */
-
-$('choosePayload').onclick=
- ()=>$('payloadFile').click();
-
-$('clearPayload').onclick=()=>{
-
- filePayload=null;
-
- $('payloadFile').value='';
-
- $('payloadFileInfo').textContent=
-  'Можно скрывать изображения, PDF, ZIP, HTML, JS, MP3, MP4 и любые бинарные файлы.';
-
-};
-
-$('payloadFile').onchange=()=>{
-
- filePayload=
-  $('payloadFile').files[0]||null;
-
- if(filePayload){
-
-  $('payloadFileInfo').textContent=
-   filePayload.name+
-   ' · '+
-   (filePayload.size/1024).toFixed(1)+
-   ' KB · '+
-   (filePayload.type||
-    'application/octet-stream');
-
- }
-
-};
-
-
-/* =========================================================
-   TABS (INNER)
-========================================================= */
-
-document
- .querySelectorAll('.tab')
- .forEach(t=>{
-
-  t.onclick=()=>{
-
-   document
-    .querySelectorAll('.tab')
-    .forEach(x=>
-     x.classList.remove('active')
-    );
-
-   t.classList.add('active');
-
-   currentMode=
-    t.dataset.mode;
-
-   $('textMode')
-    .classList.toggle(
-     'hidden',
-     currentMode!=='text'
-    );
-
-   $('fileMode')
-    .classList.toggle(
-     'hidden',
-     currentMode!=='file'
-    );
-
-  };
-
- });
-
-
-/* =========================================================
-   UI
-========================================================= */
-
-$('showPass').onclick=()=>{
-
- const x=$('pass');
-
- x.type=
-  x.type==='password'
-   ? 'text'
-   : 'password';
-
- $('showPass').textContent=
-  x.type==='password'
-   ? 'Показать'
-   : 'Скрыть';
-
-};
-
-$('bpc').onchange=
- updateCapacity;
-
-$('distribution').onchange=
- updateCapacity;
-
-
-/* =========================================================
-   NON-LSB ENCODERS
-========================================================= */
-
-// Alpha Channel Encoder
-function encodeAlpha(canvas, packet) {
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imgData.data;
-    
-    if (packet.length > canvas.width * canvas.height) {
-        throw new Error('Данные слишком велики для alpha-канала');
-    }
-    
-    for (let i = 0; i < packet.length; i++) {
-        data[i * 4 + 3] = packet[i]; // Alpha channel
-    }
-    
-    // Fill rest with 255 (opaque) to avoid visual artifacts
-    for (let i = packet.length; i < canvas.width * canvas.height; i++) {
-        data[i * 4 + 3] = 255;
-    }
-    
-    ctx.putImageData(imgData, 0, 0);
-}
-
-// Decode Alpha
-function decodeAlpha(canvas) {
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imgData.data;
-    
-    // Find first non-255 alpha or read until magic fails
-    // Better: read header first to know length
-    // For simplicity, read max possible and parse header
-    const maxBytes = canvas.width * canvas.height;
-    const raw = new Uint8Array(maxBytes);
-    
-    for (let i = 0; i < maxBytes; i++) {
-        raw[i] = data[i * 4 + 3];
-    }
-    
-    return raw;
-}
-
-// PNG Metadata Encoder (tEXt chunk)
-async function encodeMetadata(file, packet) {
-    const buf = await file.arrayBuffer();
-    const png = new Uint8Array(buf);
-    
-    // Verify PNG signature
-    if (png[0]!==137 || png[1]!==80 || png[2]!==78 || png[3]!==71) {
-        throw new Error('Не PNG файл');
-    }
-    
-    // Build tEXt chunk
-    const keyword = te.encode('SteganoData');
-    const separator = new Uint8Array([0]);
-    const textData = packet; // Binary safe in tEXt? No, tEXt is Latin-1. Use base64.
-    
-    // Base64 encode for safety in tEXt
-    let binary = '';
-    for (let i = 0; i < packet.length; i++) {
-        binary += String.fromCharCode(packet[i]);
-    }
-    const b64 = btoa(binary);
-    const b64Bytes = te.encode(b64);
-    
-    const chunkData = concat(keyword, separator, b64Bytes);
-    const chunkLen = u32(chunkData.length);
-    const chunkType = te.encode('tEXt');
-    
-    // CRC32
-    const crcInput = concat(chunkType, chunkData);
-    const crcVal = crc32(crcInput);
-    const crcBytes = u32(crcVal);
-    
-    const newChunk = concat(
-        Uint8Array.from(chunkLen),
-        chunkType,
-        chunkData,
-        Uint8Array.from(crcBytes)
-    );
-    
-    // Insert after IHDR (first chunk)
-    // IHDR starts at offset 8, length is always 13
-    // IHDR chunk total: 4(len) + 4(type) + 13(data) + 4(crc) = 25
-    const insertPos = 8 + 25;
-    
-    return concat(
-        png.slice(0, insertPos),
-        newChunk,
-        png.slice(insertPos)
-    );
-}
-
-// Decode Metadata
-async function decodeMetadata(file) {
-    const buf = await file.arrayBuffer();
-    const png = new Uint8Array(buf);
-    
-    if (png[0]!==137 || png[1]!==80 || png[2]!==78 || png[3]!==71) {
-        return null;
-    }
-    
-    let offset = 8;
-    while (offset < png.length) {
-        const len = readU32(png, offset);
-        const type = td.decode(png.slice(offset+4, offset+8));
-        
-        if (type === 'tEXt') {
-            const data = png.slice(offset+8, offset+8+len);
-            const nullIdx = data.indexOf(0);
-            if (nullIdx > 0) {
-                const kw = td.decode(data.slice(0, nullIdx));
-                if (kw === 'SteganoData') {
-                    const b64 = td.decode(data.slice(nullIdx+1));
-                    try {
-                        const binary = atob(b64);
-                        const bytes = new Uint8Array(binary.length);
-                        for(let i=0; i<binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                        return bytes;
-                    } catch {}
-                }
-            }
-        }
-        
-        if (type === 'IEND') break;
-        offset += 12 + len; // 4(len)+4(type)+data+4(crc)
-    }
-    
-    return null;
-}
-
-// After IEND Encoder
-async function encodeAppend(file, packet) {
-    const buf = await file.arrayBuffer();
-    const png = new Uint8Array(buf);
-    
-    // Find IEND
-    let iendPos = -1;
-    let offset = 8;
-    while (offset < png.length) {
-        const len = readU32(png, offset);
-        const type = td.decode(png.slice(offset+4, offset+8));
-        if (type === 'IEND') {
-            iendPos = offset + 12 + len;
-            break;
-        }
-        offset += 12 + len;
-    }
-    
-    if (iendPos < 0) throw new Error('IEND not found');
-    
-    // Magic marker for our appended data
-    const marker = te.encode('STEGANO_APPEND_V1');
-    const lenBytes = u32(packet.length);
-    
-    return concat(
-        png,
-        marker,
-        Uint8Array.from(lenBytes),
-        packet
-    );
-}
-
-// Decode Append
-async function decodeAppend(file) {
-    const buf = await file.arrayBuffer();
-    const data = new Uint8Array(buf);
-    
-    const marker = te.encode('STEGANO_APPEND_V1');
-    
-    // Search backwards for marker
-    let pos = -1;
-    for (let i = data.length - marker.length - 4; i >= 0; i--) {
-        let match = true;
-        for (let j = 0; j < marker.length; j++) {
-            if (data[i+j] !== marker[j]) { match = false; break; }
-        }
-        if (match) { pos = i; break; }
-    }
-    
-    if (pos < 0) return null;
-    
-    const payloadStart = pos + marker.length;
-    if (payloadStart + 4 > data.length) return null;
-    
-    const len = readU32(data, payloadStart);
-    const dataStart = payloadStart + 4;
-    
-    if (dataStart + len > data.length) return null;
-    
-    return data.slice(dataStart, dataStart + len);
-}
-
-
-/* =========================================================
-   ENCODE MAIN
-========================================================= */
-
-$('encode').onclick=async()=>{
-
- if(!sourceCanvas){
-
-  status(
-   'status1',
-   'Сначала выберите изображение-контейнер.',
-   'bad'
-  );
-
-  return;
-
- }
-
- try{
-
-  let plain;
-  let name;
-  let mime;
-
-  if(currentMode==='text'){
-
-   if(!$('secret').value){
-
-    status(
-     'status1',
-     'Введите сообщение.',
-     'bad'
-    );
-
-    return;
-
-   }
-
-   plain=
-    te.encode(
-     $('secret').value
-    );
-
-   name='message.txt';
-   mime='text/plain;charset=utf-8';
-
-  }else{
-
-   if(!filePayload){
-
-    status(
-     'status1',
-     'Выберите файл.',
-     'bad'
-    );
-
-    return;
-
-   }
-
-   plain=
-    new Uint8Array(
-     await filePayload.arrayBuffer()
-    );
-
-   name=filePayload.name;
-
-   mime=
-    filePayload.type||
-    'application/octet-stream';
-
-  }
-
-  const encrypted=
-   $('encrypt').checked;
-
-  const password=
-   $('pass').value;
-
-  const methodStr = $('hideMethod').value;
-  let methodId = METHOD_LSB;
-  if (methodStr === 'alpha') methodId = METHOD_ALPHA;
-  if (methodStr === 'metadata') methodId = METHOD_META;
-  if (methodStr === 'append') methodId = METHOD_APPEND;
-
-  const dist=
-   $('distribution').value==='prng'
-    ? 1
-    : 0;
-
-  if(
-   (encrypted||dist) &&
-   !password
-  ){
-
-   status(
-    'status1',
-    'Для AES/PRNG требуется пароль.',
-    'bad'
-   );
-
-   return;
-
-  }
-
-  const bpc=
-   +$('bpc').value;
-
-  status(
-   'status1',
-   'Подготовка контейнера...'
-  );
-
-  const crypted=
-   encrypted
-    ? await encryptData(
-       plain,
-       password
-      )
-    : {
-       salt:new Uint8Array(),
-       iv:new Uint8Array(),
-       cipher:plain
-      };
-
-  const metadata=
-   te.encode(
-    JSON.stringify({
-     name,
-     mime,
-     mode:currentMode
-    })
-   );
-
-  const body=
-   concat(
-    Uint8Array.from(
-     u32(metadata.length)
-    ),
-    metadata,
-    crypted.cipher
-   );
-
-  const hash=
-   await sha256(plain);
-
-  const header=
-   buildHeader(
-    (encrypted?1:0) |
-    (currentMode==='file'?2:0),
-    bpc,
-    dist,
-    crypted.salt.length,
-    crypted.iv.length,
-    body.length,
-    crypted.cipher.length,
-    hash,
-    methodId
-   );
-
-  const packet=
-   concat(
-    header,
-    body,
-    crypted.salt,
-    crypted.iv
-   );
-
-  /* =========================================================
-     ENCODE BY METHOD
-  ========================================================= */
-  
-  let outputBlob = null;
-
-  if (methodStr === 'lsb') {
-      // Classic LSB
-      const capacity=
-       regionCapacity(
-        sourceCanvas,
-        bpc,
-        0
-       );
-
-      if(packet.length>capacity){
-
-       status(
-        'status1',
-        'Файл слишком большой. Нужно '+
-        (packet.length/1024).toFixed(1)+
-        ' KB, доступно '+
-        (capacity/1024).toFixed(1)+
-        ' KB в одной области.',
-        'bad'
-       );
-
-       return;
-
-      }
-
-      const copies=
-       gridCells();
-
-      const seed=
-       await getSeed(
-        dist,
-        password
-       );
-
-      encodedCanvas=
-       cloneCanvas(
-        sourceCanvas
-       );
-
-      lastPixelMask={
-       width:encodedCanvas.width,
-       height:encodedCanvas.height,
-       used:
-        new Uint8Array(
-         encodedCanvas.width*
-         encodedCanvas.height
-        )
-      };
-
-      const started=
-       performance.now();
-
-      for(
-       let i=0;
-       i<copies;
-       i++
-      ){
-
-       writeRegion(
-        encodedCanvas,
-        packet,
-        bpc,
-        dist,
-        seed,
-        i,
-        lastPixelMask.used
-       );
-
-       if(
-        i%Math.max(
-         1,
-         Math.floor(copies/100)
-        )===0
-       ){
-
-        const percent=
-         ((i+1)/copies*100);
-
-        $('progress').textContent=
-         'Запись копий: '+
-         (i+1)+'/'+copies+
-         ' · '+
-         percent.toFixed(1)+'%';
-
-        await yieldUI();
-
-       }
-
-      }
-
-      showCanvas(encodedCanvas);
-      
-      // Convert to blob
-      outputBlob = await new Promise(r => encodedCanvas.toBlob(r, 'image/png'));
-
-      const elapsed = performance.now()-started;
-      status('status1', GRID+'×'+GRID+' · '+copies+' копий записано за '+elapsed.toFixed(0)+' мс.', 'ok');
-
-  } else if (methodStr === 'alpha') {
-      encodedCanvas = cloneCanvas(sourceCanvas);
-      encodeAlpha(encodedCanvas, packet);
-      showCanvas(encodedCanvas);
-      outputBlob = await new Promise(r => encodedCanvas.toBlob(r, 'image/png'));
-      status('status1', 'Alpha: данные записаны в канал прозрачности.', 'ok');
-
-  } else if (methodStr === 'metadata') {
-      if (!sourceFileRaw) throw new Error('Исходный файл не загружен');
-      const pngBytes = await encodeMetadata(sourceFileRaw, packet);
-      outputBlob = new Blob([pngBytes], {type: 'image/png'});
-      showCanvas(sourceCanvas); // Show original since pixels unchanged
-      status('status1', 'Metadata: данные записаны в tEXt chunk.', 'ok');
-
-  } else if (methodStr === 'append') {
-      if (!sourceFileRaw) throw new Error('Исходный файл не загружен');
-      const pngBytes = await encodeAppend(sourceFileRaw, packet);
-      outputBlob = new Blob([pngBytes], {type: 'image/png'});
-      showCanvas(sourceCanvas);
-      status('status1', 'AfterIEND: данные дописаны после конца файла.', 'ok');
-  }
-
-  // Store blob for download
-  encodedCanvas._outputBlob = outputBlob;
-
-  $('download').disabled=false;
-
-  $('sPayload').textContent=
-   (plain.length/1024).toFixed(1)+
-   ' KB';
-
-  $('sPayload').dataset.bytes=
-   plain.length;
-
-  updateCapacity();
-
-  $('progress').textContent=
-   'Готово.';
-
- }catch(e){
-
-  console.error(e);
-
-  status(
-   'status1',
-   e.message||
-   'Ошибка записи.',
-   'bad'
-  );
-
- }
-
-};
-
-
-/* =========================================================
-   DOWNLOAD & ZIP UTILS
-========================================================= */
-
-$('download').onclick=()=>{
-
- if(!encodedCanvas || !encodedCanvas._outputBlob)
-  return;
-
- const blob = encodedCanvas._outputBlob;
-
- const a=
-  document.createElement('a');
-
- a.href=
-  URL.createObjectURL(blob);
-
- a.download=
-  'stegano-v9.png';
-
- document.body.appendChild(a);
-
- a.click();
-
- a.remove();
-
- setTimeout(
-  ()=>URL.revokeObjectURL(a.href),
-  1500
- );
-
-};
-
-function downloadBlob(
- blob,
- name
-){
-
- const u=
-  URL.createObjectURL(blob);
-
- const a=
-  document.createElement('a');
-
- a.href=u;
- a.download=
-  name||'recovered.bin';
-
- document.body.appendChild(a);
-
- a.click();
-
- a.remove();
-
- setTimeout(
-  ()=>URL.revokeObjectURL(u),
-  2000
- );
-
-}
-
-function createZip(files) {
-    const localHeaders = [];
-    const centralHeaders = [];
-    let offset = 0;
-
-    const enc = new TextEncoder();
-
-    for (const file of files) {
-        const nameBytes = enc.encode(file.name);
-        const crc = crc32(file.data);
-        
-        const local = new Uint8Array(30 + nameBytes.length + file.data.length);
-        const lv = new DataView(local.buffer);
-        lv.setUint32(0, 0x04034b50, true); 
-        lv.setUint16(4, 20, true);         
-        lv.setUint16(6, 0, true);          
-        lv.setUint16(8, 0, true);          
-        lv.setUint16(10, 0, true);         
-        lv.setUint16(12, 0, true);         
-        lv.setUint32(14, crc, true);       
-        lv.setUint32(18, file.data.length, true); 
-        lv.setUint32(22, file.data.length, true); 
-        lv.setUint16(26, nameBytes.length, true); 
-        lv.setUint16(28, 0, true);         
-        local.set(nameBytes, 30);
-        local.set(file.data, 30 + nameBytes.length);
-        localHeaders.push(local);
-
-        const central = new Uint8Array(46 + nameBytes.length);
-        const cv = new DataView(central.buffer);
-        cv.setUint32(0, 0x02014b50, true); 
-        cv.setUint16(4, 20, true);         
-        cv.setUint16(6, 20, true);         
-        cv.setUint16(8, 0, true);          
-        cv.setUint16(10, 0, true);         
-        cv.setUint16(12, 0, true);         
-        cv.setUint16(14, 0, true);         
-        cv.setUint32(16, crc, true);       
-        cv.setUint32(20, file.data.length, true); 
-        cv.setUint32(24, file.data.length, true); 
-        cv.setUint16(28, nameBytes.length, true); 
-        cv.setUint16(30, 0, true);         
-        cv.setUint16(32, 0, true);         
-        cv.setUint16(34, 0, true);         
-        cv.setUint16(36, 0, true);         
-        cv.setUint32(38, 0, true);         
-        cv.setUint32(42, offset, true);    
-        central.set(nameBytes, 46);
-        centralHeaders.push(central);
-
-        offset += local.length;
-    }
-
-    const centralOffset = offset;
-    let centralSize = 0;
-    for(const c of centralHeaders) centralSize += c.length;
-
-    const end = new Uint8Array(22);
-    const ev = new DataView(end.buffer);
-    ev.setUint32(0, 0x06054b50, true); 
-    ev.setUint16(4, 0, true);          
-    ev.setUint16(6, 0, true);          
-    ev.setUint16(8, files.length, true); 
-    ev.setUint16(10, files.length, true); 
-    ev.setUint32(12, centralSize, true); 
-    ev.setUint32(16, centralOffset, true); 
-    ev.setUint16(20, 0, true);         
-
-    return concat(...localHeaders, ...centralHeaders, end);
-}
-
-const crcTable = (function() {
-    const t = new Uint32Array(256);
-    for (let i = 0; i < 256; i++) {
-        let c = i;
-        for (let j = 0; j < 8; j++) {
-            c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-        }
-        t[i] = c;
-    }
-    return t;
-})();
-
-function crc32(data) {
-    let crc = 0xFFFFFFFF;
-    for (let i = 0; i < data.length; i++) {
-        crc = crcTable[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
-    }
-    return (crc ^ 0xFFFFFFFF) >>> 0;
-}
-
-
-/* =========================================================
-   IMAGE DETECTION
-========================================================= */
-
-function isLikelyImage(b){
-
- if(!b||b.length<12)
-  return false;
-
- if(
-  b.length>=8 &&
-  b[0]===137 &&
-  b[1]===80 &&
-  b[2]===78 &&
-  b[3]===71 &&
-  b[4]===13 &&
-  b[5]===10 &&
-  b[6]===26 &&
-  b[7]===10
- )
-  return true;
-
- if(
-  b[0]===255 &&
-  b[1]===216 &&
-  b[2]===255
- )
-  return true;
-
- if(
-  b[0]===71 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[3]===56
- )
-  return true;
-
- if(
-  b[0]===82 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[8]===87 &&
-  b[9]===69 &&
-  b[10]===66 &&
-  b[11]===80
- )
-  return true;
-
- if(
-  b[0]===66 &&
-  b[1]===77
- )
-  return true;
-
- return false;
-
-}
-
-function detectImageMime(b){
-
- if(!b||b.length<12)
-  return 'image/png';
-
- if(
-  b[0]===137 &&
-  b[1]===80 &&
-  b[2]===78 &&
-  b[3]===71
- )
-  return 'image/png';
-
- if(
-  b[0]===255 &&
-  b[1]===216 &&
-  b[2]===255
- )
-  return 'image/jpeg';
-
- if(
-  b[0]===71 &&
-  b[1]===73 &&
-  b[2]===70
- )
-  return 'image/gif';
-
- if(
-  b[0]===82 &&
-  b[1]===73 &&
-  b[2]===70 &&
-  b[8]===87 &&
-  b[9]===69 &&
-  b[10]===80
- )
-  return 'image/webp';
-
- if(
-  b[0]===66 &&
-  b[1]===77
- )
-  return 'image/bmp';
-
- return 'image/png';
-
-}
-
-
-/* =========================================================
-   RECOVERED IMAGE
-========================================================= */
-
-function showRecoveredImage(
- bytes,
- mime
-){
-
- $('imagePreview')
-  .removeAttribute('src');
-
- const u=
-  URL.createObjectURL(
-   new Blob(
-    [bytes],
-    {
-     type:mime||'image/png'
-    }
-   )
-  );
-
- $('imagePreview').src=u;
-
- $('imagePreview').onload=()=>
-  $('imagePreviewBox')
-   .classList.remove('hidden');
-
-}
-
-
-/* =========================================================
-   PIXEL OVERLAY
-========================================================= */
-
-function drawPixelOverlay(){
-
- if(!extractCanvas||!lastCfg)
-  return;
-
- const out=$('pixelOverlay');
-
- out.width=
-  extractCanvas.width;
-
- out.height=
-  extractCanvas.height;
-
- const ctx=
-  out.getContext('2d');
-
- ctx.drawImage(
-  extractCanvas,
-  0,
-  0
- );
-
- if(
-  sourceCanvas &&
-  sourceCanvas.width===
-   extractCanvas.width &&
-  sourceCanvas.height===
-   extractCanvas.height
- ){
-
-  const a=
-   sourceCanvas
-    .getContext(
-     '2d',
-     {willReadFrequently:true}
-    )
-    .getImageData(
-     0,
-     0,
-     sourceCanvas.width,
-     sourceCanvas.height
-    ).data;
-
-  const b=
-   extractCanvas
-    .getContext(
-     '2d',
-     {willReadFrequently:true}
-    )
-    .getImageData(
-     0,
-     0,
-     extractCanvas.width,
-     extractCanvas.height
-    ).data;
-
-  ctx.fillStyle=
-   'rgba(255,35,50,.88)';
-
-  let changed=0;
-
-  for(
-   let p=0;
-   p<
-    sourceCanvas.width*
-    sourceCanvas.height;
-   p++
-  ){
-
-   const d=p*4;
-
-   if(
-    a[d]!==b[d] ||
-    a[d+1]!==b[d+1] ||
-    a[d+2]!==b[d+2]
-   ){
-
-    ctx.fillRect(
-     p%sourceCanvas.width,
-     Math.floor(
-      p/sourceCanvas.width
-     ),
-     1,
-     1
-    );
-
-    changed++;
-
-   }
-
-  }
-
-  $('pixelPanel')
-   .querySelector('label')
-   .textContent=
-   'Реально изменённые пиксели: '+
-   changed;
-
-  return;
-
- }
-
- ctx.fillStyle=
-  'rgba(255,190,25,.82)';
-
- const slotsPerPacket=
-  Math.max(
-   0,
-   lastPacketLength*8
-  );
-
- const total=gridCells();
-
- for(
-  let index=0;
-  index<total;
-  index++
- ){
-
-  const r=
-   getRegion(
-    extractCanvas,
-    index
-   );
-
-  const slots=
-   buildSlots(
-    extractCanvas,
-    lastCfg.bpc,
-    lastCfg.dist,
-    lastCfg.seed,
-    index
-   );
-
-  const limit=
-   Math.min(
-    slotsPerPacket,
-    slots.length
-   );
-
-  const seen=new Set();
-
-  for(
-   let k=0;
-   k<limit;
-   k++
-  ){
-
-   const s=slots[k];
-
-   const ch=
-    Math.floor(
-     s/lastCfg.bpc
-    );
-
-   const pixel=
-    Math.floor(ch/3);
-
-   const px=
-    r.x+
-    (pixel%r.w);
-
-   const py=
-    r.y+
-    Math.floor(pixel/r.w);
-
-   const key=
-    py*extractCanvas.width+px;
-
-   if(seen.has(key))
-    continue;
-
-   seen.add(key);
-
-   ctx.fillRect(
-    px,
-    py,
-    1,
-    1
-   );
-
-  }
-
- }
-
- $('pixelPanel')
-  .querySelector('label')
-  .textContent=
-  'Позиции пикселей, использованные для скрытия данных · '+
-  GRID+'×'+GRID;
-
-}
-
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-$('showPixels').onclick=()=>{
-
- $('pixelPanel')
-  .classList.toggle('hidden');
-
- if(
-  !$('pixelPanel')
-   .classList
-   .contains('hidden')
- )
-  drawPixelOverlay();
-
-};
-
-$('saveExtracted').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- const m=
-  lastRecoveredMetadata||{};
-
- downloadBlob(
-  new Blob(
-   [lastRecoveredBytes],
-   {
-    type:
-     m.mime||
-     'application/octet-stream'
-   }
-  ),
-  m.name||
-  'recovered.bin'
- );
-
-};
-
-$('saveCellExtracted').onclick=()=>{
-    if (selectedCellIndex < 0) return;
-    
-    const result = lastDecodeResults[selectedCellIndex];
-    if (!result || !result.plain) return;
-    
-    const m = result.metadata || {};
-    const baseName = m.name || 'recovered.bin';
-    const nameParts = baseName.split('.');
-    let saveName = baseName;
-    
-    if (nameParts.length > 1) {
-        const ext = nameParts.pop();
-        saveName = nameParts.join('.') + `_cell${selectedCellIndex+1}.${ext}`;
-    } else {
-        saveName = baseName + `_cell${selectedCellIndex+1}`;
-    }
-
-    downloadBlob(
-        new Blob(
-            [result.plain],
-            { type: m.mime || 'application/octet-stream' }
-        ),
-        saveName
-    );
-};
-
-$('saveAllZip').onclick = () => {
-    const files = [];
-    const usedNames = new Map();
-
-    for(let i=0; i<lastDecodeResults.length; i++) {
-        const r = lastDecodeResults[i];
-        if(r && r.plain && r.plain.length > 0) {
-            const meta = r.metadata || {};
-            let baseName = meta.name || 'data.bin';
-            
-            let finalName = baseName;
-            if(usedNames.has(baseName)) {
-                const count = usedNames.get(baseName);
-                const parts = baseName.split('.');
-                if(parts.length > 1) {
-                    const ext = parts.pop();
-                    finalName = parts.join('.') + `_${count}.${ext}`;
-                } else {
-                    finalName = baseName + `_${count}`;
-                }
-                usedNames.set(baseName, count + 1);
-            } else {
-                usedNames.set(baseName, 1);
-            }
-
-            const cellPrefix = String(i+1).padStart(3, '0');
-            files.push({
-                name: `cell_${cellPrefix}_${finalName}`,
-                data: r.plain
-            });
-        }
-    }
-
-    if(files.length === 0) {
-        alert('Нет данных для сохранения. Сначала выполните восстановление.');
-        return;
-    }
-
-    const zipData = createZip(files);
-    downloadBlob(new Blob([zipData], {type: 'application/zip'}), 'stegano_all_copies.zip');
-};
-
-$('saveImage').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- downloadBlob(
-  new Blob(
-   [lastRecoveredBytes],
-   {
-    type:'image/png'
-   }
-  ),
-  'recovered-image.png'
- );
-
-};
-
-$('openImage').onclick=()=>{
-
- if(!lastRecoveredBytes)
-  return;
-
- const u=
-  URL.createObjectURL(
-   new Blob(
-    [lastRecoveredBytes],
-    {
-     type:
-      (
-       lastRecoveredMetadata &&
-       lastRecoveredMetadata.mime
-      )||
-      'image/png'
-    }
-   )
-  );
-
- window.open(
-  u,
-  '_blank'
- );
-
- setTimeout(
-  ()=>URL.revokeObjectURL(u),
-  60000
- );
-
-};
-
-
-/* =========================================================
-   BRUTEFORCE
-========================================================= */
-
-function* passwordGenerator(maxLen) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const base = chars.length;
-    
-    for(let len = 1; len <= maxLen; len++) {
-        const total = Math.pow(base, len);
-        
-        for(let i = 0; i < total; i++) {
-            let pass = '';
-            let num = i;
-            for(let p = 0; p < len; p++) {
-                pass = chars[num % base] + pass;
-                num = Math.floor(num / base);
-            }
-            yield pass;
-        }
-    }
-}
-
-async function testPassword(password, testPacket, expectedHash, salt, iv) {
-    try {
-        const key = await deriveKey(password, salt);
-        const plain = new Uint8Array(
-            await crypto.subtle.decrypt(
-                { name: 'AES-GCM', iv },
-                key,
-                testPacket
-            )
-        );
-        const hash = await sha256(plain);
-        return equalBytes(hash, expectedHash);
-    } catch {
-        return false;
-    }
-}
-
-async function startBruteforce() {
-    if (!extractCanvas) {
-        status('status2', 'Сначала выберите изображение.', 'bad');
-        return;
-    }
-
-    bruteforceAborted = false;
-    
-    const btn = $('bruteforce');
-    const origText = '🔓 Брутфорс (до 6 символов)';
-    
-    btn.textContent = '⏹ Остановить брутфорс';
-    btn.className = 'danger';
-    btn.onclick = () => { bruteforceAborted = true; };
-
-    status('status2', 'Брутфорс: поиск конфигурации...', 'warn');
-    $('progress').textContent = 'Подготовка...';
-
-    try {
-        let cfg = null;
-        let testIndex = -1;
-        
-        for (const bpc of [1, 2, 3]) {
-            for (let i = 0; i < gridCells(); i++) {
-                try {
-                    const dummySeed = Uint8Array.from([1,2,3,4]);
-                    const hRaw = readRegionFast(extractCanvas, 50, bpc, 0, dummySeed, i);
-                    const h = parseHeader(hRaw);
-                    
-                    if (h.flags & 1) { 
-                        cfg = { bpc, dist: 0, seed: dummySeed };
-                        testIndex = i;
-                        break;
-                    }
-                } catch {}
-            }
-            if (cfg) break;
-        }
-
-        if (!cfg) {
-            status('status2', 'Брутфорс: не найдено зашифрованных копий (или используется PRNG/non-LSB).', 'bad');
-            restoreBtn();
-            return;
-        }
-
-        const hRaw = readRegionFast(extractCanvas, 50, cfg.bpc, 0, cfg.seed, testIndex);
-        const h = parseHeader(hRaw);
-        
-        const totalLen = 50 + h.payloadLen + h.saltLen + h.ivLen;
-        const fullPacket = readRegionFast(extractCanvas, totalLen, cfg.bpc, 0, cfg.seed, testIndex);
-        
-        const saltStart = 50 + h.payloadLen;
-        const salt = fullPacket.slice(saltStart, saltStart + h.saltLen);
-        const iv = fullPacket.slice(saltStart + h.saltLen, saltStart + h.saltLen + h.ivLen);
-        
-        const rawStart = 54 + readU32(fullPacket, 50); 
-        const rawEnd = 50 + h.payloadLen;
-        const ciphertext = fullPacket.slice(rawStart, rawEnd);
-        const expectedHash = h.hash;
-
-        status('status2', `Брутфорс: тестовая копия #${testIndex+1}, AES-256-GCM. Перебор...`, 'warn');
-
-        const gen = passwordGenerator(6);
-        let tested = 0;
-        const startTime = performance.now();
-        let foundPass = null;
-
-        for (const pass of gen) {
-            if (bruteforceAborted) {
-                status('status2', 'Брутфорс остановлен пользователем.', 'warn');
-                restoreBtn();
-                return;
-            }
-
-            tested++;
-            
-            if (tested % 10 === 0) {
-                const elapsed = (performance.now() - startTime) / 1000;
-                const speed = (tested / elapsed).toFixed(1);
-                $('progress').textContent = 
-                    `Брутфорс: проверено ${tested} · ${speed} пасс/сек · текущий: "${pass}"`;
-                await yieldUI();
-            }
-
-            const ok = await testPassword(pass, ciphertext, expectedHash, salt, iv);
-            
-            if (ok) {
-                foundPass = pass;
-                break;
-            }
-        }
-
-        if (foundPass) {
-            const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-            status('status2', `✅ ПАРОЛЬ НАЙДЕН: "${foundPass}" (${tested} попыток, ${elapsed}с)`, 'ok');
-            $('pass2').value = foundPass;
-            $('progress').textContent = 'Пароль найден! Запуск полного восстановления...';
-            
-            restoreBtn();
-            setTimeout(() => $('decode').click(), 500);
-        } else {
-            status('status2', `❌ Пароль не найден после ${tested} попыток.`, 'bad');
-            $('progress').textContent = 'Брутфорс завершён безрезультатно.';
-            restoreBtn();
-        }
-
-    } catch (e) {
-        console.error(e);
-        status('status2', 'Ошибка брутфорса: ' + (e.message || e), 'bad');
-        restoreBtn();
-    }
-
-    function restoreBtn() {
-        btn.textContent = origText;
-        btn.className = 'danger';
-        btn.onclick = startBruteforce;
-    }
-}
-
-$('bruteforce').onclick = startBruteforce;
-
-
-/* =========================================================
-   MAXIMUM EXTRACTION
-========================================================= */
-
-async function maximumExtract(
- c,
- password
-){
-
- const candidates=[];
-
- for(const bpc of [1,2,3]){
-
-  for(const dist of [0,1]){
-
-   if(dist===1&&!password)
-    continue;
-
-   candidates.push({
-    bpc,
-    dist,
-    seed:
-     await getSeed(
-      dist,
-      password
-     )
-   });
-
-  }
-
- }
-
- let best=null;
-
- const totalRegions=gridCells();
-
- for(const cfg of candidates){
-
-  const raw=[];
-  const indexes=[];
-
-  for(
-   let i=0;
-   i<totalRegions;
-   i++
-  ){
-
-   try{
-
-    const cap=
-     regionCapacity(
-      c,
-      cfg.bpc,
-      i
-     );
-
-    if(cap<50)
-     continue;
-
-    raw.push(
-     readRegionFast(
-      c,
-      cap,
-      cfg.bpc,
-      cfg.dist,
-      cfg.seed,
-      i
-     )
-    );
-
-    indexes.push(i);
-
-    setCopyState(
-     i,
-     'partial'
-    );
-
-   }catch{}
-
-   if(
-    i%
-    Math.max(
-     1,
-     Math.floor(totalRegions/80)
-    )===0
-   ){
-
-    $('progress').textContent=
-     'Maximum: '+
-     (i+1)+'/'+
-     totalRegions+
-     ' областей · LSB-'+
-     cfg.bpc+
-     ' · '+
-     (cfg.dist?'PRNG':'SEQ');
-
-    await yieldUI();
-
-   }
-
-  }
-
-  if(!raw.length)
-   continue;
-
-  const header=
-   majorityBytes(
-    raw.map(
-     x=>x.slice(0,50)
-    ),
-    50
-   );
-
-  if(
-   !MAGIC.every(
-    (v,i)=>header[i]===v
-   )
-  )
-   continue;
-
-  let h;
-
-  try{
-
-   h=parseHeader(header);
-
-  }catch{
-
-   continue;
-
-  }
-
-  const total=
-   50+
-   h.payloadLen+
-   h.saltLen+
-   h.ivLen;
-
-  if(
-   total<54 ||
-   total>
-    Math.min(
-     ...raw.map(
-      x=>x.length
-     )
-    )
-  )
-   continue;
-
-  const packet=
-   majorityBytes(
-    raw.map(
-     x=>x.slice(0,total)
-    ),
-    total
-   );
-
-  try{
-
-   const ph=
-    parseHeader(
-     packet.slice(0,50)
-    );
-
-   const ml=
-    readU32(packet,50);
-
-   if(
-    54+ml>
-    50+ph.payloadLen
-   )
-    throw Error(
-     'BAD_METADATA'
-    );
-
-   const metadata=
-    parseMetadata(
-     packet,
-     ph
-    );
-
-   const rawStart=
-    54+ml;
-
-   const rawEnd=
-    50+ph.payloadLen;
-
-   if(
-    rawStart>rawEnd ||
-    rawEnd>packet.length
-   )
-    throw Error(
-     'BAD_PAYLOAD'
-    );
-
-   let plain=
-    packet.slice(
-     rawStart,
-     rawEnd
-    );
-
-   if(ph.flags&1){
-
-    if(!password)
-     continue;
-
-    const saltStart=
-     50+ph.payloadLen;
-
-    const salt=
-     packet.slice(
-      saltStart,
-      saltStart+ph.saltLen
-     );
-
-    const iv=
-     packet.slice(
-      saltStart+ph.saltLen,
-      saltStart+
-      ph.saltLen+
-      ph.ivLen
-     );
-
-    const key=
-     await deriveKey(
-      password,
-      salt
-     );
-
-    plain=
-     new Uint8Array(
-      await crypto.subtle.decrypt(
-       {
-        name:'AES-GCM',
-        iv
-       },
-       key,
-       plain
-      )
-     );
-
-   }
-
-   const hashOK=
-    equalBytes(
-     await sha256(plain),
-     ph.hash
-    );
-
-   if(hashOK){
-
-    return {
-     plain,
-     metadata,
-     source:'maximum-bit-majority',
-     count:raw.length,
-     hashOK:true,
-     header:ph,
-     cfg
-    };
-
-   }
-
-   if(!(ph.flags&1)){
-
-    best={
-     plain,
-     metadata,
-     source:'maximum-bit-majority',
-     count:raw.length,
-     hashOK:false,
-     header:ph,
-     cfg
-    };
-
-   }
-
-  }catch{}
-
-  for(
-   let j=0;
-   j<raw.length;
-   j++
-  ){
-
-   try{
-
-    const one=
-     await decodeOne(
-      c,
-      indexes[j],
-      cfg,
-      password
-     );
-
-    if(
-     one &&
-     one.valid
-    ){
-
-     setCopyState(
-      indexes[j],
-      'ok'
-     );
-     
-     lastDecodeResults[indexes[j]] = {
-         ...one,
-         source: 'maximum-valid-copy'
-     };
-
-     return {
-      plain:one.plain,
-      metadata:one.metadata,
-      source:'maximum-valid-copy',
-      count:1,
-      hashOK:true,
-      header:one.header,
-      cfg
-     };
-
-    }
-
-   }catch{}
-
-   if(
-    j%20===0
-   )
-    await yieldUI();
-
-  }
-
- }
-
- return best;
-
-}
-
-
-/* =========================================================
-   GENERIC PACKET DECODER (for non-LSB methods)
-========================================================= */
-
-async function decodePacket(packet, password) {
-    try {
-        const h = parseHeader(packet.slice(0, 50));
-        const metadata = parseMetadata(packet, h);
-        const ml = readU32(packet, 50);
-        
-        const rawStart = 54 + ml;
-        const rawEnd = 50 + h.payloadLen;
-        
-        if (rawStart > rawEnd || rawEnd > packet.length) return null;
-        
-        let plain = packet.slice(rawStart, rawEnd);
-        
-        if (h.flags & 1) {
-            if (!password) throw Error('PASSWORD');
-            
-            const saltStart = 50 + h.payloadLen;
-            const salt = packet.slice(saltStart, saltStart + h.saltLen);
-            const iv = packet.slice(saltStart + h.saltLen, saltStart + h.saltLen + h.ivLen);
-            
-            const key = await deriveKey(password, salt);
-            plain = new Uint8Array(
-                await crypto.subtle.decrypt(
-                    { name: 'AES-GCM', iv },
-                    key,
-                    plain
-                )
-            );
-        }
-        
-        const hashOK = equalBytes(await sha256(plain), h.hash);
-        
-        return {
-            plain,
-            metadata,
-            hashOK,
-            header: h
-        };
-    } catch {
-        return null;
-    }
-}
-
-
-/* =========================================================
-   NORMAL DECODER (MULTI-METHOD)
-========================================================= */
-
-$('decode').onclick=async()=>{
-
- if(!extractCanvas){
-
-  status(
-   'status2',
-   'Сначала выберите изображение.',
-   'bad'
-  );
-
-  return;
-
- }
-
- createCopyGrid();
-
- $('result').value='';
-
- $('diagnostics')
-  .classList
-  .add('hidden');
-
- $('recoveryActions')
-  .classList
-  .add('hidden');
-
- $('pixelPanel')
-  .classList
-  .add('hidden');
-
- $('imagePreviewBox')
-  .classList
-  .add('hidden');
-
- lastRecoveredBytes=null;
- lastRecoveredMetadata=null;
- lastUsedMethod = null;
-
- const password=
-  $('pass2').value;
-
- const started=
-  performance.now();
-
- try{
-
-  let recovered=null;
-  let cfg=null;
-  let results=[];
-
-  /* =====================================================
-     TRY NON-LSB METHODS FIRST (fast checks)
-  ===================================================== */
-  
-  status('status2', 'Проверка альтернативных методов...', 'warn');
-  
-  // 1. Try After IEND
-  if (extractFileRaw) {
-      const appendData = await decodeAppend(extractFileRaw);
-      if (appendData) {
-          recovered = await decodePacket(appendData, password);
-          if (recovered) {
-              lastUsedMethod = 'append';
-              recovered.source = 'after-iend';
-          }
-      }
-  }
-  
-  // 2. Try Metadata
-  if (!recovered && extractFileRaw) {
-      const metaData = await decodeMetadata(extractFileRaw);
-      if (metaData) {
-          recovered = await decodePacket(metaData, password);
-          if (recovered) {
-              lastUsedMethod = 'meta';
-              recovered.source = 'png-metadata';
-          }
-      }
-  }
-  
-  // 3. Try Alpha
-  if (!recovered) {
-      const alphaData = decodeAlpha(extractCanvas);
-      // Check magic
-      try {
-          const h = parseHeader(alphaData.slice(0, 50));
-          const totalLen = 50 + h.payloadLen + h.saltLen + h.ivLen;
-          if (totalLen <= alphaData.length) {
-              recovered = await decodePacket(alphaData.slice(0, totalLen), password);
-              if (recovered) {
-                  lastUsedMethod = 'alpha';
-                  recovered.source = 'alpha-channel';
-              }
-          }
-      } catch {}
-  }
-
-  /* =====================================================
-     FALLBACK TO LSB
-  ===================================================== */
-  
-  if (!recovered) {
-      status('status2', 'Альтернативные методы не найдены. Проверка LSB...', 'warn');
-      
-      if ($('maxExtract').checked) {
-          $('progress').textContent = 'Максимальное извлечение: чтение '+GRID+'×'+GRID+' областей...';
-          recovered = await maximumExtract(extractCanvas, password);
-          if (recovered) {
-              cfg = recovered.cfg;
-              lastUsedMethod = 'lsb';
-          }
-      } else {
-          cfg = await detectConfiguration(extractCanvas, password);
-          
-          if (cfg) {
-              lastCfg = cfg;
-              lastUsedMethod = 'lsb';
-              
-              const total = gridCells();
-              
-              for (let i = 0; i < total; i++) {
-                  const r = await decodeOne(extractCanvas, i, cfg, password);
-                  
-                  if (r) {
-                      results.push(r);
-                      lastDecodeResults[i] = r;
-                      setCopyState(i, r.valid ? 'ok' : 'partial');
-                  } else {
-                      setCopyState(i, 'bad');
-                  }
-                  
-                  if (i % Math.max(1, Math.floor(total/100)) === 0) {
-                      $('progress').textContent = 'Проверено '+(i+1)+'/'+total+' · найдено '+results.length;
-                      await yieldUI();
-                  }
-              }
-              
-              recovered = await recoverMajority(results, password);
-          }
-      }
-  }
-
-  /* =====================================================
-     FAILURE
-  ===================================================== */
-
-  if(!recovered){
-
-   status(
-    'status2',
-    'Не удалось восстановить контейнер ни одним методом.',
-    'bad'
-   );
-
-   $('progress').textContent=
-    'Восстановление не удалось.';
-
-   return;
-
-  }
-
-  /* =====================================================
-     RESULT
-  ===================================================== */
-
-  lastCfg = cfg || recovered.cfg || null;
-
-  lastPacketLength = recovered.header
-    ? 50 + recovered.header.payloadLen + recovered.header.saltLen + recovered.header.ivLen
-    : recovered.plain.length;
-
-  lastRecoveredBytes = recovered.plain;
-  lastRecoveredMetadata = recovered.metadata || {};
-
-  const meta = recovered.metadata || {};
-  const mime = meta.mime || 'application/octet-stream';
-  const isFile = meta.mode === 'file';
-  const imageBySignature = isLikelyImage(recovered.plain);
-  const displayAsImage = (isFile && imageBySignature) || mime.startsWith('image/') || imageBySignature;
-
-  const methodName = {
-      'lsb': 'LSB (RGB Grid)',
-      'alpha': 'Alpha Channel',
-      'meta': 'PNG Metadata (tEXt)',
-      'append': 'After IEND'
-  }[lastUsedMethod] || 'Unknown';
-
-  if(!isFile){
-   $('result').value = td.decode(recovered.plain, {fatal:false});
-  } else {
-   $('result').value =
-    'Файл: '+(meta.name||'recovered.bin')+
-    '\nТип: '+mime+
-    '\nРазмер: '+(recovered.plain.length/1024).toFixed(1)+' KB'+
-    '\n\nМетод: '+methodName+
-    '\nИсточник: '+recovered.source+
-    '\nКопий: '+(recovered.count||1);
-  }
-
-  $('recoveryActions').classList.remove('hidden');
-  
-  // Hide cell-specific buttons for non-LSB
-  if (lastUsedMethod !== 'lsb') {
-      $('saveCellExtracted').classList.add('hidden');
-      $('saveAllZip').classList.add('hidden');
-      $('copyGrid').classList.add('hidden');
-  } else {
-      $('saveCellExtracted').classList.remove('hidden');
-      $('saveAllZip').classList.remove('hidden');
-      $('copyGrid').classList.remove('hidden');
-  }
-
-  if(displayAsImage){
-   showRecoveredImage(
-    recovered.plain,
-    imageBySignature ? detectImageMime(recovered.plain) : mime
-   );
-  }
-
-  if(lastCfg && lastUsedMethod === 'lsb')
-   drawPixelOverlay();
-
-  const elapsed = performance.now() - started;
-
-  $('diagnostics').classList.remove('hidden');
-  $('diagnostics').textContent =
-   'ВОССТАНОВЛЕНИЕ\n\n'+
-   'Метод: '+methodName+'\n'+
-   (lastCfg ? 'Сетка: '+(lastCfg.grid||GRID)+'×'+(lastCfg.grid||GRID)+'\n' : '')+
-   (lastCfg ? 'Областей: '+gridCells()+'\n\n' : '')+
-   (lastCfg ? 'Режим: LSB-'+lastCfg.bpc+'\n' : '')+
-   (lastCfg ? 'Распределение: '+(lastCfg.dist?'PRNG':'SEQ')+'\n' : '')+
-   'Источник: '+recovered.source+'\n'+
-   'Копий использовано: '+(recovered.count||1)+'\n'+
-   'SHA-256: '+(recovered.hashOK?'OK':'не подтверждён')+'\n'+
-   'Время: '+elapsed.toFixed(0)+' мс';
-
-  status(
-   'status2',
-   recovered.hashOK
-    ? 'Данные восстановлены ('+methodName+') и проверены.'
-    : 'Получены данные ('+methodName+'), но целостность не подтверждена.',
-   recovered.hashOK ? 'ok' : 'warn'
-  );
-
-  $('progress').textContent = 'Готово за '+elapsed.toFixed(0)+' мс.';
-
- }catch(e){
-
-  console.error(e);
-
-  status(
-   'status2',
-   e.message||
-   'Ошибка восстановления.',
-   'bad'
-  );
-
-  $('progress').textContent=
-   'Ошибка';
-
- }
-
-};
-
-
-/* =========================================================
-   CLEAR
-========================================================= */
-
-$('clear').onclick=()=>{
-
- extractCanvas=null;
- extractFileRaw=null;
-
- $('result').value='';
-
- $('pass2').value='';
-
- $('copyGrid').innerHTML='';
-
- $('progress').textContent='';
-
- $('diagnostics')
-  .classList
-  .add('hidden');
-
- $('recoveryActions')
-  .classList
-  .add('hidden');
-
- $('imagePreviewBox')
-  .classList
-  .add('hidden');
-
- $('pixelPanel')
-  .classList
-  .add('hidden');
-
- lastRecoveredBytes=null;
- lastRecoveredMetadata=null;
- lastCfg=null;
- lastPacketLength=0;
- lastDecodeResults = [];
- selectedCellIndex = -1;
- lastUsedMethod = null;
-
- status(
-  'status2',
-  ''
- );
-
-};
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-createCopyGrid();
+// Init
 updateGridUI();
-updateCapacity();
-
 </script>
-
 </body>
 </html>
