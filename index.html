@@ -230,7 +230,12 @@ button.danger{
  gap:9px;
  margin:12px 0;
  color:#bac4d1;
- font-size:13px
+ font-size:13px;
+ cursor:help
+}
+
+.toggle:hover{
+ color:#fff
 }
 
 .toggle input{
@@ -583,27 +588,27 @@ canvas{
  <span>Удалить метаданные контейнера (EXIF/IPTC/XMP)</span>
 </div>
 
-<div class="toggle">
+<div class="toggle" title="Plausible Deniability: Создаёт скрытый том с реальными данными и ложный том с безобидным контентом. При вводе основного пароля извлекаются секретные данные, при вводе ложного пароля — легальный контент, что создаёт правдоподобное отрицание наличия скрытой информации.">
  <input id="plausibleDeniability" type="checkbox">
  <span>Plausible Deniability (скрытый том + ложные данные)</span>
 </div>
 
-<div class="toggle">
+<div class="toggle" title="Stealth LSB: Адаптивно меняет глубину вставки (1-3 бита) в зависимости от текстуры области изображения. В гладких участках используется 1 бит для минимизации артефактов, в зашумлённых — до 3 бит для увеличения ёмкости.">
  <input id="stealthMode" type="checkbox">
  <span>Stealth LSB (адаптивная глубина 1-3 бита)</span>
 </div>
 
-<div class="toggle">
+<div class="toggle" title="Добавляет контролируемый шум (dithering) после вставки данных для выравнивания статистики LSB. Защищает от chi-square атак и других методов стеганоанализа, делая распределение битов более естественным.">
  <input id="addDithering" type="checkbox">
  <span>Добавить шум (защита от chi-square анализа)</span>
 </div>
 
-<div class="toggle">
+<div class="toggle" title="HMAC (Hash-based Message Authentication Code): Добавляет криптографическую подпись для каждого блока/копии данных. Позволяет точно определить какие блоки повреждены при извлечении, а не гадать через majority voting, повышая надёжность восстановления.">
  <input id="enableHMAC" type="checkbox" checked>
  <span>HMAC для верификации каждого блока</span>
 </div>
 
-<div class="toggle">
+<div class="toggle" title="Показывает визуальную карту различий между исходным изображением и изображением с внедрёнными данными. Изменённые пиксели подсвечиваются, отображается статистика: количество и процент изменённых пикселей.">
  <input id="showDiffView" type="checkbox">
  <span>Показать карту изменений (Diff View)</span>
 </div>
