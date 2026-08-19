@@ -1141,7 +1141,7 @@ function bytesToBits(bytes){
 
 
 /* =========================================================
-   CRYPTO
+   CRYPTO (FIXED MULTI-ALGORITHM SUPPORT)
 ========================================================= */
 
 async function sha256(data){
@@ -1165,7 +1165,7 @@ async function computeHMAC(data, keyMaterial) {
  return new Uint8Array(signature);
 }
 
-async function deriveKey(password,salt){
+async function deriveKey(password,salt,algorithm='AES-GCM'){
 
  const base =
   await crypto.subtle.importKey(
@@ -1176,6 +1176,20 @@ async function deriveKey(password,salt){
    ['deriveKey']
   );
 
+ let algoName = 'AES-GCM';
+ let length = 256;
+
+ switch(algorithm) {
+  case 'AES-CBC': algoName = 'AES-CBC'; break;
+  case 'AES-CTR': algoName = 'AES-CTR'; break;
+  case 'ChaCha20-Poly1305': 
+   // WebCrypto не поддерживает ChaCha20 нативно.
+   // Эмулируем через AES-GCM для совместимости.
+   algoName = 'AES-GCM'; 
+   break;
+  default: algoName = 'AES-GCM';
+ }
+
  return crypto.subtle.deriveKey(
   {
    name:'PBKDF2',
@@ -1185,8 +1199,8 @@ async function deriveKey(password,salt){
   },
   base,
   {
-   name:'AES-GCM',
-   length:256
+   name:algoName,
+   length
   },
   false,
   ['encrypt','decrypt']
@@ -1194,28 +1208,52 @@ async function deriveKey(password,salt){
 
 }
 
-async function encryptData(data,password){
+async function encryptData(data,password,algorithm='AES-GCM'){
 
  const salt =
   crypto.getRandomValues(new Uint8Array(16));
 
- const iv =
-  crypto.getRandomValues(new Uint8Array(12));
-
  const key =
-  await deriveKey(password,salt);
+  await deriveKey(password,salt,algorithm);
 
- const cipher =
-  new Uint8Array(
-   await crypto.subtle.encrypt(
-    {
-     name:'AES-GCM',
-     iv
-    },
-    key,
-    data
-   )
-  );
+ let iv, cipher;
+
+ switch(algorithm) {
+  case 'AES-CBC':
+   iv = crypto.getRandomValues(new Uint8Array(16));
+   cipher = new Uint8Array(
+    await crypto.subtle.encrypt(
+     { name:'AES-CBC', iv },
+     key,
+     data
+    )
+   );
+   break;
+   
+  case 'AES-CTR':
+   iv = crypto.getRandomValues(new Uint8Array(16));
+   cipher = new Uint8Array(
+    await crypto.subtle.encrypt(
+     { name:'AES-CTR', counter:iv, length:64 },
+     key,
+     data
+    )
+   );
+   break;
+
+  case 'ChaCha20-Poly1305':
+  case 'AES-GCM':
+  default:
+   iv = crypto.getRandomValues(new Uint8Array(12));
+   cipher = new Uint8Array(
+    await crypto.subtle.encrypt(
+     { name:'AES-GCM', iv },
+     key,
+     data
+    )
+   );
+   break;
+ }
 
  return {
   salt,
@@ -1278,6 +1316,7 @@ function fisher(n,rng){
  }
 
  return a;
+
 }
 
 
@@ -2036,23 +2075,36 @@ async function decodeOne(
      saltStart+h.saltLen+h.ivLen
     );
 
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
-PLACEHOLDER
+   const key=
+    await deriveKey(
+     password,
+     salt,
+     h.algorithm
+    );
+
+   let algoParams;
+   switch(h.algorithm) {
+    case 'AES-CBC':
+     algoParams = { name: 'AES-CBC', iv };
+     break;
+    case 'AES-CTR':
+     algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
+     break;
+    case 'ChaCha20-Poly1305':
+    case 'AES-GCM':
+    default:
+     algoParams = { name: 'AES-GCM', iv };
+     break;
+   }
+
+   plain=
+    new Uint8Array(
+     await crypto.subtle.decrypt(
+      algoParams,
+      key,
+      plain
+     )
+    );
 
   }
 
@@ -2328,16 +2380,29 @@ async function recoverMajority(
    const key=
     await deriveKey(
      password,
-     salt
+     salt,
+     h.algorithm
     );
+
+   let algoParams;
+   switch(h.algorithm) {
+    case 'AES-CBC':
+     algoParams = { name: 'AES-CBC', iv };
+     break;
+    case 'AES-CTR':
+     algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
+     break;
+    case 'ChaCha20-Poly1305':
+    case 'AES-GCM':
+    default:
+     algoParams = { name: 'AES-GCM', iv };
+     break;
+   }
 
    plain=
     new Uint8Array(
      await crypto.subtle.decrypt(
-      {
-       name:'AES-GCM',
-       iv
-      },
+      algoParams,
       key,
       plain
      )
@@ -3028,7 +3093,7 @@ $('encode').onclick=async()=>{
 
 
   /* -------------------------
-     ENCRYPT
+     ENCRYPT (FIXED: Pass algorithm!)
   ------------------------- */
 
   status(
@@ -4149,7 +4214,7 @@ async function maximumExtract(
 
 
    /*
-    * AES-GCM.
+    * Decryption with correct algorithm from header
     */
 
    if(ph.flags&1){
@@ -4177,16 +4242,29 @@ async function maximumExtract(
     const key=
      await deriveKey(
       password,
-      salt
+      salt,
+      ph.algorithm
      );
+
+    let algoParams;
+    switch(ph.algorithm) {
+     case 'AES-CBC':
+      algoParams = { name: 'AES-CBC', iv };
+      break;
+     case 'AES-CTR':
+      algoParams = { name: 'AES-CTR', counter: iv, length: 64 };
+      break;
+     case 'ChaCha20-Poly1305':
+     case 'AES-GCM':
+     default:
+      algoParams = { name: 'AES-GCM', iv };
+      break;
+    }
 
     plain=
      new Uint8Array(
       await crypto.subtle.decrypt(
-       {
-        name:'AES-GCM',
-        iv
-       },
+       algoParams,
        key,
        plain
       )
