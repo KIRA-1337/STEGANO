@@ -1,0 +1,4556 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+
+<title>Pixel Damage Tester Pro</title>
+
+<style>
+:root{
+  --bg:#070a10;
+  --panel:#10151e;
+  --panel2:#0b0f16;
+  --line:#283241;
+  --text:#f4f7fb;
+  --muted:#929cab;
+  --accent:#738cff;
+  --accent2:#596fd8;
+  --bad:#ff7280;
+  --ok:#5be293;
+  --warn:#ffc857;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  min-height:100%;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(
+      80% 70% at 50% 0,
+      #18233d 0,
+      #0b0e15 40%,
+      #070a10 75%
+    );
+  color:var(--text);
+  font:15px/1.5 system-ui,-apple-system,
+       BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
+}
+
+.app{
+  width:min(1200px,100%);
+  margin:auto;
+  padding:20px 14px 40px;
+}
+
+h1{
+  margin:0;
+  font-size:clamp(30px,7vw,48px);
+  letter-spacing:-2px;
+  line-height:1;
+}
+
+h2{
+  margin:0 0 14px;
+  font-size:19px;
+}
+
+h3{
+  margin:0 0 10px;
+  font-size:15px;
+}
+
+.subtitle{
+  color:var(--muted);
+  margin:9px 0 22px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.card{
+  background:
+    linear-gradient(180deg,#121720,#0c1017);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+  min-width:0;
+}
+
+.wide{
+  grid-column:1/-1;
+}
+
+.drop{
+  border:1px dashed #465366;
+  background:var(--panel2);
+  border-radius:14px;
+  padding:30px 15px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+  user-select:none;
+}
+
+.drop:hover,
+.drop.drag{
+  border-color:var(--accent);
+  background:#10182a;
+}
+
+.drop strong{
+  display:block;
+  font-size:16px;
+}
+
+.drop span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+
+input[type=file]{
+  display:none;
+}
+
+label{
+  display:block;
+  color:#adb7c6;
+  font-size:12px;
+  margin:14px 0 7px;
+}
+
+input[type=range]{
+  width:100%;
+}
+
+input[type=number],
+select{
+  width:100%;
+  padding:11px;
+  border-radius:11px;
+  border:1px solid var(--line);
+  background:#080c12;
+  color:white;
+  outline:none;
+}
+
+select{
+  cursor:pointer;
+}
+
+input[type=number]:focus,
+select:focus{
+  border-color:var(--accent);
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.row3{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:9px;
+}
+
+button{
+  width:100%;
+  min-height:45px;
+  border:0;
+  border-radius:12px;
+  padding:10px 14px;
+  background:var(--accent);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  transition:
+    transform .1s,
+    background .15s,
+    opacity .15s;
+}
+
+button:hover:not(:disabled){
+  background:var(--accent2);
+}
+
+button:active:not(:disabled){
+  transform:scale(.98);
+}
+
+button.secondary{
+  background:#252d39;
+}
+
+button.secondary:hover:not(:disabled){
+  background:#303a49;
+}
+
+button:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.value{
+  font-size:25px;
+  font-weight:800;
+  margin-top:5px;
+}
+
+.range-info{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:3px;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  max-height:600px;
+  object-fit:contain;
+  background:#05070a;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+.viewer{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.viewer.dual{
+  grid-template-columns:1fr 1fr;
+}
+
+.canvas-box{
+  position:relative;
+  min-width:0;
+}
+
+.canvas-title{
+  position:absolute;
+  top:9px;
+  left:9px;
+  z-index:2;
+  padding:4px 8px;
+  background:#0009;
+  border:1px solid #ffffff18;
+  border-radius:7px;
+  font-size:11px;
+  color:#fff;
+  backdrop-filter:blur(4px);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:9px;
+  margin-top:10px;
+}
+
+.stat{
+  background:#0b0f15;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:11px;
+  min-width:0;
+}
+
+.stat b{
+  display:block;
+  font-size:14px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.stat small{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.status{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:10px;
+  min-height:18px;
+}
+
+.ok{
+  color:var(--ok);
+}
+
+.bad{
+  color:var(--bad);
+}
+
+.warning{
+  color:var(--warn);
+  font-size:12px;
+  margin-top:10px;
+}
+
+.progress{
+  width:100%;
+  height:7px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#080b10;
+  border:1px solid var(--line);
+  margin-top:10px;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:var(--accent);
+  transition:width .1s;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-bottom:10px;
+}
+
+.tabs button{
+  background:#1b222d;
+  min-height:40px;
+  font-size:12px;
+}
+
+.tabs button.active{
+  background:var(--accent);
+}
+
+.channel-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-top:9px;
+}
+
+.channel{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#080c12;
+  color:#b7c0cd;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.channel.active{
+  border-color:var(--accent);
+  background:#18213a;
+  color:#fff;
+}
+
+.pattern-info{
+  margin-top:9px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#0b0f15;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.option-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.option{
+  padding:10px;
+  background:#0b0f15;
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+
+.option-title{
+  font-size:11px;
+  color:#adb7c6;
+  margin-bottom:5px;
+}
+
+.option input{
+  width:100%;
+}
+
+@media(max-width:900px){
+
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+}
+
+@media(max-width:760px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .wide{
+    grid-column:auto;
+  }
+
+  .viewer.dual{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:430px){
+
+  .row,
+  .row3,
+  .option-grid{
+    grid-template-columns:1fr;
+  }
+
+  .channel-row{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>Pixel Damage Tester</h1>
+
+<div class="subtitle">
+  Тестирование устойчивости изображений и стеганографии
+  к различным типам повреждений пикселей
+</div>
+
+
+<div class="grid">
+
+
+<!-- =====================================================
+     IMAGE
+===================================================== -->
+
+<section class="card">
+
+<h2>1. Изображение</h2>
+
+<div id="drop" class="drop">
+
+  <strong>Выберите изображение</strong>
+
+  <span>
+    PNG / JPEG / WebP · можно перетащить сюда
+  </span>
+
+  <input
+    id="file"
+    type="file"
+    accept="image/png,image/jpeg,image/webp,image/*"
+  >
+
+</div>
+
+<div
+  class="status"
+  id="fileStatus"
+>
+  Изображение не загружено.
+</div>
+
+<div class="warning">
+  Всё выполняется локально в браузере.
+  Файл никуда не загружается.
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     DAMAGE
+===================================================== -->
+
+<section class="card">
+
+<h2>2. Повреждение</h2>
+
+<label>
+  Процент повреждённых пикселей
+</label>
+
+<input
+  id="percent"
+  type="range"
+  min="0"
+  max="100"
+  step="0.01"
+  value="1"
+>
+
+<div class="value">
+  <span id="percentValue">1.00</span>%
+</div>
+
+<div class="range-info">
+  <span>0%</span>
+  <span>100%</span>
+</div>
+
+
+<label>
+  Точное количество пикселей
+</label>
+
+<input
+  id="count"
+  type="number"
+  min="0"
+  value="0"
+  inputmode="numeric"
+>
+
+
+<label>
+  Шаблон расположения повреждений
+</label>
+
+<select id="pattern">
+
+  <option value="random">
+    Случайный
+  </option>
+
+  <option value="checker">
+    Шахматный
+  </option>
+
+  <option value="vertical">
+    Вертикальные полосы
+  </option>
+
+  <option value="horizontal">
+    Горизонтальные полосы
+  </option>
+
+  <option value="grid">
+    Сетка
+  </option>
+
+  <option value="diagonal">
+    Диагональ ↘
+  </option>
+
+  <option value="diagonal2">
+    Диагональ ↙
+  </option>
+
+  <option value="cross">
+    Крест
+  </option>
+
+  <option value="center">
+    Центр
+  </option>
+
+  <option value="border">
+    Рамка
+  </option>
+
+  <option value="wave">
+    Волна
+  </option>
+
+  <option value="every-n">
+    Каждый N-й пиксель
+  </option>
+
+  <option value="clusters">
+    Кластеры
+  </option>
+
+  <option value="rectangles">
+    Случайные прямоугольники
+  </option>
+
+  <option value="spiral">
+    Спираль
+  </option>
+
+</select>
+
+<div
+  id="patternInfo"
+  class="pattern-info"
+>
+  Независимые случайные пиксели.
+</div>
+
+
+<label>
+  Тип изменения пикселя
+</label>
+
+<select id="mode">
+
+  <option value="random">
+    Полностью случайный RGB
+  </option>
+
+  <option value="noise">
+    Случайное изменение RGB
+  </option>
+
+  <option value="flip">
+    Инверсия случайного бита
+  </option>
+
+  <option value="channel">
+    Выбранные каналы
+  </option>
+
+  <option value="gray">
+    Принудительно в оттенок серого
+  </option>
+
+</select>
+
+
+<label>
+  Изменяемые каналы
+</label>
+
+<div class="channel-row">
+
+  <div
+    class="channel active"
+    data-channel="r"
+  >
+    R
+  </div>
+
+  <div
+    class="channel active"
+    data-channel="g"
+  >
+    G
+  </div>
+
+  <div
+    class="channel active"
+    data-channel="b"
+  >
+    B
+  </div>
+
+  <div
+    class="channel"
+    data-channel="a"
+  >
+    A
+  </div>
+
+</div>
+
+
+<!-- rectangle options -->
+
+<div
+  id="rectangleOptions"
+  class="option-grid"
+  style="display:none;margin-top:10px"
+>
+
+  <div class="option">
+
+    <div class="option-title">
+      Минимальный размер
+    </div>
+
+    <input
+      id="rectMin"
+      type="number"
+      min="1"
+      value="5"
+    >
+
+  </div>
+
+  <div class="option">
+
+    <div class="option-title">
+      Максимальный размер
+    </div>
+
+    <input
+      id="rectMax"
+      type="number"
+      min="1"
+      value="50"
+    >
+
+  </div>
+
+</div>
+
+
+<div class="row" style="margin-top:14px">
+
+  <button id="damage">
+    Повредить
+  </button>
+
+  <button
+    id="randomize"
+    class="secondary"
+  >
+    Новый тест
+  </button>
+
+</div>
+
+<div class="progress">
+
+  <div
+    id="progressBar"
+    class="progress-bar"
+  ></div>
+
+</div>
+
+<div
+  id="progressText"
+  class="status"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     PREVIEW
+===================================================== -->
+
+<section class="card wide">
+
+<h2>3. Предпросмотр</h2>
+
+<div class="tabs">
+
+  <button
+    id="tabOriginal"
+    class="active"
+  >
+    Оригинал
+  </button>
+
+  <button id="tabDamaged">
+    Повреждённое
+  </button>
+
+  <button id="tabDiff">
+    Карта изменений
+  </button>
+
+</div>
+
+
+<div
+  id="viewer"
+  class="viewer"
+>
+
+  <div class="canvas-box">
+
+    <div class="canvas-title">
+      Просмотр
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+  </div>
+
+</div>
+
+
+<div class="stats">
+
+  <div class="stat">
+    <b id="resolution">—</b>
+    <small>разрешение</small>
+  </div>
+
+  <div class="stat">
+    <b id="total">—</b>
+    <small>всего пикселей</small>
+  </div>
+
+  <div class="stat">
+    <b id="damaged">0</b>
+    <small>изменено</small>
+  </div>
+
+  <div class="stat">
+    <b id="actual">0%</b>
+    <small>фактический %</small>
+  </div>
+
+  <div class="stat">
+    <b id="meanError">0</b>
+    <small>средняя ошибка</small>
+  </div>
+
+  <div class="stat">
+    <b id="maxError">0</b>
+    <small>макс. ошибка</small>
+  </div>
+
+</div>
+
+
+<div class="stats">
+
+  <div class="stat">
+    <b id="mae">0</b>
+    <small>MAE</small>
+  </div>
+
+  <div class="stat">
+    <b id="psnr">∞</b>
+    <small>PSNR</small>
+  </div>
+
+  <div class="stat">
+    <b id="changedR">0</b>
+    <small>изменения R</small>
+  </div>
+
+  <div class="stat">
+    <b id="changedG">0</b>
+    <small>изменения G</small>
+  </div>
+
+  <div class="stat">
+    <b id="changedB">0</b>
+    <small>изменения B</small>
+  </div>
+
+  <div class="stat">
+    <b id="changedA">0</b>
+    <small>изменения A</small>
+  </div>
+
+</div>
+
+
+<div class="row" style="margin-top:12px">
+
+  <button
+    id="download"
+    disabled
+  >
+    Скачать повреждённый PNG
+  </button>
+
+  <button
+    id="downloadDiff"
+    class="secondary"
+    disabled
+  >
+    Скачать карту изменений
+  </button>
+
+</div>
+
+
+<div class="row" style="margin-top:9px">
+
+  <button
+    id="restore"
+    class="secondary"
+    disabled
+  >
+    Восстановить оригинал
+  </button>
+
+  <button
+    id="compare"
+    class="secondary"
+    disabled
+  >
+    Сравнить
+  </button>
+
+</div>
+
+
+<div
+  id="status"
+  class="status"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     INFORMATION
+===================================================== -->
+
+<section class="card wide">
+
+<h2>4. Информация о тесте</h2>
+
+<div
+  id="testInfo"
+  class="status"
+>
+  Тест ещё не выполнялся.
+</div>
+
+</section>
+
+
+</div>
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const $ =
+  id => document.getElementById(id);
+
+
+function clamp(
+  value,
+  min,
+  max
+){
+
+  return Math.max(
+    min,
+    Math.min(max,value)
+  );
+
+}
+
+
+function randomByte(){
+
+  return Math.floor(
+    Math.random()*256
+  );
+
+}
+
+
+function formatNumber(value){
+
+  return Number(value)
+    .toLocaleString("ru-RU");
+
+}
+
+
+function sleep(){
+
+  return new Promise(
+    resolve =>
+      setTimeout(resolve,0)
+  );
+
+}
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let originalCanvas = null;
+let damagedCanvas = null;
+let diffCanvas = null;
+
+let originalImageData = null;
+
+let currentFile = null;
+
+let currentView =
+  "original";
+
+let processing = false;
+
+let selectedChannels = {
+  r:true,
+  g:true,
+  b:true,
+  a:false
+};
+
+
+/* =====================================================
+   IMAGE LOADING
+===================================================== */
+
+function loadImage(file){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      if(
+        !file ||
+        !file.type ||
+        !file.type.startsWith("image/")
+      ){
+
+        reject(
+          new Error(
+            "Файл не является изображением."
+          )
+        );
+
+        return;
+      }
+
+
+      const img =
+        new Image();
+
+      const url =
+        URL.createObjectURL(file);
+
+
+      img.onload = ()=>{
+
+        URL.revokeObjectURL(url);
+
+
+        if(
+          !img.naturalWidth ||
+          !img.naturalHeight
+        ){
+
+          reject(
+            new Error(
+              "Некорректное изображение."
+            )
+          );
+
+          return;
+        }
+
+
+        const canvas =
+          document.createElement(
+            "canvas"
+          );
+
+
+        canvas.width =
+          img.naturalWidth;
+
+        canvas.height =
+          img.naturalHeight;
+
+
+        const ctx =
+          canvas.getContext(
+            "2d",
+            {
+              willReadFrequently:true
+            }
+          );
+
+
+        if(!ctx){
+
+          reject(
+            new Error(
+              "Canvas 2D недоступен."
+            )
+          );
+
+          return;
+        }
+
+
+        ctx.drawImage(
+          img,
+          0,
+          0
+        );
+
+
+        resolve(canvas);
+
+      };
+
+
+      img.onerror = ()=>{
+
+        URL.revokeObjectURL(url);
+
+        reject(
+          new Error(
+            "Не удалось открыть изображение."
+          )
+        );
+
+      };
+
+
+      img.src = url;
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   CANVAS CLONE
+===================================================== */
+
+function cloneCanvas(src){
+
+  const dst =
+    document.createElement(
+      "canvas"
+    );
+
+
+  dst.width =
+    src.width;
+
+  dst.height =
+    src.height;
+
+
+  dst
+    .getContext("2d")
+    .drawImage(
+      src,
+      0,
+      0
+    );
+
+
+  return dst;
+
+}
+
+
+/* =====================================================
+   DISPLAY
+===================================================== */
+
+function showCanvas(canvas){
+
+  const preview =
+    $("canvas");
+
+
+  if(!preview)
+    return;
+
+
+  if(!canvas){
+
+    preview.width = 1;
+    preview.height = 1;
+
+    return;
+
+  }
+
+
+  preview.width =
+    canvas.width;
+
+  preview.height =
+    canvas.height;
+
+
+  const ctx =
+    preview.getContext("2d");
+
+
+  ctx.clearRect(
+    0,
+    0,
+    preview.width,
+    preview.height
+  );
+
+
+  ctx.drawImage(
+    canvas,
+    0,
+    0
+  );
+
+}
+
+
+/* =====================================================
+   IMAGE INFORMATION
+===================================================== */
+
+function updateStats(){
+
+  if(!originalCanvas)
+    return;
+
+
+  const total =
+    originalCanvas.width *
+    originalCanvas.height;
+
+
+  $("resolution").textContent =
+    originalCanvas.width +
+    " × " +
+    originalCanvas.height;
+
+
+  $("total").textContent =
+    formatNumber(total);
+
+}
+
+
+/* =====================================================
+   PERCENT
+===================================================== */
+
+$("percent").addEventListener(
+  "input",
+  ()=>{
+
+    const p =
+      Number(
+        $("percent").value
+      );
+
+
+    $("percentValue").textContent =
+      p.toFixed(2);
+
+
+    if(!originalCanvas)
+      return;
+
+
+    const total =
+      originalCanvas.width *
+      originalCanvas.height;
+
+
+    $("count").value =
+      Math.round(
+        total*p/100
+      );
+
+  }
+);
+
+
+/* =====================================================
+   COUNT
+===================================================== */
+
+$("count").addEventListener(
+  "input",
+  ()=>{
+
+    if(!originalCanvas)
+      return;
+
+
+    const total =
+      originalCanvas.width *
+      originalCanvas.height;
+
+
+    let count =
+      Number(
+        $("count").value
+      );
+
+
+    if(!Number.isFinite(count))
+      count = 0;
+
+
+    count =
+      Math.round(
+        clamp(
+          count,
+          0,
+          total
+        )
+      );
+
+
+    $("count").value =
+      count;
+
+
+    const percent =
+      total
+        ? count/total*100
+        : 0;
+
+
+    $("percent").value =
+      percent;
+
+
+    $("percentValue").textContent =
+      percent.toFixed(2);
+
+  }
+);
+
+
+/* =====================================================
+   PIXEL DAMAGE
+===================================================== */
+
+function damageRandom(
+  data,
+  p
+){
+
+  if(selectedChannels.r)
+    data[p] =
+      randomByte();
+
+  if(selectedChannels.g)
+    data[p+1] =
+      randomByte();
+
+  if(selectedChannels.b)
+    data[p+2] =
+      randomByte();
+
+  if(selectedChannels.a)
+    data[p+3] =
+      randomByte();
+
+}
+
+
+function damageNoise(
+  data,
+  p
+){
+
+  const amount = 50;
+
+
+  if(selectedChannels.r){
+
+    data[p] =
+      clamp(
+        data[p] +
+        Math.floor(
+          (Math.random()*2-1) *
+          amount
+        ),
+        0,
+        255
+      );
+
+  }
+
+
+  if(selectedChannels.g){
+
+    data[p+1] =
+      clamp(
+        data[p+1] +
+        Math.floor(
+          (Math.random()*2-1) *
+          amount
+        ),
+        0,
+        255
+      );
+
+  }
+
+
+  if(selectedChannels.b){
+
+    data[p+2] =
+      clamp(
+        data[p+2] +
+        Math.floor(
+          (Math.random()*2-1) *
+          amount
+        ),
+        0,
+        255
+      );
+
+  }
+
+
+  if(selectedChannels.a){
+
+    data[p+3] =
+      clamp(
+        data[p+3] +
+        Math.floor(
+          (Math.random()*2-1) *
+          amount
+        ),
+        0,
+        255
+      );
+
+  }
+
+}
+
+
+function damageFlip(
+  data,
+  p
+){
+
+  if(selectedChannels.r){
+
+    data[p] ^=
+      1 <<
+      Math.floor(
+        Math.random()*8
+      );
+
+  }
+
+
+  if(selectedChannels.g){
+
+    data[p+1] ^=
+      1 <<
+      Math.floor(
+        Math.random()*8
+      );
+
+  }
+
+
+  if(selectedChannels.b){
+
+    data[p+2] ^=
+      1 <<
+      Math.floor(
+        Math.random()*8
+      );
+
+  }
+
+
+  if(selectedChannels.a){
+
+    data[p+3] ^=
+      1 <<
+      Math.floor(
+        Math.random()*8
+      );
+
+  }
+
+}
+
+
+function damageGray(
+  data,
+  p
+){
+
+  const gray =
+    Math.round(
+      0.299*data[p] +
+      0.587*data[p+1] +
+      0.114*data[p+2]
+    );
+
+
+  data[p] =
+    gray;
+
+  data[p+1] =
+    gray;
+
+  data[p+2] =
+    gray;
+
+}
+
+
+/* =====================================================
+   PATTERN HELPERS
+===================================================== */
+
+function uniqueLimit(
+  array,
+  count
+){
+
+  const set =
+    new Set(array);
+
+
+  const arr =
+    Array.from(set);
+
+
+  if(arr.length <= count)
+    return arr;
+
+
+  const result = [];
+
+
+  const used =
+    new Set();
+
+
+  while(result.length < count){
+
+    const i =
+      Math.floor(
+        Math.random()*arr.length
+      );
+
+
+    if(!used.has(i)){
+
+      used.add(i);
+
+      result.push(
+        arr[i]
+      );
+
+    }
+
+  }
+
+
+  return result;
+
+}
+
+
+function fillRandom(
+  set,
+  count,
+  total
+){
+
+  while(
+    set.size < count
+  ){
+
+    set.add(
+      Math.floor(
+        Math.random()*total
+      )
+    );
+
+  }
+
+
+  return Array.from(set);
+
+}
+
+
+function selectCandidates(
+  candidates,
+  count,
+  total
+){
+
+  const set =
+    new Set();
+
+
+  /*
+    Если кандидатов недостаточно,
+    добавляем случайные пиксели.
+  */
+
+  if(candidates.length <= count){
+
+    for(
+      const value of candidates
+    ){
+
+      set.add(value);
+
+    }
+
+
+    return fillRandom(
+      set,
+      count,
+      total
+    );
+
+  }
+
+
+  while(set.size < count){
+
+    const i =
+      Math.floor(
+        Math.random() *
+        candidates.length
+      );
+
+
+    set.add(
+      candidates[i]
+    );
+
+  }
+
+
+  return Array.from(set);
+
+}
+
+
+/* =====================================================
+   DAMAGE PATTERN
+===================================================== */
+
+function choosePixelsByPattern(
+  width,
+  height,
+  count,
+  pattern
+){
+
+  const total =
+    width*height;
+
+
+  if(count <= 0)
+    return [];
+
+
+  if(count >= total){
+
+    const all =
+      new Array(total);
+
+
+    for(
+      let i=0;
+      i<total;
+      i++
+    ){
+
+      all[i] = i;
+
+    }
+
+
+    return all;
+
+  }
+
+
+  /*
+    RANDOM
+  */
+
+  if(pattern === "random"){
+
+    return fillRandom(
+      new Set(),
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    CHECKERBOARD
+  */
+
+  if(pattern === "checker"){
+
+    const candidates = [];
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          ((x+y)&1) === 0
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    VERTICAL STRIPES
+  */
+
+  if(pattern === "vertical"){
+
+    const candidates = [];
+
+
+    const stripe =
+      Math.max(
+        1,
+        Math.floor(
+          width/20
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          Math.floor(x/stripe)%2 === 0
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    HORIZONTAL STRIPES
+  */
+
+  if(pattern === "horizontal"){
+
+    const candidates = [];
+
+
+    const stripe =
+      Math.max(
+        1,
+        Math.floor(
+          height/20
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          Math.floor(y/stripe)%2 === 0
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    GRID
+  */
+
+  if(pattern === "grid"){
+
+    const result =
+      new Set();
+
+
+    const step =
+      Math.max(
+        2,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y+=step
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x+=step
+      ){
+
+        result.add(
+          y*width+x
+        );
+
+      }
+
+    }
+
+
+    return fillRandom(
+      result,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    DIAGONAL
+  */
+
+  if(pattern === "diagonal"){
+
+    const candidates = [];
+
+
+    const step =
+      Math.max(
+        2,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          (x+y)%step === 0
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    REVERSE DIAGONAL
+  */
+
+  if(pattern === "diagonal2"){
+
+    const candidates = [];
+
+
+    const step =
+      Math.max(
+        2,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          ((x-y)+width)%step === 0
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    CROSS
+  */
+
+  if(pattern === "cross"){
+
+    const candidates = [];
+
+
+    const cx =
+      Math.floor(width/2);
+
+    const cy =
+      Math.floor(height/2);
+
+
+    const thickness =
+      Math.max(
+        1,
+        Math.floor(
+          Math.min(width,height)/100
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          Math.abs(x-cx) <= thickness ||
+          Math.abs(y-cy) <= thickness
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    CENTER
+  */
+
+  if(pattern === "center"){
+
+    const candidates = [];
+
+
+    const cx =
+      width/2;
+
+    const cy =
+      height/2;
+
+
+    const radius =
+      Math.min(
+        width,
+        height
+      )*0.25;
+
+
+    const radius2 =
+      radius*radius;
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        const dx =
+          x-cx;
+
+        const dy =
+          y-cy;
+
+
+        if(
+          dx*dx+dy*dy <= radius2
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    BORDER
+  */
+
+  if(pattern === "border"){
+
+    const candidates = [];
+
+
+    const border =
+      Math.max(
+        1,
+        Math.floor(
+          Math.min(
+            width,
+            height
+          )*0.08
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        if(
+          x<border ||
+          y<border ||
+          x>=width-border ||
+          y>=height-border
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    WAVE
+  */
+
+  if(pattern === "wave"){
+
+    const candidates = [];
+
+
+    const frequency =
+      Math.max(
+        3,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )
+        )
+      );
+
+
+    for(
+      let y=0;
+      y<height;
+      y++
+    ){
+
+      for(
+        let x=0;
+        x<width;
+        x++
+      ){
+
+        const wave =
+          Math.sin(
+            (x+y)/frequency
+          );
+
+
+        if(
+          wave > 0.65
+        ){
+
+          candidates.push(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return selectCandidates(
+      candidates,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    EVERY N
+  */
+
+  if(pattern === "every-n"){
+
+    const result =
+      new Set();
+
+
+    const step =
+      Math.max(
+        1,
+        Math.floor(
+          total/
+          Math.max(count,1)
+        )
+      );
+
+
+    for(
+      let i=0;
+      i<total;
+      i+=step
+    ){
+
+      result.add(i);
+
+    }
+
+
+    return fillRandom(
+      result,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    CLUSTERS
+  */
+
+  if(pattern === "clusters"){
+
+    const result =
+      new Set();
+
+
+    const clusterCount =
+      Math.max(
+        1,
+        Math.floor(
+          Math.sqrt(count)/2
+        )
+      );
+
+
+    const radius =
+      Math.max(
+        2,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )*2
+        )
+      );
+
+
+    for(
+      let c=0;
+      c<clusterCount;
+      c++
+    ){
+
+      const cx =
+        Math.floor(
+          Math.random()*width
+        );
+
+
+      const cy =
+        Math.floor(
+          Math.random()*height
+        );
+
+
+      for(
+        let y=cy-radius;
+        y<=cy+radius;
+        y++
+      ){
+
+        for(
+          let x=cx-radius;
+          x<=cx+radius;
+          x++
+        ){
+
+          if(
+            x<0 ||
+            y<0 ||
+            x>=width ||
+            y>=height
+          )
+            continue;
+
+
+          const dx =
+            x-cx;
+
+          const dy =
+            y-cy;
+
+
+          if(
+            dx*dx+dy*dy <=
+            radius*radius
+          ){
+
+            result.add(
+              y*width+x
+            );
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    return fillRandom(
+      result,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    RANDOM RECTANGLES
+  */
+
+  if(pattern === "rectangles"){
+
+    const result =
+      new Set();
+
+
+    let minSize =
+      Number(
+        $("rectMin").value
+      );
+
+
+    let maxSize =
+      Number(
+        $("rectMax").value
+      );
+
+
+    if(!Number.isFinite(minSize))
+      minSize = 5;
+
+    if(!Number.isFinite(maxSize))
+      maxSize = 50;
+
+
+    minSize =
+      Math.max(
+        1,
+        Math.floor(minSize)
+      );
+
+
+    maxSize =
+      Math.max(
+        minSize,
+        Math.floor(maxSize)
+      );
+
+
+    const rectangleCount =
+      Math.max(
+        1,
+        Math.ceil(
+          count/
+          Math.max(
+            1,
+            minSize*minSize
+          )
+        )
+      );
+
+
+    for(
+      let r=0;
+      r<rectangleCount;
+      r++
+    ){
+
+      const rw =
+        Math.min(
+          width,
+          Math.floor(
+            minSize+
+            Math.random()*
+            (maxSize-minSize+1)
+          )
+        );
+
+
+      const rh =
+        Math.min(
+          height,
+          Math.floor(
+            minSize+
+            Math.random()*
+            (maxSize-minSize+1)
+          )
+        );
+
+
+      const x0 =
+        Math.floor(
+          Math.random()*
+          Math.max(
+            1,
+            width-rw+1
+          )
+        );
+
+
+      const y0 =
+        Math.floor(
+          Math.random()*
+          Math.max(
+            1,
+            height-rh+1
+          )
+        );
+
+
+      for(
+        let y=y0;
+        y<y0+rh;
+        y++
+      ){
+
+        for(
+          let x=x0;
+          x<x0+rw;
+          x++
+        ){
+
+          result.add(
+            y*width+x
+          );
+
+        }
+
+      }
+
+    }
+
+
+    return fillRandom(
+      result,
+      count,
+      total
+    );
+
+  }
+
+
+  /*
+    SPIRAL
+  */
+
+  if(pattern === "spiral"){
+
+    const result =
+      new Set();
+
+
+    const cx =
+      width/2;
+
+    const cy =
+      height/2;
+
+
+    const maxRadius =
+      Math.sqrt(
+        width*width+
+        height*height
+      )/2;
+
+
+    const turns =
+      Math.max(
+        3,
+        Math.floor(
+          Math.sqrt(
+            total/
+            Math.max(count,1)
+          )
+        )
+      );
+
+
+    const iterations =
+      Math.max(
+        count*4,
+        1000
+      );
+
+
+    for(
+      let i=0;
+      i<iterations &&
+      result.size<count;
+      i++
+    ){
+
+      const t =
+        i/iterations;
+
+
+      const angle =
+        t*
+        Math.PI*
+        2*
+        turns;
+
+
+      const radius =
+        t*maxRadius;
+
+
+      const x =
+        Math.round(
+          cx+
+          Math.cos(angle)*radius
+        );
+
+
+      const y =
+        Math.round(
+          cy+
+          Math.sin(angle)*radius
+        );
+
+
+      if(
+        x>=0 &&
+        y>=0 &&
+        x<width &&
+        y<height
+      ){
+
+        result.add(
+          y*width+x
+        );
+
+      }
+
+    }
+
+
+    return fillRandom(
+      result,
+      count,
+      total
+    );
+
+  }
+
+
+  return fillRandom(
+    new Set(),
+    count,
+    total
+  );
+
+}
+
+
+/* =====================================================
+   PATTERN DESCRIPTION
+===================================================== */
+
+const patternDescriptions = {
+
+  random:
+    "Независимые случайные пиксели.",
+
+  checker:
+    "Чередование пикселей по принципу шахматной доски.",
+
+  vertical:
+    "Чередующиеся вертикальные полосы.",
+
+  horizontal:
+    "Чередующиеся горизонтальные полосы.",
+
+  grid:
+    "Регулярная пространственная сетка.",
+
+  diagonal:
+    "Повреждение вдоль диагональных линий ↘.",
+
+  diagonal2:
+    "Повреждение вдоль диагональных линий ↙.",
+
+  cross:
+    "Повреждение вокруг горизонтальной и вертикальной оси.",
+
+  center:
+    "Повреждение концентрируется в центральной области.",
+
+  border:
+    "Повреждение концентрируется по краям изображения.",
+
+  wave:
+    "Синусоидальный периодический шаблон.",
+
+  "every-n":
+    "Периодически выбирается каждый N-й пиксель.",
+
+  clusters:
+    "Несколько локальных групп повреждённых пикселей.",
+
+  rectangles:
+    "Случайные прямоугольные повреждённые области.",
+
+  spiral:
+    "Повреждение располагается по спиральной траектории."
+
+};
+
+
+/* =====================================================
+   PATTERN CHANGE
+===================================================== */
+
+$("pattern").addEventListener(
+  "change",
+  ()=>{
+
+    const pattern =
+      $("pattern").value;
+
+
+    $("patternInfo").textContent =
+      patternDescriptions[pattern] ||
+      "";
+
+
+    $("rectangleOptions").style.display =
+      pattern === "rectangles"
+        ? "grid"
+        : "none";
+
+  }
+);
+
+
+/* =====================================================
+   CREATE DIFF
+===================================================== */
+
+function createDiff(
+  original,
+  damaged
+){
+
+  const width =
+    original.width;
+
+  const height =
+    original.height;
+
+
+  const octx =
+    original.getContext(
+      "2d",
+      {
+        willReadFrequently:true
+      }
+    );
+
+
+  const dctx =
+    damaged.getContext(
+      "2d",
+      {
+        willReadFrequently:true
+      }
+    );
+
+
+  const a =
+    octx.getImageData(
+      0,
+      0,
+      width,
+      height
+    );
+
+
+  const b =
+    dctx.getImageData(
+      0,
+      0,
+      width,
+      height
+    );
+
+
+  const diff =
+    new ImageData(
+      width,
+      height
+    );
+
+
+  for(
+    let i=0;
+    i<a.data.length;
+    i+=4
+  ){
+
+    const dr =
+      Math.abs(
+        a.data[i]-
+        b.data[i]
+      );
+
+
+    const dg =
+      Math.abs(
+        a.data[i+1]-
+        b.data[i+1]
+      );
+
+
+    const db =
+      Math.abs(
+        a.data[i+2]-
+        b.data[i+2]
+      );
+
+
+    /*
+      Усиливаем небольшие изменения.
+    */
+
+    diff.data[i] =
+      Math.min(
+        255,
+        dr*4
+      );
+
+
+    diff.data[i+1] =
+      Math.min(
+        255,
+        dg*4
+      );
+
+
+    diff.data[i+2] =
+      Math.min(
+        255,
+        db*4
+      );
+
+
+    diff.data[i+3] =
+      255;
+
+  }
+
+
+  const canvas =
+    document.createElement(
+      "canvas"
+    );
+
+
+  canvas.width =
+    width;
+
+  canvas.height =
+    height;
+
+
+  canvas
+    .getContext("2d")
+    .putImageData(
+      diff,
+      0,
+      0
+    );
+
+
+  return canvas;
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+function calculateStats(
+  original,
+  damaged
+){
+
+  const width =
+    original.width;
+
+  const height =
+    original.height;
+
+
+  const a =
+    original
+      .getContext(
+        "2d",
+        {
+          willReadFrequently:true
+        }
+      )
+      .getImageData(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+  const b =
+    damaged
+      .getContext(
+        "2d",
+        {
+          willReadFrequently:true
+        }
+      )
+      .getImageData(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+  let changedPixels = 0;
+
+  let changedR = 0;
+  let changedG = 0;
+  let changedB = 0;
+  let changedA = 0;
+
+  let sumError = 0;
+
+  let sumSquared = 0;
+
+  let maxError = 0;
+
+
+  const pixels =
+    width*height;
+
+
+  for(
+    let i=0;
+    i<a.data.length;
+    i+=4
+  ){
+
+    const dr =
+      Math.abs(
+        a.data[i]-
+        b.data[i]
+      );
+
+
+    const dg =
+      Math.abs(
+        a.data[i+1]-
+        b.data[i+1]
+      );
+
+
+    const db =
+      Math.abs(
+        a.data[i+2]-
+        b.data[i+2]
+      );
+
+
+    const da =
+      Math.abs(
+        a.data[i+3]-
+        b.data[i+3]
+      );
+
+
+    const maxPixelError =
+      Math.max(
+        dr,
+        dg,
+        db,
+        da
+      );
+
+
+    if(maxPixelError>0)
+      changedPixels++;
+
+
+    if(dr>0)
+      changedR++;
+
+
+    if(dg>0)
+      changedG++;
+
+
+    if(db>0)
+      changedB++;
+
+
+    if(da>0)
+      changedA++;
+
+
+    sumError +=
+      dr+dg+db;
+
+
+    sumSquared +=
+      dr*dr+
+      dg*dg+
+      db*db;
+
+
+    maxError =
+      Math.max(
+        maxError,
+        maxPixelError
+      );
+
+  }
+
+
+  const channels =
+    pixels*3;
+
+
+  const mae =
+    channels
+      ? sumError/channels
+      : 0;
+
+
+  const mse =
+    channels
+      ? sumSquared/channels
+      : 0;
+
+
+  let psnr =
+    Infinity;
+
+
+  if(mse>0){
+
+    psnr =
+      10*
+      Math.log10(
+        255*255/mse
+      );
+
+  }
+
+
+  return {
+
+    changedPixels,
+
+    changedR,
+    changedG,
+    changedB,
+    changedA,
+
+    mae,
+
+    psnr,
+
+    maxError,
+
+    meanError:
+      pixels
+        ? sumError/pixels
+        : 0
+
+  };
+
+}
+
+
+/* =====================================================
+   UPDATE STATISTICS
+===================================================== */
+
+function updateResultStats(){
+
+  if(
+    !originalCanvas ||
+    !damagedCanvas
+  )
+    return;
+
+
+  const stats =
+    calculateStats(
+      originalCanvas,
+      damagedCanvas
+    );
+
+
+  const total =
+    originalCanvas.width*
+    originalCanvas.height;
+
+
+  $("damaged").textContent =
+    formatNumber(
+      stats.changedPixels
+    );
+
+
+  $("actual").textContent =
+    (
+      total
+        ? stats.changedPixels/total*100
+        : 0
+    ).toFixed(4)+"%";
+
+
+  $("meanError").textContent =
+    stats.meanError.toFixed(2);
+
+
+  $("maxError").textContent =
+    stats.maxError;
+
+
+  $("mae").textContent =
+    stats.mae.toFixed(3);
+
+
+  $("psnr").textContent =
+    Number.isFinite(stats.psnr)
+      ? stats.psnr.toFixed(2)+" dB"
+      : "∞";
+
+
+  $("changedR").textContent =
+    formatNumber(
+      stats.changedR
+    );
+
+
+  $("changedG").textContent =
+    formatNumber(
+      stats.changedG
+    );
+
+
+  $("changedB").textContent =
+    formatNumber(
+      stats.changedB
+    );
+
+
+  $("changedA").textContent =
+    formatNumber(
+      stats.changedA
+    );
+
+}
+
+
+/* =====================================================
+   VIEW
+===================================================== */
+
+function setView(
+  view
+){
+
+  currentView =
+    view;
+
+
+  $("tabOriginal")
+    .classList.toggle(
+      "active",
+      view==="original"
+    );
+
+
+  $("tabDamaged")
+    .classList.toggle(
+      "active",
+      view==="damaged"
+    );
+
+
+  $("tabDiff")
+    .classList.toggle(
+      "active",
+      view==="diff"
+    );
+
+
+  if(view==="original"){
+
+    showCanvas(
+      originalCanvas
+    );
+
+  }
+  else if(view==="damaged"){
+
+    showCanvas(
+      damagedCanvas
+    );
+
+  }
+  else{
+
+    showCanvas(
+      diffCanvas
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   DAMAGE IMAGE
+===================================================== */
+
+async function damageImage(){
+
+  if(processing)
+    return;
+
+
+  if(!originalCanvas){
+
+    $("status").textContent =
+      "Сначала загрузите изображение.";
+
+    $("status").className =
+      "status bad";
+
+    return;
+
+  }
+
+
+  processing = true;
+
+
+  $("damage").disabled =
+    true;
+
+  $("randomize").disabled =
+    true;
+
+
+  try{
+
+    const width =
+      originalCanvas.width;
+
+    const height =
+      originalCanvas.height;
+
+
+    const total =
+      width*height;
+
+
+    let count =
+      Number(
+        $("count").value
+      );
+
+
+    if(!Number.isFinite(count))
+      count = 0;
+
+
+    count =
+      Math.round(
+        clamp(
+          count,
+          0,
+          total
+        )
+      );
+
+
+    $("count").value =
+      count;
+
+
+    const pattern =
+      $("pattern").value;
+
+
+    const mode =
+      $("mode").value;
+
+
+    /*
+      Всегда начинаем с оригинала.
+    */
+
+    damagedCanvas =
+      cloneCanvas(
+        originalCanvas
+      );
+
+
+    const ctx =
+      damagedCanvas.getContext(
+        "2d",
+        {
+          willReadFrequently:true
+        }
+      );
+
+
+    const image =
+      ctx.getImageData(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+    $("progressBar").style.width =
+      "0%";
+
+
+    $("progressText").textContent =
+      "Создание шаблона...";
+
+
+    await sleep();
+
+
+    const pixels =
+      choosePixelsByPattern(
+        width,
+        height,
+        count,
+        pattern
+      );
+
+
+    /*
+      В некоторых шаблонах при малом
+      количестве кандидатов может получиться
+      чуть меньше нужного. Доводим количество.
+    */
+
+    const finalPixels =
+      uniqueLimit(
+        pixels,
+        count
+      );
+
+
+    /*
+      Если уникальных пикселей меньше,
+      добавляем случайные.
+    */
+
+    const used =
+      new Set(finalPixels);
+
+
+    while(
+      used.size<count
+    ){
+
+      used.add(
+        Math.floor(
+          Math.random()*total
+        )
+      );
+
+    }
+
+
+    const selected =
+      Array.from(used);
+
+
+    const chunk =
+      50000;
+
+
+    for(
+      let start=0;
+      start<selected.length;
+      start+=chunk
+    ){
+
+      const end =
+        Math.min(
+          start+chunk,
+          selected.length
+        );
+
+
+      for(
+        let i=start;
+        i<end;
+        i++
+      ){
+
+        const index =
+          selected[i];
+
+
+        const p =
+          index*4;
+
+
+        if(mode==="random"){
+
+          damageRandom(
+            image.data,
+            p
+          );
+
+        }
+        else if(mode==="noise"){
+
+          damageNoise(
+            image.data,
+            p
+          );
+
+        }
+        else if(mode==="flip"){
+
+          damageFlip(
+            image.data,
+            p
+          );
+
+        }
+        else if(mode==="channel"){
+
+          damageRandom(
+            image.data,
+            p
+          );
+
+        }
+        else if(mode==="gray"){
+
+          damageGray(
+            image.data,
+            p
+          );
+
+        }
+
+      }
+
+
+      const progress =
+        selected.length
+          ? end/selected.length*100
+          : 100;
+
+
+      $("progressBar").style.width =
+        progress.toFixed(1)+"%";
+
+
+      $("progressText").textContent =
+        "Повреждение: "+
+        formatNumber(end)+
+        " / "+
+        formatNumber(selected.length);
+
+
+      await sleep();
+
+    }
+
+
+    ctx.putImageData(
+      image,
+      0,
+      0
+    );
+
+
+    $("progressText").textContent =
+      "Создание карты изменений...";
+
+
+    await sleep();
+
+
+    diffCanvas =
+      createDiff(
+        originalCanvas,
+        damagedCanvas
+      );
+
+
+    updateResultStats();
+
+
+    setView(
+      "damaged"
+    );
+
+
+    $("download").disabled =
+      false;
+
+
+    $("downloadDiff").disabled =
+      false;
+
+
+    $("restore").disabled =
+      false;
+
+
+    $("compare").disabled =
+      false;
+
+
+    const stats =
+      calculateStats(
+        originalCanvas,
+        damagedCanvas
+      );
+
+
+    const actual =
+      total
+        ? stats.changedPixels/total*100
+        : 0;
+
+
+    $("status").textContent =
+      "Тест завершён. Изменено "+
+      formatNumber(
+        stats.changedPixels
+      )+
+      " пикселей.";
+
+
+    $("status").className =
+      "status ok";
+
+
+    $("testInfo").textContent =
+      "Шаблон: "+
+      (
+        patternDescriptions[pattern] ||
+        pattern
+      )+
+      " · режим: "+
+      getModeName(mode)+
+      " · запрошено: "+
+      formatNumber(count)+
+      " · фактически изменено: "+
+      formatNumber(
+        stats.changedPixels
+      )+
+      " · "+
+      actual.toFixed(4)+
+      "%";
+
+
+    $("progressBar").style.width =
+      "100%";
+
+
+  }
+  catch(error){
+
+    console.error(error);
+
+
+    $("status").textContent =
+      error.message ||
+      "Ошибка обработки изображения.";
+
+    $("status").className =
+      "status bad";
+
+  }
+
+
+  processing = false;
+
+
+  $("damage").disabled =
+    false;
+
+  $("randomize").disabled =
+    false;
+
+}
+
+
+/* =====================================================
+   MODE NAME
+===================================================== */
+
+function getModeName(mode){
+
+  const names = {
+
+    random:
+      "Полностью случайный RGB",
+
+    noise:
+      "Случайное изменение RGB",
+
+    flip:
+      "Инверсия случайного бита",
+
+    channel:
+      "Выбранные каналы",
+
+    gray:
+      "Оттенки серого"
+
+  };
+
+
+  return names[mode] || mode;
+
+}
+
+
+/* =====================================================
+   RANDOM TEST
+===================================================== */
+
+$("randomize").addEventListener(
+  "click",
+  ()=>{
+
+    if(!originalCanvas)
+      return;
+
+
+    const p =
+      Math.random()*10;
+
+
+    $("percent").value =
+      p;
+
+
+    $("percentValue").textContent =
+      p.toFixed(2);
+
+
+    const total =
+      originalCanvas.width*
+      originalCanvas.height;
+
+
+    $("count").value =
+      Math.round(
+        total*p/100
+      );
+
+
+    /*
+      Случайно выбираем и шаблон.
+    */
+
+    const patterns = [
+      "random",
+      "checker",
+      "vertical",
+      "horizontal",
+      "grid",
+      "diagonal",
+      "diagonal2",
+      "cross",
+      "center",
+      "border",
+      "wave",
+      "every-n",
+      "clusters",
+      "rectangles",
+      "spiral"
+    ];
+
+
+    const pattern =
+      patterns[
+        Math.floor(
+          Math.random()*
+          patterns.length
+        )
+      ];
+
+
+    $("pattern").value =
+      pattern;
+
+
+    $("patternInfo").textContent =
+      patternDescriptions[pattern];
+
+
+    $("rectangleOptions").style.display =
+      pattern==="rectangles"
+        ? "grid"
+        : "none";
+
+
+    damageImage();
+
+  }
+);
+
+
+/* =====================================================
+   DOWNLOAD DAMAGED
+===================================================== */
+
+$("download").addEventListener(
+  "click",
+  ()=>{
+
+    if(!damagedCanvas)
+      return;
+
+
+    damagedCanvas.toBlob(
+      blob=>{
+
+        if(!blob)
+          return;
+
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const a =
+          document.createElement(
+            "a"
+          );
+
+
+        a.href =
+          url;
+
+
+        a.download =
+          makeFileName(
+            "damaged",
+            ".png"
+          );
+
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+
+        setTimeout(
+          ()=>{
+            URL.revokeObjectURL(url);
+          },
+          1000
+        );
+
+      },
+      "image/png"
+    );
+
+  }
+);
+
+
+/* =====================================================
+   DOWNLOAD DIFF
+===================================================== */
+
+$("downloadDiff").addEventListener(
+  "click",
+  ()=>{
+
+    if(!diffCanvas)
+      return;
+
+
+    diffCanvas.toBlob(
+      blob=>{
+
+        if(!blob)
+          return;
+
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const a =
+          document.createElement(
+            "a"
+          );
+
+
+        a.href =
+          url;
+
+
+        a.download =
+          makeFileName(
+            "damage-map",
+            ".png"
+          );
+
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+
+        setTimeout(
+          ()=>{
+            URL.revokeObjectURL(url);
+          },
+          1000
+        );
+
+      },
+      "image/png"
+    );
+
+  }
+);
+
+
+/* =====================================================
+   FILENAME
+===================================================== */
+
+function makeFileName(
+  prefix,
+  extension
+){
+
+  const base =
+    currentFile
+      ? currentFile.name
+          .replace(
+            /\.[^.]+$/,
+            ""
+          )
+      : "image";
+
+
+  return (
+    base+
+    "-"+
+    prefix+
+    extension
+  );
+
+}
+
+
+/* =====================================================
+   RESTORE
+===================================================== */
+
+$("restore").addEventListener(
+  "click",
+  ()=>{
+
+    if(!originalCanvas)
+      return;
+
+
+    damagedCanvas =
+      cloneCanvas(
+        originalCanvas
+      );
+
+
+    diffCanvas =
+      null;
+
+
+    $("damaged").textContent =
+      "0";
+
+    $("actual").textContent =
+      "0%";
+
+    $("meanError").textContent =
+      "0";
+
+    $("maxError").textContent =
+      "0";
+
+    $("mae").textContent =
+      "0";
+
+    $("psnr").textContent =
+      "∞";
+
+    $("changedR").textContent =
+      "0";
+
+    $("changedG").textContent =
+      "0";
+
+    $("changedB").textContent =
+      "0";
+
+    $("changedA").textContent =
+      "0";
+
+
+    $("download").disabled =
+      true;
+
+    $("downloadDiff").disabled =
+      true;
+
+
+    $("compare").disabled =
+      true;
+
+
+    setView(
+      "original"
+    );
+
+
+    $("status").textContent =
+      "Оригинал восстановлен.";
+
+    $("status").className =
+      "status ok";
+
+
+    $("testInfo").textContent =
+      "Тест сброшен.";
+
+  }
+);
+
+
+/* =====================================================
+   COMPARE
+===================================================== */
+
+$("compare").addEventListener(
+  "click",
+  ()=>{
+
+    if(
+      !originalCanvas ||
+      !damagedCanvas
+    )
+      return;
+
+
+    const viewer =
+      $("viewer");
+
+
+    if(
+      viewer.classList.contains(
+        "dual"
+      )
+    ){
+
+      viewer.classList.remove(
+        "dual"
+      );
+
+
+      viewer.innerHTML = `
+
+        <div class="canvas-box">
+
+          <div class="canvas-title">
+            Просмотр
+          </div>
+
+          <canvas id="canvas"></canvas>
+
+        </div>
+
+      `;
+
+
+      $("compare").textContent =
+        "Сравнить";
+
+
+      setView(
+        currentView
+      );
+
+
+      return;
+
+    }
+
+
+    viewer.classList.add(
+      "dual"
+    );
+
+
+    viewer.innerHTML = `
+
+      <div class="canvas-box">
+
+        <div class="canvas-title">
+          Оригинал
+        </div>
+
+        <canvas
+          id="compareOriginal"
+        ></canvas>
+
+      </div>
+
+
+      <div class="canvas-box">
+
+        <div class="canvas-title">
+          Повреждённое
+        </div>
+
+        <canvas
+          id="compareDamaged"
+        ></canvas>
+
+      </div>
+
+    `;
+
+
+    copyCanvas(
+      originalCanvas,
+      $("compareOriginal")
+    );
+
+
+    copyCanvas(
+      damagedCanvas,
+      $("compareDamaged")
+    );
+
+
+    $("compare").textContent =
+      "Скрыть сравнение";
+
+  }
+);
+
+
+/* =====================================================
+   COPY CANVAS
+===================================================== */
+
+function copyCanvas(
+  source,
+  destination
+){
+
+  if(
+    !source ||
+    !destination
+  )
+    return;
+
+
+  destination.width =
+    source.width;
+
+  destination.height =
+    source.height;
+
+
+  destination
+    .getContext("2d")
+    .drawImage(
+      source,
+      0,
+      0
+    );
+
+}
+
+
+/* =====================================================
+   TABS
+===================================================== */
+
+$("tabOriginal").addEventListener(
+  "click",
+  ()=>{
+    setView("original");
+  }
+);
+
+
+$("tabDamaged").addEventListener(
+  "click",
+  ()=>{
+    setView("damaged");
+  }
+);
+
+
+$("tabDiff").addEventListener(
+  "click",
+  ()=>{
+    setView("diff");
+  }
+);
+
+
+/* =====================================================
+   CHANNEL BUTTONS
+===================================================== */
+
+document
+  .querySelectorAll(".channel")
+  .forEach(
+    element=>{
+
+      element.addEventListener(
+        "click",
+        ()=>{
+
+          const channel =
+            element.dataset.channel;
+
+
+          selectedChannels[channel] =
+            !selectedChannels[channel];
+
+
+          element.classList.toggle(
+            "active",
+            selectedChannels[channel]
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   DROPZONE
+===================================================== */
+
+const drop =
+  $("drop");
+
+
+const fileInput =
+  $("file");
+
+
+drop.addEventListener(
+  "click",
+  ()=>{
+    fileInput.click();
+  }
+);
+
+
+fileInput.addEventListener(
+  "change",
+  ()=>{
+
+    if(fileInput.files[0]){
+
+      processFile(
+        fileInput.files[0]
+      );
+
+    }
+
+  }
+);
+
+
+drop.addEventListener(
+  "dragover",
+  event=>{
+
+    event.preventDefault();
+
+    drop.classList.add(
+      "drag"
+    );
+
+  }
+);
+
+
+drop.addEventListener(
+  "dragleave",
+  ()=>{
+    drop.classList.remove(
+      "drag"
+    );
+  }
+);
+
+
+drop.addEventListener(
+  "drop",
+  event=>{
+
+    event.preventDefault();
+
+    drop.classList.remove(
+      "drag"
+    );
+
+
+    const file =
+      event.dataTransfer.files[0];
+
+
+    if(file){
+
+      processFile(
+        file
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   PROCESS FILE
+===================================================== */
+
+async function processFile(
+  file
+){
+
+  try{
+
+    $("status").textContent =
+      "Открытие изображения...";
+
+    $("status").className =
+      "status";
+
+
+    currentFile =
+      file;
+
+
+    originalCanvas =
+      await loadImage(
+        file
+      );
+
+
+    const total =
+      originalCanvas.width*
+      originalCanvas.height;
+
+
+    /*
+      Ограничение для предотвращения
+      экстремального расхода памяти.
+    */
+
+    if(
+      total >
+      120000000
+    ){
+
+      throw new Error(
+        "Изображение слишком большое для безопасной обработки в браузере."
+      );
+
+    }
+
+
+    damagedCanvas =
+      cloneCanvas(
+        originalCanvas
+      );
+
+
+    originalImageData =
+      originalCanvas
+        .getContext(
+          "2d",
+          {
+            willReadFrequently:true
+          }
+        )
+        .getImageData(
+          0,
+          0,
+          originalCanvas.width,
+          originalCanvas.height
+        );
+
+
+    diffCanvas =
+      null;
+
+
+    showCanvas(
+      originalCanvas
+    );
+
+
+    updateStats();
+
+
+    const p =
+      Number(
+        $("percent").value
+      );
+
+
+    $("count").value =
+      Math.round(
+        total*p/100
+      );
+
+
+    $("fileStatus").textContent =
+      file.name+
+      " · "+
+      (file.size/1024).toFixed(1)+
+      " KB · "+
+      originalCanvas.width+
+      "×"+
+      originalCanvas.height;
+
+
+    $("status").textContent =
+      "Готово к тестированию.";
+
+    $("status").className =
+      "status";
+
+
+    $("testInfo").textContent =
+      "Оригинал загружен. "+
+      formatNumber(total)+
+      " пикселей.";
+
+
+    $("damaged").textContent =
+      "0";
+
+    $("actual").textContent =
+      "0%";
+
+    $("meanError").textContent =
+      "0";
+
+    $("maxError").textContent =
+      "0";
+
+    $("mae").textContent =
+      "0";
+
+    $("psnr").textContent =
+      "∞";
+
+    $("changedR").textContent =
+      "0";
+
+    $("changedG").textContent =
+      "0";
+
+    $("changedB").textContent =
+      "0";
+
+    $("changedA").textContent =
+      "0";
+
+
+    $("download").disabled =
+      true;
+
+    $("downloadDiff").disabled =
+      true;
+
+    $("restore").disabled =
+      false;
+
+    $("compare").disabled =
+      true;
+
+
+    $("progressBar").style.width =
+      "0%";
+
+    $("progressText").textContent =
+      "";
+
+
+    setView(
+      "original"
+    );
+
+  }
+  catch(error){
+
+    console.error(error);
+
+
+    originalCanvas =
+      null;
+
+    damagedCanvas =
+      null;
+
+    diffCanvas =
+      null;
+
+
+    $("fileStatus").textContent =
+      "Ошибка загрузки.";
+
+    $("status").textContent =
+      error.message ||
+      "Не удалось открыть изображение.";
+
+    $("status").className =
+      "status bad";
+
+  }
+
+}
+
+
+/* =====================================================
+   DAMAGE BUTTON
+===================================================== */
+
+$("damage").addEventListener(
+  "click",
+  damageImage
+);
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(
+      (event.ctrlKey ||
+       event.metaKey) &&
+      event.key==="Enter"
+    ){
+
+      event.preventDefault();
+
+      damageImage();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+$("percentValue").textContent =
+  Number(
+    $("percent").value
+  ).toFixed(2);
+
+$("patternInfo").textContent =
+  patternDescriptions.random;
+
+</script>
+
+</body>
+</html>
+
+просто
