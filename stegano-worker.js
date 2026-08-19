@@ -7,14 +7,14 @@
 ========================================================= */
 
 self.onmessage = async function(e) {
- const { type, payload } = e.data;
+ const { type, payload, id } = e.data;
  
  try {
   switch(type) {
    
    case 'ENCRYPT': {
     const result = await encryptData(payload.plain, payload.password, payload.algorithm || 'AES-GCM');
-    self.postMessage({ type: 'ENCRYPT_RESULT', result });
+    self.postMessage({ type: 'ENCRYPT_RESULT', result, id });
     break;
    }
    
@@ -26,19 +26,19 @@ self.onmessage = async function(e) {
      payload.iv,
      payload.algorithm || 'AES-GCM'
     );
-    self.postMessage({ type: 'DECRYPT_RESULT', result });
+    self.postMessage({ type: 'DECRYPT_RESULT', result, id });
     break;
    }
    
    case 'COMPUTE_HMAC': {
     const result = await computeHMAC(payload.data, payload.key);
-    self.postMessage({ type: 'HMAC_RESULT', result, id: payload.id });
+    self.postMessage({ type: 'HMAC_RESULT', result, id });
     break;
    }
    
    case 'MAJORITY_BYTES': {
     const result = majorityBytes(payload.packets, payload.length);
-    self.postMessage({ type: 'MAJORITY_RESULT', result, id: payload.id });
+    self.postMessage({ type: 'MAJORITY_RESULT', result, id });
     break;
    }
    
@@ -48,13 +48,13 @@ self.onmessage = async function(e) {
     for(let i = 0; i < payload.length; i++) {
      sequence[i] = Math.floor(rng() * payload.max);
     }
-    self.postMessage({ type: 'PRNG_RESULT', result: sequence, id: payload.id });
+    self.postMessage({ type: 'PRNG_RESULT', result: sequence, id });
     break;
    }
    
    case 'STRIP_METADATA': {
     const result = await stripMetadataFromImage(payload.imageData, payload.format);
-    self.postMessage({ type: 'METADATA_STRIPPED', result });
+    self.postMessage({ type: 'METADATA_STRIPPED', result, id });
     break;
    }
    
@@ -64,13 +64,13 @@ self.onmessage = async function(e) {
      payload.intensity,
      payload.seed
     );
-    self.postMessage({ type: 'DITHERING_APPLIED', result });
+    self.postMessage({ type: 'DITHERING_APPLIED', result, id });
     break;
    }
    
    case 'COMPUTE_DIFF': {
     const result = computeDiff(payload.before, payload.after);
-    self.postMessage({ type: 'DIFF_COMPUTED', result });
+    self.postMessage({ type: 'DIFF_COMPUTED', result, id });
     break;
    }
    
@@ -79,27 +79,27 @@ self.onmessage = async function(e) {
      payload.imageData,
      payload.blockSize
     );
-    self.postMessage({ type: 'ADAPTIVE_DEPTH_RESULT', result });
+    self.postMessage({ type: 'ADAPTIVE_DEPTH_RESULT', result, id });
     break;
    }
    
    case 'REED_SOLOMON_ENCODE': {
     const result = reedSolomonEncode(payload.data, payload.nsym);
-    self.postMessage({ type: 'RS_ENCODE_RESULT', result, id: payload.id });
+    self.postMessage({ type: 'RS_ENCODE_RESULT', result, id });
     break;
    }
    
    case 'REED_SOLOMON_DECODE': {
     const result = reedSolomonDecode(payload.data, payload.nsym);
-    self.postMessage({ type: 'RS_DECODE_RESULT', result, id: payload.id });
+    self.postMessage({ type: 'RS_DECODE_RESULT', result, id });
     break;
    }
    
    default:
-    self.postMessage({ type: 'ERROR', error: 'Unknown message type' });
+    self.postMessage({ type: 'ERROR', error: 'Unknown message type', id });
   }
  } catch(error) {
-  self.postMessage({ type: 'ERROR', error: error.message });
+  self.postMessage({ type: 'ERROR', error: error.message, id });
  }
 };
 
@@ -125,27 +125,23 @@ async function deriveKey(password, salt, algorithm = 'AES-GCM') {
   ['deriveKey']
  );
  
- // Определяем параметры для разных алгоритмов
- let algoName, algoLength;
+ let algoName = 'AES-GCM';
+ let length = 256;
  
  switch(algorithm) {
   case 'AES-CBC':
    algoName = 'AES-CBC';
-   algoLength = 256;
    break;
   case 'AES-CTR':
    algoName = 'AES-CTR';
-   algoLength = 256;
    break;
   case 'ChaCha20-Poly1305':
    // Web Crypto API не поддерживает ChaCha20 напрямую
-   // Используем AES-GCM как fallback или эмуляцию через HMAC-DRBG
+   // Эмулируем через AES-GCM для совместимости
    algoName = 'AES-GCM';
-   algoLength = 256;
    break;
   default:
    algoName = 'AES-GCM';
-   algoLength = 256;
  }
  
  return crypto.subtle.deriveKey(
@@ -156,7 +152,7 @@ async function deriveKey(password, salt, algorithm = 'AES-GCM') {
    hash: 'SHA-256'
   },
   base,
-  { name: algoName, length: algoLength },
+  { name: algoName, length },
   false,
   ['encrypt', 'decrypt']
  );
@@ -164,9 +160,9 @@ async function deriveKey(password, salt, algorithm = 'AES-GCM') {
 
 async function encryptData(data, password, algorithm = 'AES-GCM') {
  const salt = crypto.getRandomValues(new Uint8Array(16));
+ const key = await deriveKey(password, salt, algorithm);
  
  let iv, cipher;
- const key = await deriveKey(password, salt, algorithm);
  
  switch(algorithm) {
   case 'AES-CBC': {
@@ -218,6 +214,7 @@ async function decryptData(cipher, password, salt, iv, algorithm = 'AES-GCM') {
  
  switch(algorithm) {
   case 'AES-CBC': {
+   if(iv.length !== 16) throw new Error('Invalid IV size for AES-CBC');
    plain = new Uint8Array(
     await crypto.subtle.decrypt(
      { name: 'AES-CBC', iv },
@@ -229,6 +226,7 @@ async function decryptData(cipher, password, salt, iv, algorithm = 'AES-GCM') {
   }
   
   case 'AES-CTR': {
+   if(iv.length !== 16) throw new Error('Invalid IV size for AES-CTR');
    plain = new Uint8Array(
     await crypto.subtle.decrypt(
      { name: 'AES-CTR', counter: iv, length: 64 },
@@ -242,6 +240,7 @@ async function decryptData(cipher, password, salt, iv, algorithm = 'AES-GCM') {
   case 'ChaCha20-Poly1305':
   case 'AES-GCM':
   default: {
+   if(iv.length !== 12) throw new Error('Invalid IV size for AES-GCM/ChaCha20');
    plain = new Uint8Array(
     await crypto.subtle.decrypt(
      { name: 'AES-GCM', iv },
